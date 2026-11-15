@@ -3,6 +3,13 @@
 All notable changes to Roots Auto Doctor are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.20.3] — 2026-11-15
+### Fixed
+- **Module faults table**: the "State" column (Intermittent/Permanent) and the "Severity" column (high/medium/low)
+  could show the exact same colour for different meanings — e.g. an intermittent, medium-severity fault showed
+  both columns in the same amber, with nothing to tell them apart at a glance. State now uses its own colours
+  (a soft grey for Intermittent, plain white for Permanent), never the red/amber/blue scale used for severity.
+
 ## [1.20.2] — 2026-11-12
 ### Fixed
 - **Customer report**: the colour of the vehicle health score now changes at the same limits as its text and as the

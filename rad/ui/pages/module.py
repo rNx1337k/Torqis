@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from ... import fault_advice, guided, journal, live_alerts, logview, recordings, technician_mode, vag_data, APP_NAME
-from ..style import BAD, CYAN, MUTED, OK, WARN, severity_color
+from ..style import BAD, CYAN, MUTED, OK, SOFT, TEXT, WARN, severity_color
 from ..widgets import ChartDialog
 from .common import FaultAdviceCard, lbl, btn, card, ask, GroupCard
 from ...i18n import tr, tr_data
@@ -687,7 +687,10 @@ class ModulePage(QWidget):
                 if c == 0:
                     it.setForeground(QBrush(QColor(CYAN)))
                 if c == 3:
-                    it.setForeground(QBrush(QColor(WARN if f["intermittent"] else BAD)))
+                    # cor própria, sem usar RED/WARN/BLUE: esta coluna diz se a avaria está activa agora
+                    # (Permanente) ou não (Intermitente) — não é a mesma coisa que a gravidade na coluna ao lado,
+                    # e antes podiam sair exactamente com a mesma cor (ex.: Intermitente = Gravidade média).
+                    it.setForeground(QBrush(QColor(SOFT if f["intermittent"] else TEXT)))
                 if c == 4:
                     it.setForeground(QBrush(QColor(severity_color(adv["severity"]))))
                 t.setItem(r, c, it)

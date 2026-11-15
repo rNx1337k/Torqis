@@ -1,5 +1,5 @@
 APP_NAME = "Roots Auto Doctor"
-VERSION = "1.20.2"
+VERSION = "1.20.3"
 
 
 def technician_mode(argv=None, environ=None):

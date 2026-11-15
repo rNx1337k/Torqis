@@ -6,6 +6,16 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.20.3
+
+### pt
+- Nas avarias de um controlador, o estado (Intermitente/Permanente) deixou de poder sair com a mesma cor que a
+  gravidade (alta/média/baixa) — já não se confundem na tabela.
+
+### en
+- In a module's faults, the state (Intermittent/Permanent) no longer shares a colour with the severity
+  (high/medium/low) — the two no longer look the same in the table.
+
 ## 1.20.2
 
 ### pt
