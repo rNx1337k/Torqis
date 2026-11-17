@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/vers%C3%A3o-1.20.3-4F8DFF?style=flat-square" alt="Versão">
+  <img src="https://img.shields.io/badge/vers%C3%A3o-1.21.0-4F8DFF?style=flat-square" alt="Versão">
   <a href="https://github.com/rNx1337k/RootsAutoDoctor/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/RootsAutoDoctor/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/estado-beta-E8343A?style=flat-square" alt="Estado: beta">
@@ -50,7 +50,7 @@
 - **Histórico de diagnósticos** pesquisável por matrícula, VIN ou cliente
 
 ### 💻 O programa
-- **Simulador incluído** para experimentar todas as funções sem carro
+- **Simulador incluído** para experimentar todas as funções sem carro, com vários carros à escolha
 - **Modo de ecrã grande** para ler o ecrã de dentro do carro
 - **Português e inglês**
 - **Funciona sem internet**, com **actualizações automáticas** quando há ligação

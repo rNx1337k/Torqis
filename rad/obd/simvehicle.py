@@ -30,7 +30,8 @@ def _enc_pid(pid, value):
            0x0F: lambda v: v + 40, 0x11: lambda v: v * 255 / 100, 0x2C: lambda v: v * 255 / 100,
            0x2F: lambda v: v * 255 / 100, 0x33: lambda v: v, 0x46: lambda v: v + 40,
            0x49: lambda v: v * 255 / 100, 0x5C: lambda v: v + 40, 0x1C: lambda v: v, 0x51: lambda v: v,
-           0x30: lambda v: v}
+           0x30: lambda v: v, 0x06: lambda v: v * 128 / 100 + 128, 0x07: lambda v: v * 128 / 100 + 128,
+           0x0E: lambda v: (v + 64) * 2}
     two = {0x0C: lambda v: v * 4, 0x10: lambda v: v * 100, 0x1F: lambda v: v, 0x21: lambda v: v,
            0x23: lambda v: v / 10, 0x31: lambda v: v, 0x42: lambda v: v * 1000, 0x4D: lambda v: v,
            0x4E: lambda v: v, 0x5E: lambda v: v * 20}
@@ -59,19 +60,27 @@ class SimEcu:
     def value(self, pid):
         t = time.monotonic() - self.vehicle.t0
         run = self.vehicle.engine_running
-        rpm = (820 + 60 * math.sin(t * 1.3)) if run else 0
+        petrol = self.vehicle.fuel == "petrol"
+        rpm = ((750 if petrol else 820) + 60 * math.sin(t * 1.3)) if run else 0
         vals = {
             0x04: 21 + 4 * math.sin(t) if run else 0, 0x05: min(90, 40 + t * 2), 0x0B: 101 if not run else 105,
             0x0C: rpm, 0x0D: 0, 0x0F: 24, 0x10: 6.8 + 0.6 * math.sin(t) if run else 0, 0x11: 12 if run else 0,
             0x1C: 6, 0x1F: int(t) if run else 0, 0x21: 132 if self.vehicle.mil else 0,
             0x23: 31000 + 900 * math.sin(t) if run else 0, 0x2C: 38 if run else 0, 0x30: 4, 0x31: 1520,
             0x33: 101, 0x42: 14.1 if run else 12.4, 0x46: 19, 0x49: 0, 0x4D: 95 if self.vehicle.mil else 0,
-            0x4E: 2210, 0x51: 4, 0x5C: min(95, 35 + t * 2), 0x5E: 0.9 if run else 0,
+            0x4E: 2210, 0x51: 1 if petrol else 4, 0x5C: min(95, 35 + t * 2), 0x5E: 0.9 if run else 0,
+            0x06: 2.3 * math.sin(t * 2.1) if run else 0, 0x07: self.vehicle.ltft if run else 0,
+            0x0E: 12 + 3 * math.sin(t) if run else 0,
         }
         return vals[pid]
 
     def monitor_bytes(self):
         a = (0x80 if self.vehicle.mil and self.stored else 0) | min(len(self.stored), 0x7F)
+        if self.vehicle.fuel == "petrol":
+            b = 0x07                                       # ignição por faísca; 3 monitores contínuos
+            c = 0x01 | 0x04 | 0x20 | 0x40 | 0x80           # catalisador, EVAP, sonda lambda, aquecimento, EGR
+            d = c if self.vehicle.monitors_reset else 0x04  # EVAP ainda por completar
+            return bytes([a, b, c, d])
         b = 0x08 | 0x07                                    # diesel; 3 monitores contínuos suportados
         c = 0x01 | 0x02 | 0x08 | 0x20 | 0x40 | 0x80        # NMHC, NOx, turbo, sensor de escape, DPF, EGR
         d = c if self.vehicle.monitors_reset else (0x40 | 0x02)
@@ -187,23 +196,37 @@ class SimEcu:
 
 
 class SimVehicle:
-    """Carro fictício com duas centralinas OBD-II em CAN 11 bits / 500 kbit/s: motor (7E0/7E8, também UDS)
-    e caixa (7E1/7E9)."""
+    """Carro fictício com centralinas OBD-II: motor (7E0/7E8, também UDS) e, se tiver, caixa automática
+    (7E1/7E9). Por omissão é um diesel com 3 avarias; fuel="petrol" dá um gasolina (PIDs de mistura e avanço,
+    monitores de catalisador e EVAP). O barramento (CAN, linha K, J1850) é o do adaptador simulado."""
 
-    def __init__(self, ignition=True, engine_running=False):
+    DIESEL_PIDS = {0x01, 0x04, 0x05, 0x0B, 0x0C, 0x0D, 0x0F, 0x10, 0x11, 0x1C, 0x1F, 0x21, 0x23, 0x2C,
+                   0x30, 0x31, 0x33, 0x42, 0x46, 0x49, 0x4D, 0x4E, 0x51, 0x5C, 0x5E}
+    PETROL_PIDS = {0x01, 0x04, 0x05, 0x06, 0x07, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x1C, 0x1F, 0x21,
+                   0x30, 0x31, 0x33, 0x42, 0x46, 0x49, 0x4D, 0x4E, 0x51}
+
+    def __init__(self, ignition=True, engine_running=False, fuel="diesel", stored=None, pending=None,
+                 permanent=None, tcm=True, ltft=3.1, uds=True):
         self.t0 = time.monotonic()
         self.ignition = ignition
         self.engine_running = engine_running
-        self.mil = True
+        self.fuel = fuel
+        self.ltft = ltft                                   # correcção longa de mistura (gasolina), %
+        diesel = fuel == "diesel"
+        stored = list(["P0401", "P2002"] if stored is None and diesel else (stored or []))
+        pending = list(["P0299"] if pending is None and diesel else (pending or []))
+        permanent = list(["P2002"] if permanent is None and diesel else (permanent or []))
+        self.mil = bool(stored)
         self.monitors_reset = False
         self.battery = 12.4
-        engine_pids = {0x01, 0x04, 0x05, 0x0B, 0x0C, 0x0D, 0x0F, 0x10, 0x11, 0x1C, 0x1F, 0x21, 0x23, 0x2C,
-                       0x30, 0x31, 0x33, 0x42, 0x46, 0x49, 0x4D, 0x4E, 0x51, 0x5C, 0x5E}
-        self.engine = SimEcu(self, 0x7E0, "ECM-EngineControl", engine_pids,
-                             stored=["P0401", "P2002"], pending=["P0299"], permanent=["P2002"], uds=True)
-        self.engine.freeze = {"dtc": "P0401", "values": {0x04: 47.1, 0x05: 86, 0x0C: 1850, 0x0D: 62, 0x2C: 12.9}}
-        self.tcm = SimEcu(self, 0x7E1, "TCM-TransmisControl", {0x01, 0x0D, 0x1C})
-        self.ecus = [self.engine, self.tcm]
+        self.engine = SimEcu(self, 0x7E0, "ECM-EngineControl", self.DIESEL_PIDS if diesel else self.PETROL_PIDS,
+                             stored=stored, pending=pending, permanent=permanent, uds=uds)
+        if stored:
+            ff = ({0x04: 47.1, 0x05: 86, 0x0C: 1850, 0x0D: 62, 0x2C: 12.9} if diesel
+                  else {0x04: 31.4, 0x05: 88, 0x0C: 2240, 0x0D: 74, 0x07: 18.0})
+            self.engine.freeze = {"dtc": stored[0], "values": ff}
+        self.tcm = SimEcu(self, 0x7E1, "TCM-TransmisControl", {0x01, 0x0D, 0x1C}) if tcm else None
+        self.ecus = [self.engine] + ([self.tcm] if tcm else [])
 
     def by_request_id(self, req_id):
         return next((e for e in self.ecus if e.req_id == req_id), None)

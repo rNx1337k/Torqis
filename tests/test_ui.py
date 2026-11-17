@@ -61,9 +61,10 @@ def test_full_flow_with_simulator():
         w._home_go("autoscan_start")
         assert w.scan.running and w.scan.map.scanning
         assert _wait(app, lambda: not w.scan.running, 30), "Auto-Scan não terminou"
-        assert sorted(i["address"] for i in w.scan.items) == [0x01, 0x03, 0x17]
-        assert set(w.scan.map.items) == {0x01, 0x03, 0x17} and not w.scan.map.scanning
-        assert w.scan.tiles.count() == 3 and w.scan.tree.topLevelItemCount() == 3
+        golf = [0x01, 0x02, 0x03, 0x08, 0x15, 0x17, 0x46, 0x56]          # os controladores do Golf IV simulado
+        assert sorted(i["address"] for i in w.scan.items) == golf
+        assert set(w.scan.map.items) == set(golf) and not w.scan.map.scanning
+        assert w.scan.tiles.count() == len(golf) and w.scan.tree.topLevelItemCount() == len(golf)
         assert w.scan.ring.score is not None and w.scan.ring.score < 100
         assert "alta" in w.scan.severity_lbl.text()                      # ABS: sensor de velocidade
         # comparação automática com a visita anterior
@@ -137,6 +138,28 @@ def test_full_flow_with_simulator():
     assert os.path.exists(os.environ["RAD_SETTINGS_INI"])
 
 
+def test_simulator_car_choice_in_options():
+    app, w = _window()
+    from rad import simcars
+    try:
+        o = w.options
+        assert o._form.isRowVisible(o.sim_car)                      # porta de simulação: a escolha aparece
+        o.sim_car.setCurrentIndex(o.sim_car.findData("golf5_can"))
+        assert "CAN" in o.sim_car_desc.text()
+        o._save()
+        app.processEvents()
+        assert os.environ.get(simcars.ENV) == "golf5_can"
+        assert w.settings.value("simulator/car") == "golf5_can"
+        w._home_go("autoscan_start")                                # Golf V: o cabo VAG não encontra nada
+        assert _wait(app, lambda: not w.scan.running, 60), "Auto-Scan não terminou"
+        assert not any(i.get("status") == "ok" for i in w.scan.items)
+    finally:
+        o.sim_car.setCurrentIndex(0)
+        o._save()
+        w.close()
+    assert simcars.ENV not in os.environ
+
+
 def test_clear_all_hides_the_advice_of_the_cleared_fault():
     app, w = _window()
     import rad.ui.pages.autoscan as autoscan_page
@@ -151,7 +174,9 @@ def test_clear_all_hides_the_advice_of_the_cleared_fault():
         assert not w.scan.advice.isHidden()
         w.scan._clear_all()
         assert _wait(app, lambda: w.scan.clear_all_btn.isEnabled(), 30), "não acabou de apagar"
-        assert sum(len(i.get("faults", [])) for i in w.scan.items) == 0
+        # como num carro: as avarias presentes voltam logo, só as intermitentes ficam apagadas
+        left = sorted(f["vag"] for i in w.scan.items for f in i.get("faults", []))
+        assert left == ["00283", "01247"], left
         assert w.scan.advice.isHidden(), "o assistente continuou a mostrar uma avaria já apagada"
     finally:
         autoscan_page.ask = ask

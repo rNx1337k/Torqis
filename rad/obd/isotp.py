@@ -230,7 +230,7 @@ class IsoTpLink:
                 i += 1
                 n += 1
 
-    def request(self, payload, target=None, timeout=None):
+    def request(self, payload, target=None, timeout=None, retry_no_data=False):
         payload = bytes(payload)
         if target is None:
             if len(payload) > 7:

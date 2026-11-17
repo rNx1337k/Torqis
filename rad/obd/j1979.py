@@ -46,7 +46,7 @@ class Obd2:
             if base and not any(base in b for b in bases_by_ecu.values()):
                 break
             try:
-                resp = self.link.request(bytes([0x01, base]))
+                resp = self.link.request(bytes([0x01, base]), retry_no_data=True)
             except NoResponse:
                 if base == 0:
                     raise
@@ -116,7 +116,7 @@ class Obd2:
         for i in range(0, len(todo), chunk):
             part = todo[i:i + chunk]
             try:
-                resp = self.link.request(bytes([0x01, *part]))
+                resp = self.link.request(bytes([0x01, *part]), retry_no_data=True)
             except NoResponse:
                 for pid in part:
                     out[pid] = {"pid": pid, "name": pidmod.name(pid), "error": tr("sem resposta da centralina")}
@@ -173,7 +173,7 @@ class Obd2:
         centralinas que responderam (lista vazia = respondeu sem avarias). NotSupported se ninguém suporta."""
         service = {"stored": 0x03, "pending": 0x07, "permanent": 0x0A}[kind]
         try:
-            resp = self.link.request(bytes([service]))
+            resp = self.link.request(bytes([service]), retry_no_data=kind == "stored")
         except NoResponse:
             if kind == "stored":
                 raise

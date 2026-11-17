@@ -77,8 +77,8 @@ class AdapterNotResponding(InterfaceError):
 
 def _open_serial(port, baud):
     if port == ELM_SIM_PORT:
-        from .sim_elm import SimElm327Serial
-        return SimElm327Serial()
+        from ..simcars import elm_serial
+        return elm_serial()                    # o carro escolhido em Opções → Carro do simulador
     if capture.is_replay_port(port):
         try:
             return capture.ReplaySerial.open(capture.replay_path(port), "elm")
@@ -328,6 +328,10 @@ class Elm327Link:
                     self.log(f"ELM327: {k} [{cmd}]")
                     raise exc(text)
 
+    @classmethod
+    def _only_no_data(cls, lines):
+        return any(l.upper().strip() == "NO DATA" for l in lines) and not any(cls._looks_like_data(l) for l in lines)
+
     @staticmethod
     def _looks_like_data(line):
         t = line.replace(" ", "")
@@ -339,15 +343,24 @@ class Elm327Link:
             self._at(f"ATSH{want}")
             self.header = want
 
-    def request(self, payload, target=None, timeout=None):
+    def request(self, payload, target=None, timeout=None, retry_no_data=False):
+        """retry_no_data: pergunta outra vez depois de um "NO DATA" — para os pedidos a que o carro tem de
+        responder (PIDs suportados, valores, avarias), onde uma resposta perdida não pode passar por "não
+        suportado". Nos pedidos opcionais (imagem congelada, modo 09) "NO DATA" é uma resposta normal."""
         if self.proto is None:
             raise ProtocolError(tr("Ainda não há protocolo com o veículo (ligue primeiro)"))
         if target is not None and not self.is_can:
             raise NotSupported(tr("Pedidos dirigidos a uma centralina só estão disponíveis em CAN nesta versão"))
         self._set_header(target)
         cmd = bytes(payload).hex().upper()
-        for _attempt in range(4):
+        for _attempt in range(5):
             lines = self._command(cmd, timeout=timeout or self.timeout)
+            if retry_no_data and self._only_no_data(lines):
+                # uma resposta perdida (ruído, adaptador barato) não pode passar por "não suportado":
+                # pergunta-se outra vez antes de desistir
+                retry_no_data = False
+                self.log(f"ELM327: NO DATA a {cmd} — a repetir uma vez")
+                continue
             self._raise_errors(lines, cmd)
             resp = self._parse(lines)
             pending = [r for r in resp if r.negative and r.nrc == 0x78]

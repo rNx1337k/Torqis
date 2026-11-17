@@ -23,7 +23,7 @@ def test_kwp2000_over_bridge():
         assert [f["vag"] for f in s.read_faults()] == ["00283"]
         assert s.read_group(1)["fields"][0]["unit"] == "km/h"
         s.keep_alive()
-        assert s.clear_faults() == []
+        assert [f["vag"] for f in s.clear_faults()] == ["00283"]       # avaria presente: volta logo
         s.disconnect()
     finally:
         link.close()

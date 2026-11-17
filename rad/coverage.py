@@ -108,7 +108,7 @@ MATRIX = [
                     "congelada, dados actuais só dos PIDs declarados pela centralina",
         "limits": "Sem validação com um ELM327 físico nem num carro. Clones baratos podem não implementar todos os "
                   "comandos (os opcionais são ignorados e registados).",
-        "tests": ["test_obd", "test_obd_worker"],
+        "tests": ["test_obd", "test_obd_worker", "test_obd_buses"],
     },
     {
         "interface": "Adaptador ELM327 (USB / Bluetooth, porta COM)",
@@ -123,11 +123,13 @@ MATRIX = [
     {
         "interface": "Adaptador ELM327 (USB / Bluetooth, porta COM)",
         "protocol": "OBD-II em linha K (ISO 9141-2, ISO 14230-4) e SAE J1850",
-        "detect": SIM, "init": IMPL, "ecu": IMPL, "interpret": IMPL,
+        "detect": SIM, "init": SIM, "ecu": SIM, "interpret": SIM,
         "services": "Os mesmos serviços OBD-II (o adaptador escolhe o protocolo)",
-        "limits": "Interpretação das linhas com cabeçalho e checksum testada com linhas sintéticas; o simulador só "
-                  "imita CAN. Centralinas VAG antigas que só falam KW1281 não respondem por OBD-II.",
-        "tests": ["test_obd"],
+        "limits": "Testado com o ELM327 simulado em ISO 9141-2, ISO 14230-4 e J1850 PWM/VPW: cabeçalhos, checksum e "
+                  "CRC, avarias em várias mensagens, modo 09 em blocos numerados e os tempos de um ELM real. Sem "
+                  "validação num carro nem num adaptador físico. Centralinas VAG antigas que só falam KW1281 não "
+                  "respondem por OBD-II.",
+        "tests": ["test_obd", "test_obd_buses", "test_simcars"],
     },
     {
         "interface": "Adaptador ELM327 / OBDLink em modo CAN cru (ATCAF0)",

@@ -198,6 +198,7 @@ class SimBackend:
         sys.path.insert(0, root)
         from rad import simulator
         self.sim = simulator
+        self.car = simulator.SimSerial()      # um carro só: o que se apaga ou grava fica para a próxima ligação
         self.ecu = None
         self.rx = []
 
@@ -205,10 +206,13 @@ class SimBackend:
         pass
 
     def five_baud_init(self, address):
-        factory = self.sim.SimSerial().factories.get(address & 0x7F)
+        self.car._remember()
+        self.car.ecu = None
+        factory = self.car.factories.get(address & 0x7F)
         if factory is None:
             raise RuntimeError("FIVE_BAUD_INIT falhou (erro J2534 9): sem resposta")
         self.ecu = factory()
+        self.car.ecu, self.car.ecu_addr = self.ecu, address & 0x7F
         if not isinstance(self.ecu, self.sim.SimKWP2000):
             return list(self.ecu.kb)          # KW1281: o cliente recusa
         self.ecu.on_byte((~self.ecu.kb[1]) & 0xFF, [])
@@ -219,8 +223,18 @@ class SimBackend:
         out = []
         for b in frame:
             self.ecu.on_byte(b, out)
-        if out:
-            self.rx.append(out[:-1])           # o driver retira o checksum
+        # cada mensagem da centralina chega em separado (ex.: 7F 14 78 «pendente» e depois 54), sem o checksum,
+        # que o driver retira
+        while out:
+            fmt = out[0]
+            hl = 3 if fmt & 0xC0 else 1
+            n = fmt & 0x3F
+            if n == 0:
+                n = out[hl]
+                hl += 1
+            size = hl + n + 1
+            self.rx.append(out[:size - 1])
+            out = out[size:]
 
     def read(self, timeout_ms):
         return self.rx.pop(0) if self.rx else None

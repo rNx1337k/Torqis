@@ -3,6 +3,55 @@
 All notable changes to Roots Auto Doctor are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.21.0] — 2026-11-17
+### Added
+- **Simulator car** (Options → Simulator car, shown with a simulator port selected; `rad/simcars.py`): Automatic
+  (as before), VW Golf IV 1.9 TDI, the same Golf IV repaired (no faults), VW Golf V 2.0 TDI (CAN only), a European
+  petrol car with OBD over ISO 9141-2, one over ISO 14230-4 KWP2000 and an American petrol car over SAE J1850 PWM.
+  Each car shows the same thing on all three simulators (VAG cable, VAG over CAN, OBD adapter): a CAN-only car has
+  nothing on the VAG K-line, a Golf IV has no CAN and no standard OBD — so those "nothing answers" paths are tested
+  too. The choice reaches the J2534/D2XX bridges (another process) through `RAD_SIM_CAR`.
+- **OBD adapter simulator off CAN** (`rad/obd/sim_elm.py`, `bus=`): ISO 9141-2, ISO 14230-4 (5-baud and fast init)
+  and J1850 PWM/VPW, with real headers, checksum and J1850 CRC-8, faults 3 per message with 00 00 padding, mode 09 in
+  numbered 4-byte blocks (VIN right-aligned), no mode 0A/UDS off CAN, "BUS INIT: ...OK/ERROR".
+  `SimVehicle` gains a petrol engine (fuel trims, ignition advance, catalyst/EVAP monitors), configurable faults and
+  an optional gearbox.
+- **Real adapter timing** (`timing="real"`): ~40 ms per request on CAN, ~150 ms on the K-line and a ~4 s 5-baud
+  search; the program's own simulator port uses it.
+- **Cheap clone adapter** (`clone=True`, also an option): "ELM327 v2.1", optional AT commands answered "?", ATE0
+  ignored (echo stays on) and, with `drop_every`, lost answers ("NO DATA"; 1 in 15 when chosen in Options).
+- **Response pending**: the simulated ABS (K-line) and the Golf V engine (CAN) answer a fault clear with
+  7F 14 78 before 54, as real ECUs do.
+- Tests: `tests/test_obd_buses.py`, `tests/test_simcars.py`, `test_slow_controllers_and_response_pending_with_real_timing`
+  (30 ms per byte on a COM port with real timing), `test_simulator_car_choice_in_options`.
+
+### Fixed
+- **OBD adapter: one lost answer no longer looks like "not supported"**. Found with the new lossy-clone simulator:
+  a single "NO DATA" during the first connection made the program stop asking for the next block of supported
+  PIDs (silently losing live values), and during a fault read it failed the whole read. `Elm327Link.request` now
+  asks once more after a "NO DATA" before giving up (`test_clone_that_loses_answers_is_asked_again`).
+- **Simulated J2534 interface**: two messages from the ECU in a row (e.g. "pending" and then the answer) were
+  delivered as one frame, which a real PassThru never does; each message now arrives on its own. The bridge also
+  keeps one simulated car per session, so cleared faults stay cleared between connections.
+
+### Changed
+- **Simulator behaves more like a real car** (`rad/simulator.py`), so the tests catch more of what happens in a
+  workshop:
+  - **A whole Golf IV**: besides engine, ABS and instruments, the gearbox (02), Climatronic (08), airbags (15),
+    comfort module (46) and radio (56) answer, with plausible (fictitious) part numbers and a mix of 9600 and
+    10400 baud. The Auto-Scan now finds 8 modules and 5 faults, including the classic intermittent airbag squib
+    (00588) and driver door module (01331).
+  - **Present faults come back after clearing**: faults marked `permanent` in a profile (N75 open circuit 01247,
+    ABS sensor 00283) are stored again straight away; only intermittent ones stay cleared. Works for KW1281 and
+    KWP2000.
+  - **The ECUs remember**: cleared faults, coding and adaptation are kept by `SimSerial` (K-line) and
+    `SimVagCanBus` (CAN TP 2.0) for the next connection, instead of every connection starting from the profile again.
+  - **Cold start**: the engine starts at ~20 °C and warms up to ~90 °C in a few minutes (shared `SimCar` clock),
+    with idle at ~1150 rpm when cold, dropping to 900 when warm.
+- Tests updated to the realistic behaviour; new `test_golf_iv_answers_with_all_its_modules`,
+  `test_engine_warms_up_and_idle_drops`, `test_cleared_faults_and_coding_stay_in_the_ecu_memory` and
+  `test_can_ecus_remember_cleared_faults_between_channels`.
+
 ## [1.20.3] — 2026-11-15
 ### Fixed
 - **Module faults table**: the "State" column (Intermittent/Permanent) and the "Severity" column (high/medium/low)

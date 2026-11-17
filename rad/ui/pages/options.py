@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit, QScrollArea, QVBoxLayout, QWidget,
 )
 
-from ... import APP_NAME, VERSION, i18n, licensing, technician_mode, updates
+from ... import APP_NAME, VERSION, i18n, licensing, simcars, technician_mode, updates
 from ...kline import list_serial_ports
 from ...settings import ui_scale
 from ..style import BAD, OK, WARN
@@ -91,6 +91,19 @@ class OptionsPage(QWidget):
         prow.addWidget(btn(tr("Actualizar"), None, self.refresh_ports))
         f.addRow(lbl(tr("Porta do cabo"), "muted"), prow)
         self.port.currentIndexChanged.connect(self._port_changed)
+        # simulador: que carro imitar (só aparece com uma porta de simulação escolhida)
+        self.sim_car = QComboBox()
+        for key, name, desc in simcars.choices():
+            self.sim_car.addItem(name, key)
+            self.sim_car.setItemData(self.sim_car.count() - 1, desc, Qt.ToolTipRole)
+        self.sim_car.currentIndexChanged.connect(self._sim_car_changed)
+        self.sim_car_lbl = lbl(tr("Carro do simulador"), "muted")
+        f.addRow(self.sim_car_lbl, self.sim_car)
+        self.sim_car_desc = lbl("", "muted", wrap=True)
+        f.addRow(QLabel(), self.sim_car_desc)
+        self.sim_clone = QCheckBox(tr("Adaptador OBD simulado como um clone barato (lento, sem alguns comandos, "
+                                      "perde respostas)"))
+        f.addRow(QLabel(), self.sim_clone)
         self.elm_proto = QComboBox()
         for t, d in [(tr("Automático (o adaptador procura)"), "0"), (tr("ISO 15765-4 CAN 11 bits 500k"), "6"),
                      (tr("ISO 15765-4 CAN 29 bits 500k"), "7"), (tr("ISO 15765-4 CAN 11 bits 250k"), "8"),
@@ -306,8 +319,21 @@ class OptionsPage(QWidget):
         for row in (self.baud, self.echo, self._hex_row):
             form.setRowVisible(row, not elm and self.technical)
 
+    def _sim_car_changed(self, *_):
+        self.sim_car_desc.setText(self.sim_car.currentData(Qt.ToolTipRole) or "")
+
+    def _show_sim_rows(self):
+        from ...kline import is_simulated_port
+        form = getattr(self, "_form", None)
+        if form is None:
+            return
+        sim = is_simulated_port(self.port.currentData() or "")
+        for w in (self.sim_car, self.sim_car_desc, self.sim_clone):
+            form.setRowVisible(w, sim)
+
     def _port_changed(self, *_):
         from ...kline import is_elm_sim_port
+        self._show_sim_rows()
         if is_elm_sim_port(self.port.currentData() or ""):
             i = self.adapter.findData("elm327")
             if i >= 0 and self.adapter.currentIndex() != i:
@@ -320,6 +346,11 @@ class OptionsPage(QWidget):
             if i >= 0:
                 combo.setCurrentIndex(i)
         self.raw.setChecked(self.settings.value("raw_log", "false") == "true")
+        self.sim_car.setCurrentIndex(max(0, self.sim_car.findData(str(self.settings.value("simulator/car",
+                                                                                            simcars.AUTO)))))
+        self._sim_car_changed()
+        self.sim_clone.setChecked(self.settings.value("simulator/clone", "false") == "true")
+        self._show_sim_rows()
         self.scale.setCurrentIndex(max(0, self.scale.findData(ui_scale(self.settings))))
         lang = str(self.settings.value("ui/language", i18n.DEFAULT))
         self.language.setCurrentIndex(max(0, self.language.findData(lang if lang in i18n.LANGUAGES else
@@ -379,7 +410,8 @@ class OptionsPage(QWidget):
     def config(self):
         return {"port": self.port.currentData() or "", "baud": self.baud.currentData(),
                 "echo": self.echo.currentData(), "raw_log": self.raw.isChecked(),
-                "adapter": self.adapter.currentData() or "kline", "elm_protocol": self.elm_proto.currentData() or "0"}
+                "adapter": self.adapter.currentData() or "kline", "elm_protocol": self.elm_proto.currentData() or "0",
+                "sim_car": self.sim_car.currentData() or simcars.AUTO, "sim_clone": self.sim_clone.isChecked()}
 
     def _save(self):
         c = self.config()
@@ -389,6 +421,8 @@ class OptionsPage(QWidget):
         self.settings.setValue("raw_log", "true" if c["raw_log"] else "false")
         self.settings.setValue("adapter", c["adapter"])
         self.settings.setValue("elm_protocol", c["elm_protocol"])
+        self.settings.setValue("simulator/car", c["sim_car"])
+        self.settings.setValue("simulator/clone", "true" if c["sim_clone"] else "false")
         for k, val in self.workshop().items():
             self.settings.setValue(f"workshop/{k}", val)
         restart = False

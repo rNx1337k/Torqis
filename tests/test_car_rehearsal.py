@@ -263,6 +263,31 @@ def test_strict_controller_drops_the_session_without_the_block_pause():
     _on_a_car(run)
 
 
+def test_slow_controllers_and_response_pending_with_real_timing():
+    """Centralinas lentas (30 ms por byte, como alguns airbags a 9600) e o ABS que responde «pendente» (7F 14 78)
+    antes de confirmar que apagou: o programa tem de esperar, sem desistir nem perder a sessão."""
+    def run(fake):
+        old = CarLine.ECU_DELAY
+        CarLine.ECU_DELAY = 0.030
+        kl = KLine(PORT)
+        kl.open()
+        try:
+            s = ECUSession(kl)
+            info = s.connect(0x15)
+            assert info["part"] == "1C0909605F" and info["baud"] == 9600
+            assert [f["vag"] for f in s.read_faults()] == ["00588"]
+            s.disconnect()
+            s = ECUSession(kl)
+            s.connect(0x03)
+            assert [f["vag"] for f in s.clear_faults()] == ["00283"]
+            s.disconnect()
+        finally:
+            CarLine.ECU_DELAY = old
+            kl.close()
+        assert fake.lines[0].timed_out == 0
+    _on_a_car(run)
+
+
 def test_on_car_validation_dress_rehearsal_over_a_com_port():
     from rad.worker import Worker
 

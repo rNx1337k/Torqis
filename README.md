@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.20.3-4F8DFF?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.21.0-4F8DFF?style=flat-square" alt="Version">
   <a href="https://github.com/rNx1337k/RootsAutoDoctor/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/RootsAutoDoctor/actions/workflows/ci.yml/badge.svg" alt="Tests"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/status-beta-E8343A?style=flat-square" alt="Status: beta">
@@ -49,7 +49,7 @@
 - **Diagnostic history** searchable by number plate, VIN or customer
 
 ### 💻 The program
-- **Built-in simulator** to try every function without a car
+- **Built-in simulator** to try every function without a car, with several cars to choose from
 - **Large display mode** to read the screen from inside the car
 - **Portuguese and English**
 - **Works offline**, with **automatic updates** when there is a connection

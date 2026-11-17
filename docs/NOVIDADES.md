@@ -6,6 +6,22 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.21.0
+
+### pt
+- O simulador parece-se mais com um carro real: responde um Golf IV completo (caixa, ar condicionado, airbags,
+  conforto e rádio, além de motor, ABS e painel), as avarias presentes voltam depois de apagar, o que se apaga ou
+  codifica fica guardado, e o motor arranca frio e aquece.
+- Em Opções pode escolher o carro do simulador: Golf IV, Golf IV sem avarias, Golf V, e carros a gasolina de
+  outras marcas com OBD por linha K, KWP2000 e J1850. Também pode simular um adaptador OBD barato.
+
+### en
+- The simulator is closer to a real car: a whole Golf IV answers (gearbox, air conditioning, airbags, comfort and
+  radio, besides engine, ABS and instruments), present faults come back after clearing, what you clear or code
+  stays stored, and the engine starts cold and warms up.
+- In Options you can choose the simulator car: Golf IV, Golf IV without faults, Golf V, and petrol cars of other
+  makes with OBD over the K-line, KWP2000 and J1850. You can also simulate a cheap OBD adapter.
+
 ## 1.20.3
 
 ### pt

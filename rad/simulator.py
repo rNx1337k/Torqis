@@ -1,14 +1,43 @@
 """Simulador de controladores VAG ao nível do byte, para testar o programa sem carro.
 
-Simula uma porta série com eco da linha K e três controladores:
+Simula uma porta série com eco da linha K e os controladores de um Golf IV 1.9 TDI:
   0x01 Motor 1.9 TDI EDC15  — KW1281 a 10400 baud
-  0x17 Painel instrumentos  — KW1281 a 9600 baud (testa a auto-detecção de velocidade)
+  0x02 Caixa automática     — KW1281 a 9600 baud
   0x03 ABS                  — KWP2000 a 10400 baud
+  0x08 Climatronic          — KW1281 a 9600 baud
+  0x15 Airbags              — KW1281 a 9600 baud
+  0x17 Painel instrumentos  — KW1281 a 9600 baud (testa a auto-detecção de velocidade)
+  0x46 Módulo de conforto   — KW1281 a 9600 baud
+  0x56 Rádio                — KW1281 a 10400 baud
+
+Como num carro: as avarias presentes ("permanent" no perfil) voltam logo depois de apagadas, só as
+intermitentes desaparecem; o motor arranca frio e aquece (líquido de ~20 °C até ~90 °C em poucos minutos, com
+o ralenti mais alto enquanto está frio). Os números de peça são plausíveis mas fictícios.
 """
 import collections
 import math
+import os
 import random
 import time
+
+
+class SimCar:
+    """Estado partilhado por todos os controladores do carro simulado (o relógio desde que a ignição ligou).
+    Cada controlador é criado de novo a cada ligação; o carro não — o motor continua a aquecer."""
+    WARM_C = 90.0          # temperatura de funcionamento (termóstato aberto)
+    TAU_S = 100.0          # constante de tempo do aquecimento (~85 °C ao fim de 5 min)
+
+    def __init__(self, coolant_start=20.0):
+        self.t0 = time.monotonic()
+        self.coolant_start = coolant_start
+
+    def coolant(self):
+        t = time.monotonic() - self.t0
+        return self.WARM_C - (self.WARM_C - self.coolant_start) * math.exp(-t / self.TAU_S)
+
+    def cold(self):
+        """0 com o motor quente, 1 no arranque a frio a 20 °C."""
+        return max(0.0, min(1.0, (self.WARM_C - self.coolant()) / (self.WARM_C - 20.0)))
 
 
 
@@ -49,8 +78,9 @@ def _ascii(s):
 class SimKW1281:
     kb = (0x01, 0x8A)
 
-    def __init__(self, profile):
+    def __init__(self, profile, car=None):
         self.p = profile
+        self.car = car or SimCar(profile.get("coolant_start", 20.0))
         self.baud = profile["baud"]
         self.state = "await_kb2"
         self.counter = 0
@@ -66,6 +96,10 @@ class SimKW1281:
         self.outputs = list(profile.get("outputs", []))
         self.out_i = 0
         self.t0 = time.monotonic()
+
+    def snapshot(self):
+        """O que a centralina guarda na memória e volta a ter na próxima ligação."""
+        return {"faults": list(self.faults), "coding": self.coding, "wsc": self.wsc, "adapt": dict(self.adapt)}
 
     # --------------------------------------------------------- blocos
     def ident_blocks(self):
@@ -118,10 +152,12 @@ class SimKW1281:
 
     # --------------------------------------------------------- pedidos
     def engine_state(self):
-        """Ciclo de demonstração: 12 s ao ralenti, depois uma aceleração de 6 s (1500→3800 rpm)."""
+        """Ciclo de demonstração: 12 s ao ralenti, depois uma aceleração de 6 s (1500→3800 rpm).
+        A frio o ralenti sobe até ~1150 rpm e baixa para 900 à medida que o motor aquece."""
         t = (time.monotonic() - self.t0) % 18
         if t < 12:
-            return 900 + 25 * math.sin(time.monotonic() * 1.7) + random.uniform(-20, 20), 0.0
+            idle = 900 + 250 * self.car.cold()
+            return idle + 25 * math.sin(time.monotonic() * 1.7) + random.uniform(-20, 20), 0.0
         x = (t - 12) / 6
         return 1500 + 2300 * x + random.uniform(-30, 30), min(1.0, x * 3)
 
@@ -138,7 +174,7 @@ class SimKW1281:
             return [1, 200, b_rpm,
                     39, 0xFF, clamp(iq * 256 / 255),
                     21, 0xC8, clamp((1.45 + 0.6 * load + wob(0.02)) * 5),
-                    5, 10, clamp(90 + 100)]
+                    5, 10, clamp(self.car.coolant() + 100)]         # fórmula 5: (b-100)*a/10 °C
         if g == 3:
             spec = 300 + 520 * load
             act = spec * self.p.get("maf_ratio", 0.97) + wob(8)
@@ -242,7 +278,7 @@ class SimKW1281:
 class SimKWP2000:
     """Centralina KWP2000 da VAG (formato EDC16 / ABS Mk60): identificação com codificação e código de oficina,
     codificação 3B 9A, acesso de segurança 27 03/04 e adaptação pelas rotinas 31 B8…BB (ver rad/protocols/kwp2000.py).
-    Como o controlador KW1281 simulado, o que for gravado dura até fechar a ligação."""
+    Como no controlador KW1281 simulado, o que for gravado fica na memória do SimSerial para as ligações seguintes."""
     kb = (0xEF, 0x8F)
 
     def __init__(self, address, profile):
@@ -257,6 +293,9 @@ class SimKWP2000:
         self.adapt_on = False
         self.channel = None
         self.test_value = None
+
+    def snapshot(self):
+        return {"faults": list(self.faults), "coding": self.p.get("coding", 0), "adapt": dict(self.p["adapt"])}
 
     def on_byte(self, b, out):
         if self.state == "await_kb2":
@@ -280,11 +319,20 @@ class SimKWP2000:
         frame, self.buf = self.buf, []
         if sum(frame[:-1]) & 0xFF != frame[-1]:
             return
-        resp = self.handle(frame[hl:hl + n])
-        if resp is not None:
+        for resp in self.responses(frame[hl:hl + n]):
             msg = [0x80 | len(resp), 0xF1, self.address] + resp
             msg.append(sum(msg) & 0xFF)
             out.extend(msg)
+
+    def responses(self, payload):
+        """Lista de mensagens para um pedido. Como nas centralinas reais, um pedido demorado (apagar avarias)
+        pode vir primeiro com «resposta pendente» (7F <sid> 78) e só depois com a resposta final."""
+        resp = self.handle(payload)
+        if resp is None:
+            return []
+        if payload and payload[0] in self.p.get("pending", ()) and resp[0] != 0x7F:
+            return [[0x7F, payload[0], 0x78], resp]
+        return [resp]
 
     def handle(self, p):
         sid = p[0]
@@ -329,7 +377,7 @@ class SimKWP2000:
                 flat += [(code >> 8) & 0xFF, code & 0xFF, st]
             return [0x58, len(self.faults)] + flat
         if sid == 0x14:
-            self.faults = []
+            self.faults = [f for f in self.faults if f[0] in self.p.get("permanent", [])]
             return [0x54, 0xFF, 0x00]
         if sid == 0x21:
             g = p[1]
@@ -420,8 +468,59 @@ ENGINE = {
     "coding": 2,
     "wsc": 12345,
     "faults": [(532, 0x87), (1247, 0x1E)],
+    "permanent": [1247],             # N75 com o circuito aberto: volta logo depois de apagar
     "adapt": {0: 0, 1: 128, 3: 0},
     "outputs": [1259, 1265, 1247, 626],
+}
+GEARBOX = {
+    "baud": 9600,
+    "part": "01M927733JT",
+    "component": "AG4 Getriebe 01M2443",
+    "coding": 1,
+    "wsc": 12345,
+    "faults": [],
+    "adapt": {},
+    "outputs": [],
+}
+CLIMATRONIC = {
+    "baud": 9600,
+    "part": "1J0820043B",
+    "component": "CLIMATRONIC     2501",
+    "coding": 140,
+    "wsc": 12345,
+    "faults": [],
+    "adapt": {},
+    "outputs": [],
+}
+AIRBAG = {
+    "baud": 9600,
+    "part": "1C0909605F",
+    "component": "05 AIRBAG VW61  0202",
+    "coding": 12878,
+    "wsc": 12345,
+    "faults": [(588, 0x80 | 32)],    # N95 resistência demasiado alta, intermitente (fita do volante)
+    "adapt": {},
+    "outputs": [],
+}
+COMFORT = {
+    "baud": 9600,
+    "part": "1C0959799B",
+    "component": "Komfortgeraet   0001",
+    "coding": 4097,
+    "wsc": 12345,
+    "faults": [(1331, 0x80 | 39)],   # porta do condutor sem comunicação, intermitente (cablagem da porta)
+    "adapt": {},
+    "outputs": [],
+}
+RADIO = {
+    "baud": 10400,
+    "part": "1J0035156",
+    "component": "Radio DE2       0001",
+    "coding": 3,
+    "wsc": 0,
+    "faults": [],
+    "adapt": {},
+    "outputs": [],
 }
 CLUSTER = {
     "baud": 9600,
@@ -444,13 +543,39 @@ ABS = {
     "adapt": {1: 0, 5: 120},
     "outputs": [1300, 1301, 1302],
     "faults": [(283, 0x23)],
+    "permanent": [283],              # sensor sem sinal: volta logo depois de apagar
+    "pending": [0x14],               # apagar avarias demora: primeiro 7F 14 78, depois 54
 }
+
+
+# Carros que o simulador da linha K VAG sabe imitar (Opções → Carro do simulador; rad/simcars.py tem os nomes).
+# Cada um: endereço → (protocolo, perfil). Os carros só com CAN ou de outras marcas não têm nada na linha K VAG:
+# um cabo KKL ligado a eles não encontra nenhum controlador, como na realidade.
+GOLF4 = {0x01: ("kw1281", ENGINE), 0x02: ("kw1281", GEARBOX), 0x03: ("kwp2000", ABS),
+         0x08: ("kw1281", CLIMATRONIC), 0x15: ("kw1281", AIRBAG), 0x17: ("kw1281", CLUSTER),
+         0x46: ("kw1281", COMFORT), 0x56: ("kw1281", RADIO)}
+CARS = {
+    "golf4_tdi": GOLF4,
+    "golf4_clean": {a: (kind, dict(prof, faults=[])) for a, (kind, prof) in GOLF4.items()},
+    "golf5_can": {},
+    "eobd_kline": {},
+    "eobd_kwp": {},
+    "us_j1850": {},
+}
+DEFAULT_CAR = "golf4_tdi"
+CAR_ENV = "RAD_SIM_CAR"           # o programa põe aqui a escolha das Opções; as pontes (outro processo) herdam-na
+
+
+def car_model(model=None):
+    """O carro escolhido: o pedido, o da variável RAD_SIM_CAR ou o de origem."""
+    model = model or os.environ.get(CAR_ENV) or DEFAULT_CAR
+    return model if model in CARS else DEFAULT_CAR
 
 
 class SimSerial:
     """Imita a interface do pyserial."""
 
-    def __init__(self):
+    def __init__(self, car=None, model=None):
         self.baudrate = 10400
         self.timeout = 0.5
         self.break_condition = False
@@ -458,18 +583,34 @@ class SimSerial:
         self.rts = False
         self.rx = collections.deque()
         self.ecu = None
+        self.ecu_addr = None
         self.echo = True
-        self.factories = {
-            0x01: lambda: SimKW1281(ENGINE),
-            0x17: lambda: SimKW1281(CLUSTER),
-            0x03: lambda: SimKWP2000(0x03, ABS),
-        }
+        self.car = car or SimCar()
+        # o que cada controlador guardou (avarias apagadas, codificação, adaptação) fica para a próxima ligação,
+        # como na memória de uma centralina verdadeira
+        self.memory = {}
+        self.model = car_model(model)
+        self.factories = {a: self._factory(a, kind, prof) for a, (kind, prof) in CARS[self.model].items()}
+
+    def _factory(self, address, kind, base):
+        if kind == "kwp2000":
+            return lambda: SimKWP2000(address, self._profile(address, base))
+        return lambda: SimKW1281(self._profile(address, base), self.car)
+
+    def _profile(self, address, base):
+        return dict(base, **self.memory.get(address, {}))
+
+    def _remember(self):
+        snap = getattr(self.ecu, "snapshot", None)
+        if self.ecu is not None and self.ecu_addr is not None and snap is not None:
+            self.memory[self.ecu_addr] = snap()
 
     def sim_five_baud(self, address):
         self.rx.clear()
+        self._remember()
+        self.ecu = None
         factory = self.factories.get(address & 0x7F)
         if not factory:
-            self.ecu = None
             return
         time.sleep(0.05)
         ecu = factory()
@@ -477,9 +618,8 @@ class SimSerial:
             # o 0x55 a outra velocidade chega como o byte que uma UART real leria (rad.kline.rank_bauds usa-o)
             b = uart_byte(0x55, ecu.baud, self.baudrate)
             self.rx.append(b if b not in (None, 0x55) else (0xD5 if self.baudrate < ecu.baud else 0x2A))
-            self.ecu = None
             return
-        self.ecu = ecu
+        self.ecu, self.ecu_addr = ecu, address & 0x7F
         self.rx.extend([0x55, ecu.kb[0], ecu.kb[1]])
 
     def write(self, data):
@@ -502,4 +642,5 @@ class SimSerial:
         self.rx.clear()
 
     def close(self):
+        self._remember()
         self.ecu = None

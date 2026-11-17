@@ -2166,8 +2166,8 @@ EN = {
         "Data bus diagnostic interface (J533)",
     "Interpretação":
         "Interpretation",
-    "Interpretação das linhas com cabeçalho e checksum testada com linhas sintéticas; o simulador só imita CAN. Centralinas VAG antigas que só falam KW1281 não respondem por OBD-II.":
-        "Interpretation of lines with header and checksum tested with synthetic lines; the simulator only imitates CAN. Older VAG ECUs that only speak KW1281 do not answer over OBD-II.",
+    "Testado com o ELM327 simulado em ISO 9141-2, ISO 14230-4 e J1850 PWM/VPW: cabeçalhos, checksum e CRC, avarias em várias mensagens, modo 09 em blocos numerados e os tempos de um ELM real. Sem validação num carro nem num adaptador físico. Centralinas VAG antigas que só falam KW1281 não respondem por OBD-II.":
+        "Tested with the simulated ELM327 on ISO 9141-2, ISO 14230-4 and J1850 PWM/VPW: headers, checksum and CRC, faults over several messages, mode 09 in numbered blocks and the timing of a real ELM. Not validated on a car or with a physical adapter. Older VAG ECUs that only speak KW1281 do not answer over OBD-II.",
     "Interruptor de ralenti (F60)":
         "Idle switch (F60)",
     "Início da injecção":
@@ -3997,4 +3997,34 @@ EN = {
         'Brakes, steering and suspension',
     '{n} controlador(es)':
         '{n} module(s)',
+    "Carro do simulador":
+        "Simulator car",
+    "Adaptador OBD simulado como um clone barato (lento, sem alguns comandos, perde respostas)":
+        "Simulated OBD adapter behaves like a cheap clone (slow, missing some commands, loses answers)",
+    "Golf IV no cabo VAG, Golf V no VAG por CAN e um diesel com avarias no adaptador OBD":
+        "Golf IV on the VAG cable, Golf V on VAG over CAN and a diesel with faults on the OBD adapter",
+    "VW Golf IV 1.9 TDI (2002)":
+        "VW Golf IV 1.9 TDI (2002)",
+    "8 controladores na linha K, 5 avarias; não tem OBD normal":
+        "8 modules on the K-line, 5 faults; no standard OBD",
+    "VW Golf IV 1.9 TDI sem avarias":
+        "VW Golf IV 1.9 TDI without faults",
+    "O mesmo carro, depois de reparado: nenhuma avaria":
+        "The same car after the repair: no faults",
+    "VW Golf V 2.0 TDI (2006)":
+        "VW Golf V 2.0 TDI (2006)",
+    "Só CAN: controladores VAG por CAN e OBD em CAN; o cabo VAG não encontra nada":
+        "CAN only: VAG modules over CAN and OBD over CAN; the VAG cable finds nothing",
+    "Gasolina europeu (2003), OBD por linha K":
+        "European petrol car (2003), OBD over the K-line",
+    "ISO 9141-2, só a centralina do motor, mistura pobre (P0171)":
+        "ISO 9141-2, engine ECU only, lean mixture (P0171)",
+    "Gasolina europeu (2005), OBD por KWP2000":
+        "European petrol car (2005), OBD over KWP2000",
+    "ISO 14230-4 com init rápido, catalisador (P0420)":
+        "ISO 14230-4 with fast init, catalytic converter (P0420)",
+    "Gasolina americano (2004), OBD J1850":
+        "American petrol car (2004), OBD over J1850",
+    "SAE J1850 PWM, motor e caixa automática, catalisador e fuga EVAP":
+        "SAE J1850 PWM, engine and automatic gearbox, catalytic converter and EVAP leak",
 }

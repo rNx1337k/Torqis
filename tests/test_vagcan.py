@@ -50,12 +50,24 @@ def test_kwp_over_can_reads_ident_faults_and_live_data():
     faults = p.read_faults()
     assert [f["code"] for f in faults] == [16785] and faults[0]["pcode"] == "P0401"
     fields = p.read_group(1)["fields"]
-    assert fields[0]["unit"] == "/min" and 800 <= fields[0]["numeric"] <= 1000
+    assert fields[0]["unit"] == "/min" and 800 <= fields[0]["numeric"] <= 1200     # ralenti (mais alto a frio)
     p.keep_alive()
     p.clear_faults()
     assert p.read_faults() == []
     p.end()
     assert bus.frames[-1][1] == bytes([tp20.OP_DISCONNECT]) and bus.channel is None
+
+
+def test_can_ecus_remember_cleared_faults_between_channels():
+    bus = SimVagCanBus()
+    p = VagCanKWP(bus, 0x01)
+    p.start()
+    p.clear_faults()
+    p.end()
+    p = VagCanKWP(bus, 0x01)                     # novo canal ao mesmo carro
+    p.start()
+    assert p.read_faults() == []                 # a avaria apagada não reaparece
+    p.end()
 
 
 def test_absent_module_fails_fast_with_no_response():

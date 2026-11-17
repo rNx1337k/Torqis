@@ -56,7 +56,7 @@ def _strings(obj):
 
 def data_texts():
     """Textos das tabelas de dados traduzidas com tr_data (sem passar por tr("literal"))."""
-    from rad import connstate, coverage, fault_advice, guided, vag_data
+    from rad import connstate, coverage, fault_advice, guided, simcars, vag_data
     from rad.obd import dtc, pids, uds
     out = set()
     out |= set(vag_data.VAG_MODULES.values()) | {"Controlador desconhecido"}
@@ -82,6 +82,7 @@ def data_texts():
     out |= {m for m in pids.SPARK_MONITORS + pids.DIESEL_MONITORS + pids.CONTINUOUS_MONITORS if m}
     out |= set(uds.STANDARD_DIDS.values()) | set(uds.SESSIONS.values())
     out |= set(connstate.LABELS.values())
+    out |= {t for pair in simcars.CARS.values() for t in pair}
     out |= {text for text, _tone in coverage.LEVELS.values()} | {name for _k, name in coverage.STAGES}
     for e in coverage.MATRIX:
         out |= {e["interface"], e["protocol"], e["services"], e["limits"]}

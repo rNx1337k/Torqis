@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from .. import (APP_NAME, VERSION, applog, autoupdate, connstate, history, journal, licensing, report,
-               technician_mode, vag_data)
+               simcars, technician_mode, vag_data)
 from ..errors import client_text
 from ..settings import app_settings
 from ..kline import is_elm_sim_port, is_simulated_port, port_label
@@ -613,6 +613,7 @@ class MainWindow(QMainWindow):
         CoverageDialog(self).exec()
 
     def apply_config(self, cfg, quiet=False):
+        simcars.apply(cfg.get("sim_car", simcars.AUTO), clone=cfg.get("sim_clone", False))   # antes de ligar
         self.worker.submit("configure", cfg)
         self.update_workshop_brand()
         port = cfg["port"]
