@@ -78,7 +78,7 @@ MATRIX = [
         "services": "Versão do firmware, modo de arranque, teste da linha K feito pelo cabo, repor modo de origem",
         "limits": "A leitura de centralinas passa pelo protocolo próprio do microcontrolador; a captura do arranque "
                   "do cabo mostra uma troca aparentemente autenticada/cifrada. Não se replica nem contorna: este "
-                  "cabo não lê centralinas no Roots Auto Doctor. Modo KKL do firmware testado no carro: sem linha "
+                  "cabo não lê centralinas no Torqis. Modo KKL do firmware testado no carro: sem linha "
                   "K directa.",
         "tests": ["test_hexmcu", "test_hex_capture", "test_usb_transports"],
     },

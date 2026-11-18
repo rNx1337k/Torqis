@@ -1,4 +1,4 @@
-Roots Auto Doctor usa os seguintes componentes de terceiros:
+Torqis usa os seguintes componentes de terceiros:
 
 Qt for Python (PySide6) e Qt 6
   Licença: GNU Lesser General Public License v3 (LGPLv3)

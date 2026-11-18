@@ -1,4 +1,4 @@
-# HEX-USB clone (VID 0403 / PID FA24) with Roots Auto Doctor
+# HEX-USB clone (VID 0403 / PID FA24) with Torqis
 
 ## What this cable is (measured on the development PC on 2026-10-19)
 
@@ -21,7 +21,7 @@ microcontroller swallows the K-line bytes, so the KKL echo test always fails —
 talked to the car (the readings in the history came from the simulator). The FTDI's DTR is wired to the
 microcontroller's RESET: the app works with DTR and RTS off.
 
-The firmware has a **KKL ("dumb") mode** in which the K-line is meant to pass straight through. Roots Auto Doctor
+The firmware has a **KKL ("dumb") mode** in which the K-line is meant to pass straight through. Torqis
 talks to the microcontroller directly (`rad/hexmcu.py`):
 
 | Request | Bytes (PC → cable) | Expected response |
@@ -33,7 +33,7 @@ talks to the microcontroller directly (`rad/hexmcu.py`):
 
 Source: public reverse engineering of this cable's firmware.
 **Confirmed on this cable on 19/10/2026** (real responses: `4D 07 02 01 60 46 6F` = firmware 1.96 'F';
-`4D 05 0D 02 47` = intelligent mode). But this firmware's KKL mode does **not** give direct access to the K-line. **Reading ECUs through this cable is not supported by Roots Auto Doctor:** the app only reads the cable's own status (firmware, mode, K-line test). For diagnostics use a KKL 409.1 cable with FTDI — see [KKL.md](KKL.md).
+`4D 05 0D 02 47` = intelligent mode). But this firmware's KKL mode does **not** give direct access to the K-line. **Reading ECUs through this cable is not supported by Torqis:** the app only reads the cable's own status (firmware, mode, K-line test). For diagnostics use a KKL 409.1 cable with FTDI — see [KKL.md](KKL.md).
 
 ### Next step: USB capture (once, for study only)
 
@@ -52,12 +52,12 @@ Source: public reverse engineering of this cable's firmware.
 control requests in order (baud rate, DTR/RTS, BREAK) and the 53/4D packets with the command name, and lists at
 the end the opcodes that are not yet implemented.
 
-Roots Auto Doctor does not become dependent on any other program: the capture only serves to learn the bytes
+Torqis does not become dependent on any other program: the capture only serves to learn the bytes
 the cable expects.
 
 ## How the app talks to it
 
-The FTDI chip behaves like a UART. Roots Auto Doctor uses it like a KKL cable: the same `KLine`
+The FTDI chip behaves like a UART. Torqis uses it like a KKL cable: the same `KLine`
 (5-baud init with BREAK, KW1281, KWP2000), only the way of reaching the UART changes.
 
 | Port in the list | Module | Driver needed | Notes |

@@ -1,8 +1,8 @@
-"""Ferramenta do fornecedor para as licenças do Roots Auto Doctor. NÃO vai no instalador.
+"""Ferramenta do fornecedor para as licenças do Torqis. NÃO vai no instalador.
 
 1) Uma vez só — criar o par de chaves:
        python tools/license_tool.py genkey
-   Guarda a chave privada FORA do repositório (por omissão em %USERPROFILE%\\RootsAutoDoctor_licencas) e
+   Guarda a chave privada FORA do repositório (por omissão em %USERPROFILE%\\Torqis_licencas) e
    escreve a chave pública em rad/license_pubkey.py. Faça cópia de segurança da chave privada: se a perder,
    as licenças já vendidas continuam a funcionar, mas não pode gerar novas para esta chave pública.
 
@@ -25,7 +25,11 @@ sys.path.insert(0, ROOT)
 
 from rad import ed25519, licensing  # noqa: E402
 
-DEFAULT_DIR = os.path.join(os.path.expanduser("~"), "RootsAutoDoctor_licencas")
+DEFAULT_DIR = os.path.join(os.path.expanduser("~"), "Torqis_licencas")
+# pasta das chaves criada antes de o programa mudar de nome: continua a ser usada se a nova ainda não existir
+OLD_DIR = os.path.join(os.path.expanduser("~"), "RootsAutoDoctor_licencas")
+if not os.path.isdir(DEFAULT_DIR) and os.path.isdir(OLD_DIR):
+    DEFAULT_DIR = OLD_DIR
 PUBKEY_FILE = os.path.join(ROOT, "rad", "license_pubkey.py")
 
 
@@ -103,7 +107,7 @@ def cmd_machine(_args):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description="Licenças do Roots Auto Doctor")
+    p = argparse.ArgumentParser(description="Licenças do Torqis")
     p.add_argument("--key", help="caminho da chave privada (por omissão: %(default)s)",
                    default=None)
     sub = p.add_subparsers(dest="cmd", required=True)

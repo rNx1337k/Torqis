@@ -675,7 +675,7 @@ class Worker(QThread):
                             steps.append((tr("Modo do cabo"), False,
                                           tr("Modo inteligente: a linha K é controlada pelo microcontrolador do cabo "
                                           "e o protocolo dele para falar com as centralinas ainda não está "
-                                          "implementado no Roots Auto Doctor")))
+                                          "implementado no Torqis")))
                 if technical:
                     why = (tr("O cabo vê a linha K do carro.") + note) if ok else no_echo_text(port, h, True)
                     steps.append((tr("Eco da linha K"), ok, why))
@@ -1183,7 +1183,7 @@ def no_echo_text(port, hex_info=None, technical=None):
     detalhe técnico (modo técnico, registo) diz o que o cabo respondeu."""
     if not (technician_mode() if technical is None else technical):
         if hex_info and hex_info.get("found") and hex_info.get("mode") != hexmcu.MODE_DUMB:
-            return tr("Este cabo está num modo que o Roots Auto Doctor ainda não consegue usar. Crie um Pacote de "
+            return tr("Este cabo está num modo que o Torqis ainda não consegue usar. Crie um Pacote de "
                       "suporte em Opções e envie-o.")
         if not hex_info and port.startswith(("FTDI:", "D2XX:")):
             return tr("O cabo não está a comunicar com o carro. Confirme que está bem encaixado na ficha de "
@@ -1197,7 +1197,7 @@ def no_echo_text(port, hex_info=None, technical=None):
             return ("O cabo HEX responde pelo USB (" + hexmcu.describe(hex_info) + ")"
                     + (f"; linha K: {hexmcu.describe_kline(kl)}" if kl is not None else "")
                     + ". Em modo inteligente a linha K é controlada pelo microcontrolador do cabo, cujo protocolo "
-                    "de comunicação com as centralinas ainda não está implementado no Roots Auto Doctor: este "
+                    "de comunicação com as centralinas ainda não está implementado no Torqis: este "
                     "cabo ainda não pode ler o carro.")
         return ("Sem eco na linha K. O cabo responde pelo USB e está em modo KKL, mas a linha K não devolve os "
                 "bytes: confirme que o cabo está bem encaixado na ficha OBD e que a ignição está ligada "

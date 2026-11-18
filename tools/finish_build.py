@@ -2,7 +2,7 @@
 tem de abrir à primeira em qualquer PC com Windows 10/11 de 64 bits, sem instalar mais nada.
 
     python tools\\finish_build.py check    <pasta>          completa e verifica a pasta compilada
-    python tools\\finish_build.py portable <pasta> <versão> cria dist\\RootsAutoDoctor_<versão>_portatil.zip
+    python tools\\finish_build.py portable <pasta> <versão> cria dist\\Torqis_<versão>_portatil.zip
     python tools\\finish_build.py sandbox  <pasta>          cria build\\teste_pc_limpo.wsb (Windows Sandbox)
     python tools\\finish_build.py sign     <setup.exe> <versão> cria <setup.exe>.sig (actualizações automáticas)
     python tools\\finish_build.py codesign <ficheiro.exe>     assinatura Authenticode (tira o aviso do SmartScreen)
@@ -31,7 +31,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Ficheiros sem os quais o programa não abre ou não fala com nenhum cabo.
 REQUIRED = [
-    "RootsAutoDoctor.exe",
+    "Torqis.exe",
     os.path.join("rad", "assets", "icon.ico"),
     os.path.join("rad", "assets", "logo.png"),
     os.path.join("rad", "d2xx_bridge.py"),
@@ -100,31 +100,31 @@ def check(dist, log=print):
     return ok
 
 
-PORTABLE_README = """Roots Auto Doctor {version} — versão portátil
+PORTABLE_README = """Torqis {version} — versão portátil
 
 PORTUGUÊS
 1. Extraia esta pasta para onde quiser (Ambiente de trabalho, Documentos ou uma pen USB).
-2. Abra RootsAutoDoctor.exe. Não é preciso instalar nada.
+2. Abra Torqis.exe. Não é preciso instalar nada.
 3. Se o Windows mostrar "O Windows protegeu o seu PC", carregue em "Mais informações" e depois em
    "Executar mesmo assim".
-Os diagnósticos, a licença e o logótipo da oficina ficam guardados neste PC (pasta %APPDATA%\\RootsAutoDoctor).
-Para criar atalhos no menu Iniciar e no ambiente de trabalho, use o instalador (Setup_RootsAutoDoctor_{version}.exe).
+Os diagnósticos, a licença e o logótipo da oficina ficam guardados neste PC (pasta %APPDATA%\\Torqis).
+Para criar atalhos no menu Iniciar e no ambiente de trabalho, use o instalador (Setup_Torqis_{version}.exe).
 
 ENGLISH
 1. Extract this folder anywhere (Desktop, Documents or a USB stick).
-2. Open RootsAutoDoctor.exe. Nothing else needs to be installed.
+2. Open Torqis.exe. Nothing else needs to be installed.
 3. If Windows shows "Windows protected your PC", click "More info" and then "Run anyway".
-Diagnostics, the licence and the workshop logo are stored on this PC (%APPDATA%\\RootsAutoDoctor folder).
-For Start menu and desktop shortcuts, use the installer (Setup_RootsAutoDoctor_{version}.exe).
+Diagnostics, the licence and the workshop logo are stored on this PC (%APPDATA%\\Torqis folder).
+For Start menu and desktop shortcuts, use the installer (Setup_Torqis_{version}.exe).
 """
 
 
 def portable(dist, version, out_dir=None, log=print):
-    """Zip com a pasta "Roots Auto Doctor" pronta a usar (extrair e abrir o .exe)."""
+    """Zip com a pasta "Torqis" pronta a usar (extrair e abrir o .exe)."""
     out_dir = out_dir or os.path.join(ROOT, "dist")
     os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, f"RootsAutoDoctor_{version}_portatil.zip")
-    top = "Roots Auto Doctor"
+    path = os.path.join(out_dir, f"Torqis_{version}_portatil.zip")
+    top = "Torqis"
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for folder, _dirs, files in os.walk(dist):
             for name in files:
@@ -142,7 +142,7 @@ SANDBOX = """<Configuration>
   <MappedFolders>
     <MappedFolder>
       <HostFolder>{dist}</HostFolder>
-      <SandboxFolder>C:\\RootsAutoDoctor</SandboxFolder>
+      <SandboxFolder>C:\\Torqis</SandboxFolder>
       <ReadOnly>true</ReadOnly>
     </MappedFolder>
     <MappedFolder>
@@ -158,7 +158,7 @@ SANDBOX = """<Configuration>
 """
 
 
-SANDBOX_COMMAND = ('cmd /c start "" /wait C:\\RootsAutoDoctor\\RootsAutoDoctor.exe '
+SANDBOX_COMMAND = ('cmd /c start "" /wait C:\\Torqis\\Torqis.exe '
                    '--selftest C:\\Resultado\\autoteste.txt')
 
 
@@ -200,7 +200,7 @@ def clean_pc_test(zip_path, timeout=900, log=print, launch=None, exe=None, poll=
     os.makedirs(result)
     with zipfile.ZipFile(zip_path) as z:
         z.extractall(app)
-    tops = [d for d in os.listdir(app) if os.path.isfile(os.path.join(app, d, "RootsAutoDoctor.exe"))]
+    tops = [d for d in os.listdir(app) if os.path.isfile(os.path.join(app, d, "Torqis.exe"))]
     if len(tops) != 1:
         log("A versão portátil não tem a pasta do programa.")
         return False
@@ -253,7 +253,7 @@ def sign(setup, version, secret=None, log=print):
 
 
 NOTES_FILE = os.path.join(ROOT, "docs", "NOVIDADES.md")
-REPO_URL = "https://github.com/rNx1337k/RootsAutoDoctor"
+REPO_URL = "https://github.com/rNx1337k/Torqis"
 
 
 def customer_notes(version, path=None):
@@ -288,7 +288,7 @@ def release_notes(version, path=None, log=print):
         parts += [NOTES_END, ""]
     else:
         log(f"AVISO: docs/NOVIDADES.md não tem a versão {version}: a Release sai sem novidades para os clientes.")
-    parts.append(f"Roots Auto Doctor {version} · [CHANGELOG]({REPO_URL}/blob/v{version}/CHANGELOG.md)")
+    parts.append(f"Torqis {version} · [CHANGELOG]({REPO_URL}/blob/v{version}/CHANGELOG.md)")
     return "\n".join(parts) + "\n"
 
 
@@ -318,7 +318,7 @@ def codesign_command(path, environ=None, signtool=None):
     if not pfx and not thumb:
         return None
     cmd = [signtool or "signtool", "sign", "/fd", "SHA256",
-           "/tr", environ.get("RAD_CODESIGN_TIMESTAMP") or TIMESTAMP_URL, "/td", "SHA256", "/d", "Roots Auto Doctor"]
+           "/tr", environ.get("RAD_CODESIGN_TIMESTAMP") or TIMESTAMP_URL, "/td", "SHA256", "/d", "Torqis"]
     if pfx:
         cmd += ["/f", pfx]
         if environ.get("RAD_CODESIGN_PASSWORD"):

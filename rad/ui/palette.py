@@ -65,7 +65,7 @@ class CommandPalette(QDialog):
         outer.setContentsMargins(14, 14, 14, 14)
         frame = QFrame()
         frame.setObjectName("paletteFrame")
-        frame.setStyleSheet("QFrame#paletteFrame { background: rgba(14, 21, 42, 0.98); "
+        frame.setStyleSheet("QFrame#paletteFrame { background: rgba(19, 21, 26, 0.98); "
                             f"border: 1px solid {LINE}; border-radius: 18px; }}")
         outer.addWidget(frame)
         v = QVBoxLayout(frame)

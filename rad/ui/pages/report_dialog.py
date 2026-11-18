@@ -95,7 +95,7 @@ class ReportDialog(QDialog):
         # o texto já se ajusta à largura; as tabelas a 100 % ficam às vezes 1 px mais largas e apareceria uma barra
         self.preview.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.preview.setOpenExternalLinks(False)
-        self.preview.setStyleSheet("QTextBrowser { background: #FFFFFF; color: #1B2338; border-radius: 10px; }")
+        self.preview.setStyleSheet("QTextBrowser { background: #FFFFFF; color: #1E2025; border-radius: 10px; }")
         split.addWidget(self.preview)
         split.setStretchFactor(0, 0)
         split.setStretchFactor(1, 1)

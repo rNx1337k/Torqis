@@ -57,19 +57,19 @@ def test_portable_zip_has_one_folder_with_the_program_and_instructions():
     dist = _fake_dist()
     out = tempfile.mkdtemp()
     path = finish_build.portable(dist, "9.9.9", out_dir=out, log=lambda m: None)
-    assert os.path.basename(path) == "RootsAutoDoctor_9.9.9_portatil.zip"
+    assert os.path.basename(path) == "Torqis_9.9.9_portatil.zip"
     with zipfile.ZipFile(path) as z:
         names = z.namelist()
-        readme = z.read("Roots Auto Doctor/LEIA-ME.txt").decode("utf-8")
-    assert "Roots Auto Doctor/RootsAutoDoctor.exe" in names
-    assert all(n.startswith("Roots Auto Doctor/") for n in names)
+        readme = z.read("Torqis/LEIA-ME.txt").decode("utf-8")
+    assert "Torqis/Torqis.exe" in names
+    assert all(n.startswith("Torqis/") for n in names)
     assert "9.9.9" in readme and "Executar mesmo assim" in readme and "Run anyway" in readme
 
 
 def test_installer_signature_for_automatic_updates():
     from rad import autoupdate, ed25519
     secret = bytes(range(1, 33))
-    setup = os.path.join(tempfile.mkdtemp(), "Setup_RootsAutoDoctor_9.9.9.exe")
+    setup = os.path.join(tempfile.mkdtemp(), "Setup_Torqis_9.9.9.exe")
     with open(setup, "wb") as fh:
         fh.write(b"MZ instalador")
     path = finish_build.sign(setup, "9.9.9", secret=secret, log=lambda m: None)
@@ -110,7 +110,7 @@ def test_clean_pc_test_before_publishing_passes_fails_or_says_it_was_not_done():
         def launch(cmd):
             with open(cmd[1], encoding="utf-8") as fh:
                 wsb = fh.read()
-            assert "RootsAutoDoctor.exe" in wsb and "--selftest" in wsb and "Roots Auto Doctor</HostFolder>" in wsb
+            assert "Torqis.exe" in wsb and "--selftest" in wsb and "Torqis</HostFolder>" in wsb
             folder = os.path.join(finish_build.ROOT, "build", "pc_limpo_release", "resultado")
             with open(os.path.join(folder, "autoteste.txt"), "w", encoding="utf-8") as fh:
                 fh.write("...\nRESULTADO: " + result + "\n")

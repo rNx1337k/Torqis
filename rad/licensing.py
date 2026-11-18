@@ -22,12 +22,13 @@ import uuid
 
 from . import ed25519
 from .i18n import tr
+from . import DATA_FOLDER, LEGACY_DATA_FOLDER
 
 log = logging.getLogger(__name__)
 
 PREFIX = "RAD1-"
 FILE_NAME = "licenca.txt"
-DIRECTORY = None             # pasta alternativa (testes); None = %APPDATA%\RootsAutoDoctor
+DIRECTORY = None             # pasta alternativa (testes); None = %APPDATA%\Torqis
 
 # Comandos que escrevem no controlador ou no veículo: bloqueados em modo demonstração (fora do simulador).
 WRITE_COMMANDS = frozenset({"recode", "adaptation_test", "adaptation_save", "service_reset", "clear_faults",
@@ -61,9 +62,14 @@ def _windows_machine_guid():
         return None
 
 
+# Sal do ID do PC. Fica igual ao das primeiras versões (o nome antigo do programa): mudá-lo mudaria o ID de todos
+# os PCs e invalidaria as licenças já emitidas. Nunca aparece ao cliente.
+MACHINE_ID_SALT = LEGACY_DATA_FOLDER + "|"
+
+
 def format_machine_id(raw):
     """Código curto e legível ao telefone: 12 caracteres em 3 grupos (sem 0/O/1/I)."""
-    digest = hashlib.sha256(("RootsAutoDoctor|" + raw).encode()).digest()
+    digest = hashlib.sha256((MACHINE_ID_SALT + raw).encode()).digest()
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
     n = int.from_bytes(digest[:10], "big")
     chars = []
@@ -103,7 +109,7 @@ def check_key(text, machine=None, today=None, public=None):
         out["reason"] = tr("O licenciamento ainda não está configurado nesta versão.")
         return out
     if not text.startswith(PREFIX) or "." not in text:
-        out["reason"] = tr("Isto não é uma chave de licença do Roots Auto Doctor.")
+        out["reason"] = tr("Isto não é uma chave de licença do Torqis.")
         return out
     try:
         body, sig = text[len(PREFIX):].split(".", 1)
@@ -141,7 +147,7 @@ def license_dir():
     if DIRECTORY:
         return DIRECTORY
     base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-    path = os.path.join(base, "RootsAutoDoctor")
+    path = os.path.join(base, DATA_FOLDER)
     os.makedirs(path, exist_ok=True)
     return path
 

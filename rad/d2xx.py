@@ -162,8 +162,8 @@ class D2xxSerial:
             return ("O cabo não está ligado ao USB (o driver não vê a interface "
                     f"{self.serial}{'; vê: ' + others if others else ''})")
         if mine[0].get("busy"):
-            return ("O cabo está ligado mas aberto por outro programa (ou outra janela do Roots Auto "
-                    "Doctor): feche-o e tente outra vez")
+            return ("O cabo está ligado mas aberto por outro programa (ou outra janela do Torqis): "
+                    "feche-o e tente outra vez")
         return None
 
     def kill(self):

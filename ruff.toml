@@ -14,5 +14,4 @@ ignore = ["E741", "E731"]
 "rad/fault_advice.py" = ["E501"]      # tabela de dados
 "rad/ui/style.py" = ["E501"]          # folha de estilo Qt (QSS)
 "rad/ui/widgets.py" = ["E702"]        # cálculos de geometria agrupados por linha
-"tools/make_brand.py" = ["E501", "E701"]   # desenho SVG do logótipo
 "tests/*" = ["E402"]                  # os testes acertam o sys.path antes de importar o programa

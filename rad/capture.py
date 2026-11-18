@@ -29,6 +29,7 @@ import threading
 import time
 
 from . import APP_NAME, VERSION
+from . import DATA_FOLDER
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +52,7 @@ def reset_replay():
 
 def captures_dir():
     base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-    path = os.path.join(base, "RootsAutoDoctor", "gravacoes")
+    path = os.path.join(base, DATA_FOLDER, "gravacoes")
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -376,7 +377,7 @@ def load(path):
                 continue
             if head is None:
                 if obj.get("rad_capture") is None:
-                    raise ValueError("não é uma gravação do Roots Auto Doctor")
+                    raise ValueError("não é uma gravação do Torqis")
                 head = obj
                 continue
             events.append(obj)

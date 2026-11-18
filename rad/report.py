@@ -9,7 +9,7 @@ import html
 from . import APP_NAME, VERSION, fault_advice, journal, technician_mode
 from .i18n import language, tr
 
-BLUE = "#2F6FE4"
+BLUE = "#3D7BFF"
 RED = "#D62F36"
 OK = "#1E9E68"
 WARN = "#C98200"
@@ -257,7 +257,7 @@ def build_html(workshop, vehicle, items, logo_src="logo.png", notes="", logo_siz
     # os mesmos limites que o texto (ui_score.health_text) e o anel do programa (widgets.health_label)
     score_color = OK if score is not None and score >= 85 else (WARN if score is not None and score >= 60 else RED)
     if score is None:
-        score_color = "#6A7591"
+        score_color = "#6B7182"
     ws_name = _e(workshop.get('name'))
     modules_rows = ''.join(rows) if rows else f'<tr><td>{T["Nenhum controlador lido."]}</td></tr>'
     plate = _e(vehicle.get('plate', ''))
@@ -270,25 +270,25 @@ def build_html(workshop, vehicle, items, logo_src="logo.png", notes="", logo_siz
 <html lang="{language()}"><head><meta charset="utf-8">
 <title>{T["Relatório de diagnóstico"]} — {plate}</title>
 <style>
- body {{ font-family: 'Segoe UI', Arial, sans-serif; color: #1B2338; font-size: 10pt; margin: 24px; }}
- h1 {{ font-size: 18pt; margin: 0; color: #0E1526; }}
+ body {{ font-family: 'Segoe UI', Arial, sans-serif; color: #1B1E26; font-size: 10pt; margin: 24px; }}
+ h1 {{ font-size: 18pt; margin: 0; color: #0B0D12; }}
  h2 {{ font-size: 10.5pt; color: {BLUE}; margin-top: 20px; margin-bottom: 6px; text-transform: uppercase;
        letter-spacing: 1px; }}
- .muted {{ color: #6A7591; font-size: 9pt; }}
+ .muted {{ color: #6B7182; font-size: 9pt; }}
  table {{ border-collapse: collapse; width: 100%; }}
  td {{ padding: 6px 8px; vertical-align: top; }}
- .modules td {{ border-bottom: 1px solid #DDE3F0; }}
- .k {{ color: #6A7591; width: 16%; }}
+ .modules td {{ border-bottom: 1px solid #E1E3E8; }}
+ .k {{ color: #6B7182; width: 16%; }}
  .v {{ font-weight: 600; width: 34%; }}
  .addr {{ font-weight: bold; color: {BLUE}; width: 40px; font-size: 11pt; }}
  .fault {{ margin-top: 6px; padding-left: 8px; border-left: 3px solid {WARN}; }}
- .cause {{ color: #3B4A6B; font-size: 9pt; }}
- .summary td {{ background: #F3F6FC; }}
+ .cause {{ color: #3E4352; font-size: 9pt; }}
+ .summary td {{ background: #F4F5F7; }}
  .score {{ font-size: 30pt; font-weight: bold; color: {score_color}; }}
  .sim {{ padding: 8px 12px; border: 2px solid {RED}; color: {RED}; font-size: 11pt; }}
- .tech {{ color: #4A5880; font-size: 8.5pt; font-family: Consolas, 'Courier New', monospace; }}
+ .tech {{ color: #4E5463; font-size: 8.5pt; font-family: Consolas, 'Courier New', monospace; }}
  .doc {{ color: {BLUE}; font-size: 13pt; font-weight: bold; }}
- .plate {{ font-size: 15pt; font-weight: bold; color: #0E1526; letter-spacing: 1px; }}
+ .plate {{ font-size: 15pt; font-weight: bold; color: #0B0D12; letter-spacing: 1px; }}
 </style></head><body>
 {sim_html}
 <table width="100%" style="border-bottom: 3px solid {BLUE}"><tr>
@@ -312,7 +312,7 @@ def build_html(workshop, vehicle, items, logo_src="logo.png", notes="", logo_siz
    <span class="muted">{_e(tr("Saúde do veículo"))}</span><br>
    <span class="score">{score if score is not None else "—"}</span><span class="muted"> /100</span><br>
    <b style="color:{score_color}">{_e(health_text(score))}</b><span class="muted">{_e(partial)}</span></td>
- <td style="font-size:11pt; border-left: 1px solid #DDE3F0">{verdict}<br><span class="muted">{_e(read_line)}</span></td>
+ <td style="font-size:11pt; border-left: 1px solid #E1E3E8">{verdict}<br><span class="muted">{_e(read_line)}</span></td>
 </tr></table>
 
 <h2>{T["Controladores"]}</h2>
@@ -321,7 +321,7 @@ def build_html(workshop, vehicle, items, logo_src="logo.png", notes="", logo_siz
 {changes_html}
 {notes_html}
 <table width="100%" style="margin-top:24px"><tr>
-<td style="border-top:1px solid #DDE3F0" class="muted">{footer}</td></tr></table>
+<td style="border-top:1px solid #E1E3E8" class="muted">{footer}</td></tr></table>
 </body></html>"""
 
 

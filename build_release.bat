@@ -1,11 +1,11 @@
 @echo off
 REM ============================================================
-REM  Roots Auto Doctor - build de venda
+REM  Torqis - build de venda
 REM  1) compila com Nuitka (codigo maquina, dificil de copiar)
 REM  2) completa e verifica a pasta (runtime do Visual C++, plugins do Qt, pontes)
 REM  3) verifica o programa compilado com o auto-teste (--selftest)
 REM  4) cria a versao portatil (zip) e o instalador com Inno Setup (https://jrsoftware.org/isdl.php)
-REM  Resultado: dist\Setup_RootsAutoDoctor_<versao>.exe e dist\RootsAutoDoctor_<versao>_portatil.zip
+REM  Resultado: dist\Setup_Torqis_<versao>.exe e dist\Torqis_<versao>_portatil.zip
 REM  Assinatura de codigo (opcional, tira o aviso do SmartScreen): ver "codesign" em tools\finish_build.py
 REM  No GitHub Actions (variavel CI definida) nao para a pedir teclas.
 REM  Os dois levam tudo (Python, Qt, Visual C++, pontes): no PC da oficina nao e preciso instalar nada.
@@ -33,9 +33,9 @@ echo A compilar a versao %VER%...
 %PY% -m nuitka main.py --standalone --enable-plugin=pyside6 ^
   --windows-console-mode=disable --windows-icon-from-ico=rad\assets\icon.ico ^
   --include-data-dir=rad\assets=rad\assets ^
-  --output-dir=build --output-filename=RootsAutoDoctor.exe ^
-  --company-name="Roots" --product-name="Roots Auto Doctor" ^
-  --file-version=%VER% --product-version=%VER% --file-description="Roots Auto Doctor" ^
+  --output-dir=build --output-filename=Torqis.exe ^
+  --company-name="Torqis" --product-name="Torqis" ^
+  --file-version=%VER% --product-version=%VER% --file-description="Torqis" ^
   --assume-yes-for-downloads --remove-output
 if errorlevel 1 (echo A compilacao falhou. & %PAUSE% & exit /b 1)
 copy /y LICENSES\THIRD_PARTY.txt build\main.dist\ >nul
@@ -50,17 +50,17 @@ echo A completar e verificar a pasta compilada...
 if errorlevel 1 (echo A pasta compilada esta incompleta: o instalador NAO foi criado. & %PAUSE% & exit /b 1)
 echo A verificar o programa compilado (auto-teste)...
 if exist build\autoteste_build.txt del build\autoteste_build.txt
-start "" /wait build\main.dist\RootsAutoDoctor.exe --selftest "%CD%\build\autoteste_build.txt"
+start "" /wait build\main.dist\Torqis.exe --selftest "%CD%\build\autoteste_build.txt"
 if errorlevel 1 (
   if exist build\autoteste_build.txt type build\autoteste_build.txt
   echo O auto-teste do programa compilado falhou: o instalador NAO foi criado.
   %PAUSE% & exit /b 1
 )
 type build\autoteste_build.txt
-%PY% tools\finish_build.py codesign build\main.dist\RootsAutoDoctor.exe
+%PY% tools\finish_build.py codesign build\main.dist\Torqis.exe
 if errorlevel 1 (echo A assinatura de codigo falhou. & %PAUSE% & exit /b 1)
 %PY% tools\finish_build.py sandbox build\main.dist
-if exist dist\RootsAutoDoctor_%VER%_portatil.zip del dist\RootsAutoDoctor_%VER%_portatil.zip
+if exist dist\Torqis_%VER%_portatil.zip del dist\Torqis_%VER%_portatil.zip
 %PY% tools\finish_build.py portable build\main.dist %VER%
 if errorlevel 1 (echo Nao foi possivel criar a versao portatil. & %PAUSE% & exit /b 1)
 if not exist installer\drivers\ftdi\ftdibus.inf echo AVISO: sem o driver FTDI em installer\drivers\ftdi - o instalador sai sem ele (ver installer\drivers\LEIA-ME.txt).
@@ -69,26 +69,26 @@ set ISCC="%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 if not exist %ISCC% set ISCC="%ProgramFiles%\Inno Setup 6\ISCC.exe"
 if not exist %ISCC% set ISCC="%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe"
 if not exist %ISCC% (
-  echo Programa compilado e verificado em build\main.dist\RootsAutoDoctor.exe
-  echo Versao portatil pronta em dist\RootsAutoDoctor_%VER%_portatil.zip
+  echo Programa compilado e verificado em build\main.dist\Torqis.exe
+  echo Versao portatil pronta em dist\Torqis_%VER%_portatil.zip
   echo Para criar o instalador instale o Inno Setup 6 e volte a correr este ficheiro.
   %PAUSE% & exit /b 0
 )
-%ISCC% /DAppVersion=%VER% installer\RootsAutoDoctor.iss
+%ISCC% /DAppVersion=%VER% installer\Torqis.iss
 if errorlevel 1 (echo A criacao do instalador falhou. & %PAUSE% & exit /b 1)
-%PY% tools\finish_build.py codesign dist\Setup_RootsAutoDoctor_%VER%.exe
+%PY% tools\finish_build.py codesign dist\Setup_Torqis_%VER%.exe
 if errorlevel 1 (echo A assinatura de codigo do instalador falhou. & %PAUSE% & exit /b 1)
 REM A assinatura das actualizacoes (.sig) vem depois da Authenticode: cobre o ficheiro final
-%PY% tools\finish_build.py sign dist\Setup_RootsAutoDoctor_%VER%.exe %VER%
+%PY% tools\finish_build.py sign dist\Setup_Torqis_%VER%.exe %VER%
 if errorlevel 1 (echo Nao foi possivel assinar o instalador. & %PAUSE% & exit /b 1)
-%PY% tools\finish_build.py sign dist\RootsAutoDoctor_%VER%_portatil.zip %VER%
+%PY% tools\finish_build.py sign dist\Torqis_%VER%_portatil.zip %VER%
 if errorlevel 1 (echo Nao foi possivel assinar a versao portatil. & %PAUSE% & exit /b 1)
 %PY% tools\finish_build.py notes %VER% dist\novidades_%VER%.md
 echo.
-echo Instalador pronto em dist\Setup_RootsAutoDoctor_%VER%.exe
-if exist dist\Setup_RootsAutoDoctor_%VER%.exe.sig echo Assinatura em dist\Setup_RootsAutoDoctor_%VER%.exe.sig - publique-a na Release junto com o instalador.
-echo Versao portatil pronta em dist\RootsAutoDoctor_%VER%_portatil.zip
-if exist dist\RootsAutoDoctor_%VER%_portatil.zip.sig echo Assinatura em dist\RootsAutoDoctor_%VER%_portatil.zip.sig - publique-a na Release junto com o zip.
+echo Instalador pronto em dist\Setup_Torqis_%VER%.exe
+if exist dist\Setup_Torqis_%VER%.exe.sig echo Assinatura em dist\Setup_Torqis_%VER%.exe.sig - publique-a na Release junto com o instalador.
+echo Versao portatil pronta em dist\Torqis_%VER%_portatil.zip
+if exist dist\Torqis_%VER%_portatil.zip.sig echo Assinatura em dist\Torqis_%VER%_portatil.zip.sig - publique-a na Release junto com o zip.
 echo Texto da Release (novidades para os clientes): dist\novidades_%VER%.md
 echo Teste num Windows limpo (opcional): abra build\teste_pc_limpo.wsb
 %PAUSE%

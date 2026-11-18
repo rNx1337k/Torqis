@@ -10,7 +10,7 @@ estado que o chip põe no início de cada pacote de 64 bytes e mostra, por ordem
   - os bytes PC → cabo e cabo → PC, agrupados nos pacotes 53/4D do microcontrolador dos clones HEX quando os
     houver (com o nome do comando, se for conhecido), ou em bruto (cabo KKL, modo directo).
 
-No fim lista os opcodes vistos e quantas vezes, separando os que o Roots Auto Doctor já conhece dos que faltam.
+No fim lista os opcodes vistos e quantas vezes, separando os que o Torqis já conhece dos que faltam.
 Só usa a biblioteca padrão e nunca escreve nada no dispositivo.
 """
 import argparse

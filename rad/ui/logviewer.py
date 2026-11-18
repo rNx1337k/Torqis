@@ -64,8 +64,8 @@ class MultiChart(QWidget):
         p.setRenderHint(QPainter.Antialiasing)
         w, h = self.width(), self.height()
         bg = QLinearGradient(0, 0, 0, h)
-        bg.setColorAt(0, QColor("#111B36"))
-        bg.setColorAt(1, QColor("#090F20"))
+        bg.setColorAt(0, QColor("#181A21"))
+        bg.setColorAt(1, QColor("#0E0F13"))
         p.setPen(QPen(QColor(LINE), 1))
         p.setBrush(bg)
         p.drawRoundedRect(QRectF(0.5, 0.5, w - 1, h - 1), 14, 14)
@@ -88,7 +88,7 @@ class MultiChart(QWidget):
         p.setFont(display_font(8, False))
         for i in range(5):
             y = plot.bottom() - plot.height() * i / 4
-            p.setPen(QPen(QColor("#1A2545"), 1, Qt.DashLine))
+            p.setPen(QPen(QColor("#21232B"), 1, Qt.DashLine))
             p.drawLine(QPointF(plot.left(), y), QPointF(plot.right(), y))
             p.setPen(QColor(self.series[0][1]))
             p.drawText(QRectF(4, y - 9, 54, 18), int(Qt.AlignRight | Qt.AlignVCenter),

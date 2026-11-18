@@ -1,4 +1,4 @@
-"""Janela principal do Roots Auto Doctor."""
+"""Janela principal do Torqis."""
 import datetime
 import logging
 import os
@@ -77,8 +77,8 @@ class MainWindow(QMainWindow):
         brand.addWidget(LogoLabel(46))
         bt = QVBoxLayout()
         bt.setSpacing(0)
-        bt.addWidget(lbl("Roots", "wordmark"))
-        bt.addWidget(lbl("Auto Doctor", "wordmarkSub"))
+        bt.addWidget(lbl("TORQIS", "wordmark"))
+        bt.addWidget(lbl("DIAGNOSTICS", "wordmarkSub"))
         brand.addLayout(bt)
         brand.addStretch(1)
         sv.addLayout(brand)
@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
         sv.addWidget(conn)
         ver = lbl(f"v{VERSION}", "muted")
         ver.setAlignment(Qt.AlignCenter)
-        ver.setStyleSheet("color: #4A5880; font-size: 8.5pt;")
+        ver.setStyleSheet("color: #4A4E57; font-size: 8.5pt;")
         sv.addSpacing(4)
         sv.addWidget(ver)
         self.last_address = None

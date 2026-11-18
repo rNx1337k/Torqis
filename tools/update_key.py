@@ -3,7 +3,7 @@
     python tools/update_key.py genkey     cria o par de chaves (uma vez só)
     python tools/update_key.py show       mostra onde está a chave privada e a chave pública
 
-A chave privada fica FORA do repositório (por omissão %USERPROFILE%\\RootsAutoDoctor_licencas\\update.key, ou a
+A chave privada fica FORA do repositório (por omissão %USERPROFILE%\\Torqis_licencas\\update.key, ou a
 indicada na variável RAD_UPDATE_KEY) e a pública vai para rad/update_pubkey.py. O build_release.bat usa a
 privada para assinar cada instalador (Setup_...exe.sig); o programa só se actualiza sozinho com instaladores
 assinados por ela. Faça cópia de segurança: se a perder, os programas já instalados deixam de se actualizar
@@ -29,8 +29,12 @@ def _inside(path, folder):
 
 
 def key_path():
-    return os.environ.get("RAD_UPDATE_KEY") or os.path.join(os.path.expanduser("~"), "RootsAutoDoctor_licencas",
-                                                            "update.key")
+    if os.environ.get("RAD_UPDATE_KEY"):
+        return os.environ["RAD_UPDATE_KEY"]
+    home = os.path.expanduser("~")
+    new = os.path.join(home, "Torqis_licencas")
+    old = os.path.join(home, "RootsAutoDoctor_licencas")      # pasta criada antes de o programa mudar de nome
+    return os.path.join(old if not os.path.isdir(new) and os.path.isdir(old) else new, "update.key")
 
 
 def read_secret(path=None):

@@ -33,7 +33,7 @@ def test_startup_failure_is_logged_and_shown():
     assert out.returncode == 0, out.stderr
     assert "rc=2" in out.stdout, out.stdout
     assert "Não foi possível iniciar" in out.stdout and "crash.log" in out.stdout, out.stdout
-    crash = os.path.join(appdata, "RootsAutoDoctor", "registos", "crash.log")
+    crash = os.path.join(appdata, "Torqis", "registos", "crash.log")
     assert os.path.exists(crash)
     with open(crash, encoding="utf-8") as fh:
         text = fh.read()

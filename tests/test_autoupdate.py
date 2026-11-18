@@ -18,7 +18,7 @@ INSTALLER = b"MZ" + os.urandom(4096)
 
 
 def _setup_file(data=INSTALLER):
-    path = os.path.join(tempfile.mkdtemp(), "Setup_RootsAutoDoctor_9.0.0.exe")
+    path = os.path.join(tempfile.mkdtemp(), "Setup_Torqis_9.0.0.exe")
     with open(path, "wb") as fh:
         fh.write(data)
     return path
@@ -166,9 +166,9 @@ def test_source_or_read_only_copy_never_installs_by_itself():
 
 def test_release_lists_installer_signature():
     rel = {"tag_name": "v9.0.0", "html_url": "h", "body": "",
-           "assets": [{"name": "Setup_RootsAutoDoctor_9.0.0.exe", "browser_download_url": "https://dl/s.exe"},
-                      {"name": "Setup_RootsAutoDoctor_9.0.0.exe.sig", "browser_download_url": "https://dl/s.sig"},
-                      {"name": "RootsAutoDoctor_9.0.0_portatil.zip", "browser_download_url": "https://dl/p.zip"}]}
+           "assets": [{"name": "Setup_Torqis_9.0.0.exe", "browser_download_url": "https://dl/s.exe"},
+                      {"name": "Setup_Torqis_9.0.0.exe.sig", "browser_download_url": "https://dl/s.sig"},
+                      {"name": "Torqis_9.0.0_portatil.zip", "browser_download_url": "https://dl/p.zip"}]}
 
     def opener(req, timeout=None):
         return _Resp(json.dumps(rel).encode())
@@ -190,7 +190,7 @@ def test_update_now_asks_the_installer_to_reopen_the_program():
 
 def test_installer_reopens_the_program_only_for_update_now():
     iss = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "installer",
-                            "RootsAutoDoctor.iss"), encoding="utf-8").read()
+                            "Torqis.iss"), encoding="utf-8").read()
     assert "Check: ShouldRelaunch" in iss and "{param:RELAUNCH|0}" in iss and "WizardSilent" in iss
     assert autoupdate.RELAUNCH_ARG == "/RELAUNCH=1"
 
@@ -238,10 +238,10 @@ def test_refused_authorisation_and_giving_up_keep_the_installation_log():
 
 
 # ------------------------------------------------------------------ versão portátil
-def _portable_zip(files=None, top="Roots Auto Doctor"):
+def _portable_zip(files=None, top="Torqis"):
     import zipfile
-    path = os.path.join(tempfile.mkdtemp(), "RootsAutoDoctor_9.0.0_portatil.zip")
-    files = files if files is not None else {f"{top}/RootsAutoDoctor.exe": b"MZ novo", f"{top}/LEIA-ME.txt": b"x",
+    path = os.path.join(tempfile.mkdtemp(), "Torqis_9.0.0_portatil.zip")
+    files = files if files is not None else {f"{top}/Torqis.exe": b"MZ novo", f"{top}/LEIA-ME.txt": b"x",
                                              f"{top}/runtime/py64/python.exe": b"MZ py"}
     with zipfile.ZipFile(path, "w") as z:
         for name, data in files.items():
@@ -265,7 +265,7 @@ def test_portable_copy_downloads_the_signed_zip_and_applies_it_after_closing():
     assert autoupdate.downloadable(info, autoupdate.PORTABLE) and not autoupdate.downloadable({}, autoupdate.PORTABLE)
     st = _with_key(lambda: autoupdate.download(info, opener=opener, current="1.9.0", mode=autoupdate.PORTABLE))
     assert st["mode"] == autoupdate.PORTABLE and st["path"].endswith("_portatil.zip")
-    assert os.path.isfile(os.path.join(st["staging"], "RootsAutoDoctor.exe"))
+    assert os.path.isfile(os.path.join(st["staging"], "Torqis.exe"))
     calls = []
     app = os.path.join(tempfile.mkdtemp(), "Pasta do programa")
     os.makedirs(app)
@@ -285,7 +285,7 @@ def test_portable_copy_in_a_read_only_folder_asks_windows_for_permission():
     autoupdate.clear()
     info, opener = _portable_info(_portable_zip())
     _with_key(lambda: autoupdate.download(info, opener=opener, current="1.9.0", mode=autoupdate.PORTABLE))
-    app = os.path.join(tempfile.mkdtemp(), "Programas", "Roots Auto Doctor")
+    app = os.path.join(tempfile.mkdtemp(), "Programas", "Torqis")
     os.makedirs(app)
     assert _with_key(lambda: autoupdate.update_mode(installed=False, frozen=True, folder=app,
                                                     platform="win32")) == autoupdate.PORTABLE
@@ -329,7 +329,7 @@ def test_update_left_uninstalled_is_installed_on_the_next_start_only_once():
 
 def test_portable_zip_with_paths_outside_its_folder_is_refused():
     autoupdate.clear()
-    for files in ({"Roots Auto Doctor/RootsAutoDoctor.exe": b"MZ", "../fora.txt": b"x"},
+    for files in ({"Torqis/Torqis.exe": b"MZ", "../fora.txt": b"x"},
                   {"Outra/coisa.exe": b"MZ"}):
         info, opener = _portable_info(_portable_zip(files))
         try:
@@ -360,23 +360,23 @@ def test_portable_script_copies_the_new_version_and_restores_the_old_one_on_fail
     if sys.platform != "win32":                       # o script corre no cmd do Windows (robocopy)
         return
     base = tempfile.mkdtemp()
-    app, new = os.path.join(base, "Roots Auto Doctor"), os.path.join(base, "nova", "Roots Auto Doctor")
+    app, new = os.path.join(base, "Torqis"), os.path.join(base, "nova", "Torqis")
     for folder, version in ((app, "antiga"), (new, "nova")):
         os.makedirs(os.path.join(folder, "_internal"))
-        with open(os.path.join(folder, "RootsAutoDoctor.exe"), "w") as fh:
+        with open(os.path.join(folder, "Torqis.exe"), "w") as fh:
             fh.write(version)
     with open(os.path.join(new, "_internal", "novo.dll"), "w") as fh:
         fh.write("x")
     log_text, folder = _run_script(new, app)
     assert "RESULTADO: ok" in log_text, log_text
-    assert open(os.path.join(app, "RootsAutoDoctor.exe")).read() == "nova"
+    assert open(os.path.join(app, "Torqis.exe")).read() == "nova"
     assert os.path.exists(os.path.join(app, "_internal", "novo.dll"))
     assert not os.path.exists(new)
     # a cópia da versão anterior fica até a nova abrir bem (é o caminho de volta)
-    assert open(os.path.join(folder, autoupdate.BACKUP, "RootsAutoDoctor.exe")).read() == "antiga"
+    assert open(os.path.join(folder, autoupdate.BACKUP, "Torqis.exe")).read() == "antiga"
     log_text, _ = _run_script(os.path.join(base, "nao_existe"), app)          # a cópia falha: repõe a anterior
     assert "RESULTADO: falhou" in log_text, log_text
-    assert open(os.path.join(app, "RootsAutoDoctor.exe")).read() == "nova"
+    assert open(os.path.join(app, "Torqis.exe")).read() == "nova"
 
 
 def test_update_scripts_wait_for_the_program_even_with_other_tools_on_the_path():
@@ -394,10 +394,10 @@ def test_update_scripts_wait_for_the_program_even_with_other_tools_on_the_path()
         with open(os.path.join(fake_tools, name + ".bat"), "w") as fh:
             fh.write("@exit /b 1\n")
     env = dict(os.environ, PATH=fake_tools + os.pathsep + os.environ.get("PATH", ""))
-    app, new = os.path.join(base, "Roots Auto Doctor"), os.path.join(base, "nova", "Roots Auto Doctor")
+    app, new = os.path.join(base, "Torqis"), os.path.join(base, "nova", "Torqis")
     for folder, version in ((app, "antiga"), (new, "nova")):
         os.makedirs(folder)
-        with open(os.path.join(folder, "RootsAutoDoctor.exe"), "w") as fh:
+        with open(os.path.join(folder, "Torqis.exe"), "w") as fh:
             fh.write(version)
     prog = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(3)"])     # o programa ainda aberto
     folder = tempfile.mkdtemp()
@@ -410,7 +410,7 @@ def test_update_scripts_wait_for_the_program_even_with_other_tools_on_the_path()
         log_text = fh.read()
     assert waited >= 2, f"o script não esperou que o programa fechasse ({waited:.1f} s)"
     assert "RESULTADO: ok" in log_text, log_text
-    assert open(os.path.join(app, "RootsAutoDoctor.exe")).read() == "nova"
+    assert open(os.path.join(app, "Torqis.exe")).read() == "nova"
     for template in (autoupdate.SCRIPT_TEMPLATE, autoupdate.ROLLBACK_TEMPLATE):
         for line in template.splitlines():
             for tool in ("tasklist", "find ", "robocopy", "ping ", "chcp"):
@@ -485,8 +485,8 @@ def test_rollback_downloads_the_previous_installer_when_it_was_not_kept():
     old_setup = _setup_file(b"instalador 1.9.0")
     sig = autoupdate.make_signature(SECRET, old_setup, "1.9.0")
     rel = {"tag_name": "v1.9.0", "html_url": "h", "body": "",
-           "assets": [{"name": "Setup_RootsAutoDoctor_1.9.0.exe", "browser_download_url": "https://dl/old.exe"},
-                      {"name": "Setup_RootsAutoDoctor_1.9.0.exe.sig", "browser_download_url": "https://dl/old.sig"}]}
+           "assets": [{"name": "Setup_Torqis_1.9.0.exe", "browser_download_url": "https://dl/old.exe"},
+                      {"name": "Setup_Torqis_1.9.0.exe.sig", "browser_download_url": "https://dl/old.sig"}]}
     with open(old_setup, "rb") as fh:
         data = fh.read()
     files = {updates.API + "/releases/tags/v1.9.0": json.dumps(rel).encode(), "https://dl/old.exe": data,
@@ -519,7 +519,7 @@ def test_portable_copy_goes_back_to_the_copy_kept_before_updating():
         autoupdate._prepare_rollback("9.0.0", autoupdate.PORTABLE, current="1.9.0")
         old = os.path.join(autoupdate.rollback_dir(), autoupdate.BACKUP)
         os.makedirs(old)
-        with open(os.path.join(old, "RootsAutoDoctor.exe"), "w") as fh:
+        with open(os.path.join(old, "Torqis.exe"), "w") as fh:
             fh.write("1.9.0")
         assert autoupdate.rollback(launcher=lambda p, a, e: calls.append(p) or True, folder=app, pid=4321,
                                    current="9.0.0")

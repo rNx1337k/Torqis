@@ -20,10 +20,10 @@ set PY=.venv\Scripts\python.exe
 if not exist %PY% (echo Corra primeiro o run.bat uma vez. & exit /b 1)
 where gh >nul 2>nul || (echo Falta o GitHub CLI: winget install GitHub.cli e depois gh auth login & exit /b 1)
 if not exist dist mkdir dist
-set SETUP=dist\Setup_RootsAutoDoctor_%VER%.exe
-set ZIP=dist\RootsAutoDoctor_%VER%_portatil.zip
-gh release download v%VER% --pattern "Setup_RootsAutoDoctor_%VER%.exe" --dir dist --clobber || (echo Nao foi possivel descarregar o instalador da Release v%VER%. & exit /b 1)
-gh release download v%VER% --pattern "RootsAutoDoctor_%VER%_portatil.zip" --dir dist --clobber || (echo Nao foi possivel descarregar a versao portatil da Release v%VER%. & exit /b 1)
+set SETUP=dist\Setup_Torqis_%VER%.exe
+set ZIP=dist\Torqis_%VER%_portatil.zip
+gh release download v%VER% --pattern "Setup_Torqis_%VER%.exe" --dir dist --clobber || (echo Nao foi possivel descarregar o instalador da Release v%VER%. & exit /b 1)
+gh release download v%VER% --pattern "Torqis_%VER%_portatil.zip" --dir dist --clobber || (echo Nao foi possivel descarregar a versao portatil da Release v%VER%. & exit /b 1)
 %PY% tools\finish_build.py codesign %SETUP% || exit /b 1
 if exist %SETUP%.sig del %SETUP%.sig
 if exist %ZIP%.sig del %ZIP%.sig

@@ -1,4 +1,4 @@
-; Instalador do Roots Auto Doctor (Inno Setup 6). Criado pelo build_release.bat.
+; Instalador do Torqis (Inno Setup 6). Criado pelo build_release.bat.
 ; Leva tudo o que o programa precisa (Python, Qt, runtime do Visual C++, pontes): o PC da oficina não precisa de
 ; instalar mais nada nem de internet.
 #ifndef AppVersion
@@ -8,20 +8,23 @@
 #define FtdiDriver FileExists(AddBackslash(SourcePath) + "drivers\ftdi\ftdibus.inf")
 
 [Setup]
+; O AppId fica o mesmo das versões com o nome antigo: o instalador do Torqis actualiza essas instalações (na mesma
+; pasta) em vez de instalar um segundo programa ao lado. Os atalhos passam para o grupo novo (UsePreviousGroup=no).
 AppId={{6B1E2C3A-9F44-4C1B-A7D2-5E0C8B9A7F10}
-AppName=Roots Auto Doctor
+AppName=Torqis
 AppVersion={#AppVersion}
-AppVerName=Roots Auto Doctor {#AppVersion}
-AppPublisher=Roots
+AppVerName=Torqis {#AppVersion}
+AppPublisher=Torqis
 VersionInfoVersion={#AppVersion}
-VersionInfoProductName=Roots Auto Doctor
-DefaultDirName={autopf}\Roots Auto Doctor
-DefaultGroupName=Roots Auto Doctor
+VersionInfoProductName=Torqis
+DefaultDirName={autopf}\Torqis
+DefaultGroupName=Torqis
+UsePreviousGroup=no
 DisableProgramGroupPage=yes
-UninstallDisplayIcon={app}\RootsAutoDoctor.exe
-UninstallDisplayName=Roots Auto Doctor
+UninstallDisplayIcon={app}\Torqis.exe
+UninstallDisplayName=Torqis
 OutputDir=..\dist
-OutputBaseFilename=Setup_RootsAutoDoctor_{#AppVersion}
+OutputBaseFilename=Setup_Torqis_{#AppVersion}
 SetupIconFile=..\rad\assets\icon.ico
 WizardStyle=modern
 Compression=lzma2/max
@@ -46,8 +49,8 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 [CustomMessages]
 pt.DriverStatus=A preparar o Windows para os cabos de diagnóstico...
 en.DriverStatus=Preparing Windows for the diagnostic cables...
-pt.UninstallLink=Desinstalar Roots Auto Doctor
-en.UninstallLink=Uninstall Roots Auto Doctor
+pt.UninstallLink=Desinstalar Torqis
+en.UninstallLink=Uninstall Torqis
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -60,10 +63,20 @@ Source: "..\build\main.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesu
 Source: "drivers\ftdi\*"; DestDir: "{app}\drivers\ftdi"; Flags: ignoreversion recursesubdirs createallsubdirs
 #endif
 
+[InstallDelete]
+; Instalações com o nome antigo (até à versão 1.21): sai o programa antigo e os seus atalhos, para não ficarem dois
+; ícones nem um executável desactualizado na pasta.
+Type: files; Name: "{app}\RootsAutoDoctor.exe"
+Type: files; Name: "{autodesktop}\Roots Auto Doctor.lnk"
+Type: files; Name: "{autoprograms}\Roots Auto Doctor\Roots Auto Doctor.lnk"
+Type: files; Name: "{autoprograms}\Roots Auto Doctor\Desinstalar Roots Auto Doctor.lnk"
+Type: files; Name: "{autoprograms}\Roots Auto Doctor\Uninstall Roots Auto Doctor.lnk"
+Type: dirifempty; Name: "{autoprograms}\Roots Auto Doctor"
+
 [Icons]
-Name: "{group}\Roots Auto Doctor"; Filename: "{app}\RootsAutoDoctor.exe"
+Name: "{group}\Torqis"; Filename: "{app}\Torqis.exe"
 Name: "{group}\{cm:UninstallLink}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\Roots Auto Doctor"; Filename: "{app}\RootsAutoDoctor.exe"; Tasks: desktopicon
+Name: "{autodesktop}\Torqis"; Filename: "{app}\Torqis.exe"; Tasks: desktopicon
 
 [Run]
 #if FtdiDriver
@@ -71,9 +84,9 @@ Name: "{autodesktop}\Roots Auto Doctor"; Filename: "{app}\RootsAutoDoctor.exe"; 
 ; não têm driver. Precisa de administrador (instalação para todos os utilizadores).
 Filename: "{sys}\pnputil.exe"; Parameters: "/add-driver ""{app}\drivers\ftdi\*.inf"" /subdirs"; Flags: runhidden waituntilterminated; StatusMsg: "{cm:DriverStatus}"; Check: IsAdminInstallMode
 #endif
-Filename: "{app}\RootsAutoDoctor.exe"; Description: "{cm:LaunchProgram,Roots Auto Doctor}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Torqis.exe"; Description: "{cm:LaunchProgram,Torqis}"; Flags: nowait postinstall skipifsilent
 ; Actualização automática com "Actualizar agora" (/RELAUNCH=1): o programa volta a abrir já actualizado.
-Filename: "{app}\RootsAutoDoctor.exe"; Flags: nowait postinstall runasoriginaluser; Check: ShouldRelaunch
+Filename: "{app}\Torqis.exe"; Flags: nowait postinstall runasoriginaluser; Check: ShouldRelaunch
 
 [Code]
 function ShouldRelaunch: Boolean;

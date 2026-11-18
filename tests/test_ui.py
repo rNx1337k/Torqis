@@ -160,6 +160,23 @@ def test_simulator_car_choice_in_options():
     assert simcars.ENV not in os.environ
 
 
+def test_saved_cable_port_that_is_unplugged_is_not_replaced():
+    """O cabo guardado (ex.: COM3) não está ligado quando o programa abre: a escolha fica (marcada como não
+    encontrada) em vez de passar sem aviso para o simulador e se perder ao guardar as opções."""
+    app, w = _window()
+    try:
+        o = w.options
+        old = w.settings.value("port")
+        w.settings.setValue("port", "COM99")
+        o.port.clear()
+        o.refresh_ports()
+        assert o.port.currentData() == "COM99" and "não encontrada" in o.port.currentText()
+        assert o.config()["port"] == "COM99"
+        w.settings.setValue("port", old)
+    finally:
+        w.close()
+
+
 def test_clear_all_hides_the_advice_of_the_cleared_fault():
     app, w = _window()
     import rad.ui.pages.autoscan as autoscan_page

@@ -1,7 +1,46 @@
 # Changelog
 
-All notable changes to Roots Auto Doctor are documented here.
+All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
+
+## [1.22.0] — 2026-11-18
+The program is now called **Torqis**.
+
+### Changed
+- **New name and brand (Torqis · Minimal premium)**: name, window title, splash, sidebar wordmark
+  (TORQIS / DIAGNOSTICS), icon and logo (light ring with a scale and the blue needle), README banner, installer,
+  executable (`Torqis.exe`), release files (`Setup_Torqis_<version>.exe`, `Torqis_<version>_portatil.zip`),
+  support package and every text, in Portuguese and English.
+- **Interface colours**: graphite backgrounds instead of night blue, and the needle blue (#3D7BFF → #6FA8FF) as the
+  accent instead of cyan; red, amber and green stay reserved for fault / warning / OK (`rad/ui/style.py`).
+- `tools/make_brand.py` now installs the brand kit (`python tools/make_brand.py <kit folder>`) instead of drawing
+  the old logo.
+
+### Migration (nothing is lost)
+- **Data and settings**: on the first start the program copies `%APPDATA%\RootsAutoDoctor` (history, customers,
+  licence, workshop logo, recordings, pending updates) to `%APPDATA%\Torqis`, and the registry settings from
+  `Roots\RootsAutoDoctor` to `Torqis\Torqis` — once, and only if there is nothing new yet. The old folder is copied,
+  not moved, so a rollback to 1.21 still finds its data.
+- **Licences keep working**: the PC ID is computed exactly as before (`licensing.MACHINE_ID_SALT`, checked against
+  the 1.21.0 code in `test_machine_id_does_not_change_with_the_name`).
+- **Updates from 1.21**: the updater picks any `Setup*.exe` / `*_portatil.zip` in the release, so 1.21 installs
+  update to Torqis by themselves. The installer keeps the same AppId (it upgrades the existing install), removes
+  `RootsAutoDoctor.exe` and the old shortcuts (`[InstallDelete]`) and creates the Torqis ones.
+  **Known limit:** a *portable* 1.21 copy refuses the Torqis zip (it looks for `RootsAutoDoctor.exe` inside it) and
+  says the download is damaged; those customers download the Torqis portable zip by hand once.
+- **Rollback**: an installer kept by 1.21 (`Setup_RootsAutoDoctor_<version>.exe`) is still found and kept, so a
+  Torqis version that does not open can still go back to 1.21.
+- Tools: the private key folder is now `%USERPROFILE%\Torqis_licencas`, with the old folder used while the new one
+  does not exist; the runtime stamp is `torqis_runtime.txt` (the old stamp is still accepted).
+- New `tests/test_rename.py`.
+
+### Repository and names kept on purpose
+- **GitHub repository renamed to `rNx1337k/Torqis`** (description, topics and downloads page filled in). GitHub
+  redirects the old address, so 1.21 installs keep finding updates; `rad/updates.py`, the README, the release notes
+  and the docs point to the new one. The old name must never be reused by a new repository, or the redirect stops.
+- The `rad` package, the `RAD1-` licence keys and the `RAD_*` variables: internal names the customer never sees, and
+  issued licences depend on them.
+- Recorded sessions in `tests/captures` (they are recordings made by the old version) and past CHANGELOG entries.
 
 ## [1.21.0] — 2026-11-17
 ### Added

@@ -1,5 +1,5 @@
 @echo off
-REM Abre o Roots Auto Doctor a partir do codigo-fonte (desenvolvimento).
+REM Abre o Torqis a partir do codigo-fonte (desenvolvimento).
 REM Para usar noutros PCs instale com o instalador gerado pelo build_release.bat: nao precisa de Python nem de internet.
 cd /d "%~dp0"
 set PREPARAR=0
@@ -14,7 +14,7 @@ if "%PREPARAR%"=="0" (
     fc /b requirements.txt .venv\requirements.instalado >nul 2>&1 || set ATUALIZAR=1
 )
 if "%PREPARAR%"=="1" (
-    echo A preparar o Roots Auto Doctor neste PC, aguarde ^(alguns minutos, precisa de internet^)...
+    echo A preparar o Torqis neste PC, aguarde ^(alguns minutos, precisa de internet^)...
     if exist .venv rmdir /s /q .venv
     if exist .venv (echo Nao foi possivel apagar a pasta .venv antiga: feche as janelas do programa ou reinicie o PC. & pause & exit /b 1)
     py -3.13-64 -m venv .venv >nul 2>&1 || py -3-64 -m venv .venv >nul 2>&1 || python -m venv .venv || (echo Instale o Python 3.13 de 64 bits ^(python.org^) e marque "Add Python to PATH". & pause & exit /b 1)

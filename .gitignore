@@ -42,4 +42,5 @@ autoteste*.txt
 
 # Chaves privadas de licença: nunca no repositório
 *.key
+Torqis_licencas/
 RootsAutoDoctor_licencas/

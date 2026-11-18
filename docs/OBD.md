@@ -1,6 +1,6 @@
 # OBD-II / EOBD and UDS (any make)
 
-Since v1.5.0 Roots Auto Doctor reads any vehicle with **OBD-II / EOBD** through an **ELM327** adapter (USB or
+Since v1.5.0 Torqis reads any vehicle with **OBD-II / EOBD** through an **ELM327** adapter (USB or
 Bluetooth, shown as a COM port). It complements the VAG K-line functions (KW1281 / KWP2000), which still need a
 KKL 409.1 cable or a J2534 interface.
 

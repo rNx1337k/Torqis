@@ -1,5 +1,5 @@
 """Registos em disco: comunicação (um ficheiro por dia) e erros inesperados (crash.log).
-Ficam em %APPDATA%\\RootsAutoDoctor\\registos — é isto que se envia para corrigir bugs."""
+Ficam em %APPDATA%\\Torqis\\registos — é isto que se envia para corrigir bugs."""
 import datetime
 import logging
 import logging.handlers
@@ -10,11 +10,12 @@ import sys
 import traceback
 
 from . import APP_NAME, VERSION
+from . import DATA_FOLDER
 
 
 def log_dir():
     base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-    path = os.path.join(base, "RootsAutoDoctor", "registos")
+    path = os.path.join(base, DATA_FOLDER, "registos")
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -64,7 +65,7 @@ def crash_log_path():
         return os.path.join(log_dir(), "crash.log")
     except OSError:
         base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-        return os.path.join(base, "RootsAutoDoctor", "registos", "crash.log")
+        return os.path.join(base, DATA_FOLDER, "registos", "crash.log")
 
 
 _fault_fh = None

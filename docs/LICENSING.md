@@ -1,6 +1,6 @@
 # Licensing
 
-Roots Auto Doctor is licensed per workshop PC. Activation is **offline**: neither the workshop nor the vendor
+Torqis is licensed per workshop PC. Activation is **offline**: neither the workshop nor the vendor
 needs an internet connection.
 
 ## How it works
@@ -25,8 +25,9 @@ needs an internet connection.
    .venv\Scripts\python.exe tools\license_tool.py genkey
    ```
 
-   The private key is written to `%USERPROFILE%\RootsAutoDoctor_licencas\private.key` (outside the repository;
-   `*.key` is also in `.gitignore`) and the public key to `rad/license_pubkey.py`. **Back up the private key**:
+   The private key is written to `%USERPROFILE%\Torqis_licencas\private.key` (outside the repository;
+   `*.key` is also in `.gitignore`; a key folder created before the rename, `%USERPROFILE%\RootsAutoDoctor_licencas`, is
+   still used while the new one does not exist) and the public key to `rad/license_pubkey.py`. **Back up the private key**:
    without it you cannot issue new keys for this public key. The tool never overwrites an existing private key.
    Commit `rad/license_pubkey.py` and build a new release.
 
@@ -45,6 +46,6 @@ needs an internet connection.
 ## Updates
 
 The update check (Options → Updates) reads the latest GitHub release of the repository. To deliver a version to
-workshops, publish a GitHub release for the tag and attach `Setup_RootsAutoDoctor_<version>.exe`; the app opens
+workshops, publish a GitHub release for the tag and attach `Setup_Torqis_<version>.exe`; the app opens
 the installer link. Without releases the app falls back to the highest version tag and opens the releases page.
 If the repository is private, the check cannot see it and reports the GitHub error.

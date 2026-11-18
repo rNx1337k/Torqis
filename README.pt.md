@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png" alt="Roots Auto Doctor" width="100%">
+  <img src="docs/banner.png" alt="Torqis" width="100%">
 </p>
 
 <p align="center">
@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/vers%C3%A3o-1.21.0-4F8DFF?style=flat-square" alt="Versão">
-  <a href="https://github.com/rNx1337k/RootsAutoDoctor/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/RootsAutoDoctor/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
+  <img src="https://img.shields.io/badge/vers%C3%A3o-1.22.0-3D7BFF?style=flat-square" alt="Versão">
+  <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/estado-beta-E8343A?style=flat-square" alt="Estado: beta">
 </p>
@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/rNx1337k/RootsAutoDoctor/releases"><img src="https://img.shields.io/badge/Descarregar_para_Windows-2F5BFF?style=for-the-badge&logo=windows&logoColor=white" alt="Descarregar para Windows"></a>
+  <a href="https://github.com/rNx1337k/Torqis/releases"><img src="https://img.shields.io/badge/Descarregar_para_Windows-2F5BFF?style=for-the-badge&logo=windows&logoColor=white" alt="Descarregar para Windows"></a>
 </p>
 
 ---
@@ -95,16 +95,16 @@ foi também conferida com dados reais capturados num carro. O estado completo, p
 - Um PC com **Windows 10 ou Windows 11 (64 bits)**
 - Um dos cabos ou interfaces acima
 
-**Não é preciso instalar mais nada.** O Roots Auto Doctor traz tudo o que precisa.
+**Não é preciso instalar mais nada.** O Torqis traz tudo o que precisa.
 
 ## Descarregar
 
-Na página [Releases](https://github.com/rNx1337k/RootsAutoDoctor/releases):
+Na página [Releases](https://github.com/rNx1337k/Torqis/releases):
 
-- **`Setup_RootsAutoDoctor_<versão>.exe`** — instala o programa com atalhos no menu Iniciar e no ambiente de
+- **`Setup_Torqis_<versão>.exe`** — instala o programa com atalhos no menu Iniciar e no ambiente de
   trabalho (recomendado)
-- **`RootsAutoDoctor_<versão>_portatil.zip`** — versão portátil: extraia para qualquer pasta (até uma pen USB) e
-  abra o `RootsAutoDoctor.exe`
+- **`Torqis_<versão>_portatil.zip`** — versão portátil: extraia para qualquer pasta (até uma pen USB) e
+  abra o `Torqis.exe`
 
 > [!NOTE]
 > Da primeira vez, o Windows pode mostrar *"O Windows protegeu o seu PC"*: clique em **Mais informações → Executar
@@ -112,7 +112,7 @@ Na página [Releases](https://github.com/rNx1337k/RootsAutoDoctor/releases):
 
 ## Primeiros passos
 
-1. Ligue o cabo ao PC e abra o Roots Auto Doctor.
+1. Ligue o cabo ao PC e abra o Torqis.
 2. Vá a **Opções → Detectar cabo** — o programa encontra o cabo sozinho.
 3. Ligue o cabo ao carro, ligue a ignição e clique em **Testar ligação**.
 4. Faça um **Auto-Scan**, ou escolha um controlador.
@@ -136,7 +136,7 @@ Os diagnósticos, as definições, a licença e o logótipo da oficina ficam no 
 
 ## Actualizações
 
-O Roots Auto Doctor mantém-se sempre actualizado, instalado ou portátil, sem clicar em nada: procura uma versão
+O Torqis mantém-se sempre actualizado, instalado ou portátil, sem clicar em nada: procura uma versão
 nova quando abre e de poucas em poucas horas, e descarrega-a em segundo plano. Se ainda não começou a trabalhar,
 fecha, actualiza e volta a abrir sozinho; senão, instala quando fechar o programa (ou logo, com **Actualizar para a
 versão …**). Só são instaladas versões assinadas pelo editor. Se uma actualização não terminar, o programa continua
@@ -144,13 +144,13 @@ a funcionar na versão anterior e avisa.
 
 ## Estado
 
-O Roots Auto Doctor está em **beta**. Todas as funções podem ser experimentadas com o simulador incluído, e a
+O Torqis está em **beta**. Todas as funções podem ser experimentadas com o simulador incluído, e a
 validação nos veículos está em curso. Os resultados simulados estão sempre identificados como tal, no ecrã e nos
 relatórios.
 
 ---
 
 <sub>Copyright © 2026. Todos os direitos reservados. Este software é proprietário e não pode ser copiado, modificado
-nem redistribuído sem autorização escrita. VW, Audi, Seat e Škoda são marcas dos respectivos donos; o Roots Auto
-Doctor é um produto independente e não está associado à Volkswagen AG.
+nem redistribuído sem autorização escrita. VW, Audi, Seat e Škoda são marcas dos respectivos donos; o Torqis é um
+produto independente e não está associado à Volkswagen AG.
 Documentação para programadores: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) (em inglês).</sub>

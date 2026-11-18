@@ -29,16 +29,20 @@ FILES = {
 URL = "https://www.python.org/ftp/python/{v}/python-{v}-embed-{arch}.zip"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_DIR = os.path.join(ROOT, "runtime")
-STAMP = "roots_runtime.txt"
+STAMP = "torqis_runtime.txt"
+OLD_STAMPS = ("roots_runtime.txt",)            # marca escrita pelas versões com o nome antigo: o runtime serve igual
 
 
 def is_ready(folder):
     """A pasta tem um runtime completo desta versão (python.exe + marca escrita no fim da extracção)."""
-    try:
-        with open(os.path.join(folder, STAMP), encoding="utf-8") as fh:
-            return fh.read().strip() == VERSION and os.path.exists(os.path.join(folder, "python.exe"))
-    except OSError:
-        return False
+    for name in (STAMP, *OLD_STAMPS):
+        try:
+            with open(os.path.join(folder, name), encoding="utf-8") as fh:
+                if fh.read().strip() == VERSION and os.path.exists(os.path.join(folder, "python.exe")):
+                    return True
+        except OSError:
+            continue
+    return False
 
 
 def install(name, dest_dir, log=print):

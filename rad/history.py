@@ -13,6 +13,7 @@ import re
 import shutil
 import sqlite3
 from .i18n import tr
+from . import DATA_FOLDER
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ def _migrate(db):
 
 def history_dir():
     base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-    path = os.path.join(base, "RootsAutoDoctor", "historico")
+    path = os.path.join(base, DATA_FOLDER, "historico")
     os.makedirs(path, exist_ok=True)
     return path
 

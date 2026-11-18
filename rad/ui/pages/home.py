@@ -100,7 +100,7 @@ class HomePage(QWidget):
         cta = QHBoxLayout()
         cta.setSpacing(10)
         go_scan = btn(tr("  Iniciar Auto-Scan"), "primary", lambda: self.go.emit("autoscan_start"))
-        go_scan.setIcon(nav_icon("autoscan", "#031024"))
+        go_scan.setIcon(nav_icon("autoscan", "#0C0F14"))
         go_scan.setIconSize(QSize(20, 20))
         go_scan.setMinimumHeight(46)
         go_scan.setMinimumWidth(220)
@@ -188,7 +188,7 @@ class HomePage(QWidget):
         self.recent.setMinimumHeight(120)
         self.recent.setStyleSheet(f"QListWidget {{ border: none; background: transparent; }}"
                                   f"QListWidget::item {{ border-bottom: 1px solid {LINE}; }}"
-                                  "QListWidget::item:selected { background: rgba(34, 211, 201, 0.10); }")
+                                  "QListWidget::item:selected { background: rgba(111, 168, 255, 0.10); }")
         self.recent.itemDoubleClicked.connect(lambda _it: self.go.emit("history"))
         rl.addWidget(self.recent, 1)
         self.recent_empty = lbl(tr("Os diagnósticos guardados aparecem aqui."), "muted")

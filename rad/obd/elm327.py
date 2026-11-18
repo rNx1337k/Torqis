@@ -192,7 +192,7 @@ class Elm327Link:
             msg = tr("O adaptador não suporta o comando {cmd}", cmd=cmd)
             if required:
                 self.log(f"ELM327: {msg} — adaptador incompatível")
-                raise NotSupported(tr("Este adaptador OBD não é compatível com o Roots Auto Doctor."))
+                raise NotSupported(tr("Este adaptador OBD não é compatível com o Torqis."))
             self.warnings.append(msg)
             self.log(f"ELM327: {msg} (ignorado)")
             return lines

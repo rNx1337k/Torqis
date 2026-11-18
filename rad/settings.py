@@ -7,11 +7,37 @@ import os
 from PySide6.QtCore import QSettings
 
 
+ORGANIZATION, APPLICATION = "Torqis", "Torqis"
+# onde as versões até 1.21 (com o nome antigo do programa) guardavam as definições — só para as trazer uma vez
+LEGACY_ORGANIZATION, LEGACY_APPLICATION = "Roots", "RootsAutoDoctor"
+
+
 def app_settings():
     path = os.environ.get("RAD_SETTINGS_INI")
     if path:
         return QSettings(path, QSettings.IniFormat)
-    return QSettings("Roots", "RootsAutoDoctor")
+    return QSettings(ORGANIZATION, APPLICATION)
+
+
+def migrate_legacy_settings(new=None, old=None):
+    """Primeiro arranque com o nome novo: copia as definições antigas (porta do cabo, dados da oficina, idioma,
+    tamanho da janela...) se ainda não houver nenhuma. Devolve o número de definições copiadas. Nunca falha."""
+    try:
+        if new is None:
+            if os.environ.get("RAD_SETTINGS_INI"):
+                return 0                          # testes: definições num ficheiro à parte
+            new = QSettings(ORGANIZATION, APPLICATION)
+        if new.allKeys():
+            return 0
+        old = old if old is not None else QSettings(LEGACY_ORGANIZATION, LEGACY_APPLICATION)
+        keys = old.allKeys()
+        for k in keys:
+            new.setValue(k, old.value(k))
+        if keys:
+            new.sync()
+        return len(keys)
+    except Exception:
+        return 0
 
 
 # Tamanho da interface (Opções → Ecrã). Aplica-se no arranque, antes de criar a QApplication, com o factor de

@@ -25,7 +25,7 @@ SYSTEM_NAMES = {"P": "Motor / transmissão", "C": "Chassis", "B": "Carroçaria",
 # mais frequentes (SAE J2012 / ISO 15031-6). Outras bases (licenciadas ou do fabricante) podem ser acrescentadas
 # como ficheiros JSON em `data/` com o mesmo formato — ver load_database().
 SOURCES = {
-    "generic": "Base genérica do Roots Auto Doctor — títulos resumidos dos códigos normalizados SAE J2012 / "
+    "generic": "Base genérica do Torqis — títulos resumidos dos códigos normalizados SAE J2012 / "
                "ISO 15031-6 (só códigos genéricos; confirmar sempre com a documentação do fabricante)",
 }
 

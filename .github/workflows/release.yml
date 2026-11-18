@@ -53,10 +53,10 @@ jobs:
       - name: Guardar os ficheiros do build
         uses: actions/upload-artifact@v6
         with:
-          name: RootsAutoDoctor_${{ steps.version.outputs.version }}
+          name: Torqis_${{ steps.version.outputs.version }}
           path: |
-            dist/Setup_RootsAutoDoctor_*.exe
-            dist/RootsAutoDoctor_*_portatil.zip
+            dist/Setup_Torqis_*.exe
+            dist/Torqis_*_portatil.zip
             build/autoteste_build.txt
       - name: Release em rascunho
         if: github.ref_type == 'tag'
@@ -66,5 +66,5 @@ jobs:
         run: |
           $v = "${{ steps.version.outputs.version }}"
           .venv\Scripts\python tools\finish_build.py notes $v build\novidades.md
-          gh release create "${{ github.ref_name }}" --draft --title "Roots Auto Doctor $v" --notes-file build\novidades.md `
-            "dist/Setup_RootsAutoDoctor_$v.exe" "dist/RootsAutoDoctor_$($v)_portatil.zip"
+          gh release create "${{ github.ref_name }}" --draft --title "Torqis $v" --notes-file build\novidades.md `
+            "dist/Setup_Torqis_$v.exe" "dist/Torqis_$($v)_portatil.zip"

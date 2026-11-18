@@ -18,8 +18,8 @@ EN = {
         "The driver is installed but the RT-USB.DLL library is missing. Reinstall the driver, or replace it with WinUSB using Zadig to use direct USB access. ",
     "{name} — driver RT-USB OK, falta o componente de {bits} bits do programa":
         "{name} — RT-USB driver OK, the program's {bits}-bit component is missing",
-    "O {dll} é de {bits} bits e é carregado pelo componente de {bits} bits que vem com o Roots Auto Doctor (pasta runtime/py{bits}), que não foi encontrado. Volte a instalar o programa (ou, no código-fonte, execute o run.bat) e carregue outra vez em Detectar cabo. ":
-        "{dll} is {bits}-bit and is loaded by the {bits}-bit component that ships with Roots Auto Doctor (runtime/py{bits} folder), which was not found. Reinstall the program (or, from source code, run run.bat) and click Detect cable again. ",
+    "O {dll} é de {bits} bits e é carregado pelo componente de {bits} bits que vem com o Torqis (pasta runtime/py{bits}), que não foi encontrado. Volte a instalar o programa (ou, no código-fonte, execute o run.bat) e carregue outra vez em Detectar cabo. ":
+        "{dll} is {bits}-bit and is loaded by the {bits}-bit component that ships with Torqis (runtime/py{bits} folder), which was not found. Reinstall the program (or, from source code, run run.bat) and click Detect cable again. ",
     "{name} pronta pelo driver RT-USB ({chip}, S/N {v})":
         "{name} ready through the RT-USB driver ({chip}, S/N {v})",
     "Estes clones (HEX-USB+CAN) têm um microcontrolador entre o chip FTDI e a ficha OBD: o Diagnóstico da ligação fala com ele, confirma que responde e põe-no em modo KKL para chegar à linha K. Faça-o com o cabo no carro e a ignição ligada.":
@@ -28,8 +28,8 @@ EN = {
         "{name} — chip {chip}, VID {vid} PID {pid}, no driver",
     "{name} — usa o driver '{v}'":
         "{name} — uses the '{v}' driver",
-    "Este driver é o do programa do fabricante e o Roots Auto Doctor não o usa. Para acesso USB directo substitua-o pelo WinUSB com o Zadig (pode voltar ao driver anterior no Gestor de Dispositivos → Controlador → Reverter). ":
-        "This driver belongs to the manufacturer's program and Roots Auto Doctor does not use it. For direct USB access replace it with WinUSB using Zadig (you can go back to the previous driver in Device Manager → Driver → Roll Back). ",
+    "Este driver é o do programa do fabricante e o Torqis não o usa. Para acesso USB directo substitua-o pelo WinUSB com o Zadig (pode voltar ao driver anterior no Gestor de Dispositivos → Controlador → Reverter). ":
+        "This driver belongs to the manufacturer's program and Torqis does not use it. For direct USB access replace it with WinUSB using Zadig (you can go back to the previous driver in Device Manager → Driver → Roll Back). ",
     "{name} — driver WinUSB OK, falta o pyftdi":
         "{name} — WinUSB driver OK, pyftdi is missing",
     "Instale as dependências: .venv\\Scripts\\python.exe -m pip install -r requirements.txt":
@@ -172,8 +172,8 @@ EN = {
         "Port error during the echo test: {e}",
     "O licenciamento ainda não está configurado nesta versão.":
         "Licensing is not configured in this version yet.",
-    "Isto não é uma chave de licença do Roots Auto Doctor.":
-        "This is not a Roots Auto Doctor licence key.",
+    "Isto não é uma chave de licença do Torqis.":
+        "This is not a Torqis licence key.",
     "A chave está incompleta ou foi mal copiada.":
         "The key is incomplete or was copied incorrectly.",
     "A chave não é válida (assinatura errada ou chave alterada).":
@@ -1300,8 +1300,8 @@ EN = {
         "<p>No J2534 (PassThru) interface registered on this PC.</p>",
     "Abrir Gestor de Dispositivos":
         "Open Device Manager",
-    "RootsAutoDoctor_suporte_{v:%Y%m%d_%H%M}.zip":
-        "RootsAutoDoctor_support_{v:%Y%m%d_%H%M}.zip",
+    "Torqis_suporte_{v:%Y%m%d_%H%M}.zip":
+        "Torqis_support_{v:%Y%m%d_%H%M}.zip",
     "Guardar pacote de suporte":
         "Save support package",
     "Zip (*.zip)":
@@ -1412,8 +1412,8 @@ EN = {
         "KKL (direct K-line)",
     "Modo do cabo":
         "Cable mode",
-    "Modo inteligente: a linha K é controlada pelo microcontrolador do cabo e o protocolo dele para falar com as centralinas ainda não está implementado no Roots Auto Doctor":
-        "Smart mode: the K-line is controlled by the cable's microcontroller, and its protocol for talking to ECUs is not yet implemented in Roots Auto Doctor",
+    "Modo inteligente: a linha K é controlada pelo microcontrolador do cabo e o protocolo dele para falar com as centralinas ainda não está implementado no Torqis":
+        "Smart mode: the K-line is controlled by the cable's microcontroller, and its protocol for talking to ECUs is not yet implemented in Torqis",
     "Eco da linha K":
         "K-line echo",
     "Ligação ao controlador {address:02X}":
@@ -1560,8 +1560,8 @@ EN = {
         "Powertrain data bus",
     "Barramento de dados — falta mensagem do painel de instrumentos":
         "Data bus — missing message from the instrument cluster",
-    "Base genérica do Roots Auto Doctor — títulos resumidos dos códigos normalizados SAE J2012 / ISO 15031-6 (só códigos genéricos; confirmar sempre com a documentação do fabricante)":
-        "Roots Auto Doctor generic database — summarised titles of the standardised SAE J2012 / ISO 15031-6 codes (generic codes only; always confirm with the manufacturer's documentation)",
+    "Base genérica do Torqis — títulos resumidos dos códigos normalizados SAE J2012 / ISO 15031-6 (só códigos genéricos; confirmar sempre com a documentação do fabricante)":
+        "Torqis generic database — summarised titles of the standardised SAE J2012 / ISO 15031-6 codes (generic codes only; always confirm with the manufacturer's documentation)",
     "Bateria":
         "Battery",
     "Bateria desligada ou componente substituído sem ajuste básico":
@@ -3346,10 +3346,10 @@ EN = {
         "Choose {com} as the cable port and click Test connection with the ignition on.",
     "Esta função ainda não está disponível para este módulo.":
         "This function is not yet available for this module.",
-    "Este adaptador OBD não é compatível com o Roots Auto Doctor.":
-        "This OBD adapter is not compatible with Roots Auto Doctor.",
-    "Este cabo está num modo que o Roots Auto Doctor ainda não consegue usar. Crie um Pacote de suporte em Opções e envie-o.":
-        "This cable is in a mode that Roots Auto Doctor cannot use yet. Create a Support package in Options and send it.",
+    "Este adaptador OBD não é compatível com o Torqis.":
+        "This OBD adapter is not compatible with Torqis.",
+    "Este cabo está num modo que o Torqis ainda não consegue usar. Crie um Pacote de suporte em Opções e envie-o.":
+        "This cable is in a mode that Torqis cannot use yet. Create a Support package in Options and send it.",
     "Este cabo precisa de uma preparação única. Crie um Pacote de suporte (em Opções) e envie-o ao suporte.":
         "This cable needs a one-time preparation. Create a Support package (in Options) and send it to support.",
     "Este controlador só comunica com o cabo VAG: ligue-o com o cabo VAG em vez desta interface.":
@@ -3384,8 +3384,8 @@ EN = {
         "Connection to the vehicle",
     "Ligação ao veículo fechada.":
         "Connection to the vehicle closed.",
-    "Ligue o PC à internet com o cabo ligado e aguarde um minuto (o Windows prepara-o sozinho), ou volte a instalar o Roots Auto Doctor. Depois carregue outra vez em Detectar cabo.":
-        "Connect the PC to the internet with the cable plugged in and wait a minute (Windows prepares it by itself), or reinstall Roots Auto Doctor. Then click Detect cable again.",
+    "Ligue o PC à internet com o cabo ligado e aguarde um minuto (o Windows prepara-o sozinho), ou volte a instalar o Torqis. Depois carregue outra vez em Detectar cabo.":
+        "Connect the PC to the internet with the cable plugged in and wait a minute (Windows prepares it by itself), or reinstall Torqis. Then click Detect cable again.",
     "Ligue o cabo ao carro com a ignição ligada.\n\nMódulo a testar (01 = motor, 17 = painel):":
         "Connect the cable to the car with the ignition on.\n\nModule to test (01 = engine, 17 = instruments):",
     "Login enviado e recebido pelo controlador. O controlador não indica se o código está correcto: confirme na função que precisa do login.":
@@ -3474,8 +3474,8 @@ EN = {
         "VERSION {VERSION}",
     "Verificar o cabo e a ligação ao carro":
         "Check the cable and the connection to the car",
-    "Volte a instalar o Roots Auto Doctor e carregue outra vez em Detectar cabo.":
-        "Reinstall Roots Auto Doctor and click Detect cable again.",
+    "Volte a instalar o Torqis e carregue outra vez em Detectar cabo.":
+        "Reinstall Torqis and click Detect cable again.",
     "a iniciar…":
         "starting…",
     "medida pelo adaptador":
@@ -3895,8 +3895,8 @@ EN = {
         "groups read: {groups}",
     "{addr:02X} {module}":
         "{addr:02X} {module}",
-    "A leitura de centralinas passa pelo protocolo próprio do microcontrolador; a captura do arranque do cabo mostra uma troca aparentemente autenticada/cifrada. Não se replica nem contorna: este cabo não lê centralinas no Roots Auto Doctor. Modo KKL do firmware testado no carro: sem linha K directa.":
-        "Reading ECUs goes through the microcontroller's own protocol; the capture of the cable starting up shows an exchange that looks authenticated/encrypted. It is not replicated or bypassed: this cable does not read ECUs in Roots Auto Doctor. The firmware's KKL mode was tested on the car: no direct K-line.",
+    "A leitura de centralinas passa pelo protocolo próprio do microcontrolador; a captura do arranque do cabo mostra uma troca aparentemente autenticada/cifrada. Não se replica nem contorna: este cabo não lê centralinas no Torqis. Modo KKL do firmware testado no carro: sem linha K directa.":
+        "Reading ECUs goes through the microcontroller's own protocol; the capture of the cable starting up shows an exchange that looks authenticated/encrypted. It is not replicated or bypassed: this cable does not read ECUs in Torqis. The firmware's KKL mode was tested on the car: no direct K-line.",
     "Cada avaria com o byte de estado tal como veio da centralina e o código-tipo que o programa mostra (por exemplo 35-10).":
         "Each fault with the status byte exactly as the ECU sent it and the code-type the program shows (for example 35-10).",
     "Centralina KWP2000: o significado do byte de estado ainda não está confirmado num carro. O byte cru fica registado na gravação e neste relatório para o confirmar.":
@@ -3905,10 +3905,10 @@ EN = {
         "With the cable in the car and the ignition on (engine off), the program connects to the engine, the instrument cluster and the ABS, reads the identification, the faults and block 001, and records all the communication. At the end, send the recording and the report.",
     "Código-tipo":
         "Code-type",
-    "Esta interface não tem porta COM. Para o Roots Auto Doctor a usar por acesso USB directo, instale o driver WinUSB com o Zadig: Options → List All Devices → escolha '{name}' → WinUSB → Install Driver. Depois carregue de novo em Detectar cabo. (Outros programas deixam de reconhecer esta interface enquanto tiver o WinUSB.) ":
-        "This interface has no COM port. For Roots Auto Doctor to use it through direct USB access, install the WinUSB driver with Zadig: Options → List All Devices → choose '{name}' → WinUSB → Install Driver. Then click Detect cable again. (Other programs stop recognising this interface while it has WinUSB.) ",
-    "Esta interface tem um microcontrolador com firmware {who} entre o USB e o carro, e só fala com o programa desse fabricante. Não funciona como cabo KKL e não pode ser usada pelo Roots Auto Doctor, mesmo com drivers. É preciso um cabo KKL 409.1 (FTDI ou CH340); para módulos KWP2000 também serve uma interface J2534.":
-        "This interface has a microcontroller with firmware {who} between the USB and the car, and only talks to that manufacturer's program. It does not work as a KKL cable and cannot be used by Roots Auto Doctor, even with drivers. You need a KKL 409.1 cable (FTDI or CH340); for KWP2000 modules a J2534 interface also works.",
+    "Esta interface não tem porta COM. Para o Torqis a usar por acesso USB directo, instale o driver WinUSB com o Zadig: Options → List All Devices → escolha '{name}' → WinUSB → Install Driver. Depois carregue de novo em Detectar cabo. (Outros programas deixam de reconhecer esta interface enquanto tiver o WinUSB.) ":
+        "This interface has no COM port. For Torqis to use it through direct USB access, install the WinUSB driver with Zadig: Options → List All Devices → choose '{name}' → WinUSB → Install Driver. Then click Detect cable again. (Other programs stop recognising this interface while it has WinUSB.) ",
+    "Esta interface tem um microcontrolador com firmware {who} entre o USB e o carro, e só fala com o programa desse fabricante. Não funciona como cabo KKL e não pode ser usada pelo Torqis, mesmo com drivers. É preciso um cabo KKL 409.1 (FTDI ou CH340); para módulos KWP2000 também serve uma interface J2534.":
+        "This interface has a microcontroller with firmware {who} between the USB and the car, and only talks to that manufacturer's program. It does not work as a KKL cable and cannot be used by Torqis, even with drivers. You need a KKL 409.1 cable (FTDI or CH340); for KWP2000 modules a J2534 interface also works.",
     "Firmware fechado do fabricante":
         "Manufacturer's closed firmware",
     "Interfaces HEX-V2 / HEX-NET originais":
@@ -4027,4 +4027,6 @@ EN = {
         "American petrol car (2004), OBD over J1850",
     "SAE J1850 PWM, motor e caixa automática, catalisador e fuga EVAP":
         "SAE J1850 PWM, engine and automatic gearbox, catalytic converter and EVAP leak",
+    "{port} — não encontrada agora (cabo desligado?)":
+        "{port} — not found right now (cable unplugged?)",
 }

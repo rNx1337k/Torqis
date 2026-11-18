@@ -1,7 +1,7 @@
-# KKL 409.1 cable (FTDI) with Roots Auto Doctor
+# KKL 409.1 cable (FTDI) with Torqis
 
 An independent diagnostic path with no proprietary software: a **KKL 409.1** cable with an **FTDI** chip
-(or CH340) shows up as a normal COM port and Roots Auto Doctor talks to the K-line directly
+(or CH340) shows up as a normal COM port and Torqis talks to the K-line directly
 (KW1281 and KWP2000). It is the recommended way to validate real readings on VAG cars up to ~2005.
 
 ## What is already implemented (audited on 2026-10-21)
@@ -29,10 +29,10 @@ needs the hardware.
 ## Evidence from real data (no car)
 
 `tests/test_capture_replay.py` uses the plain KW1281 response from an **Audi A3 8L 1.9 TDI** ("EDC SG 1536"),
-recorded with USBPcap on 21/10/2026. The reference scan tool showed 5 faults at the same moment; Roots Auto Doctor's
+recorded with USBPcap on 21/10/2026. The reference scan tool showed 5 faults at the same moment; Torqis's
 `read_faults()`, on the same bytes, returns exactly the same ones:
 
-| ECU bytes | Roots Auto Doctor | Reference (photo) |
+| ECU bytes | Torqis | Reference (photo) |
 |---|---|---|
 | `44 90 A3` | 17552 · 35 · intermittent | 17552 P1144 35-10 |
 | `46 8E A3` | 18062 · 35 · intermittent | 18062 P1654 35-10 |

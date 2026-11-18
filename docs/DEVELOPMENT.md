@@ -1,6 +1,6 @@
 # Development
 
-Technical documentation for Roots Auto Doctor: interfaces, protocols, building and testing. The
+Technical documentation for Torqis: interfaces, protocols, building and testing. The
 [README](../README.md) is the product page for workshops and deliberately leaves all of this out.
 
 ## Architecture in one paragraph
@@ -83,7 +83,7 @@ recordings are never paced.
 **Recording** (`rad/capture.py`): while a recording is active, every byte sent and received through the VAG cable
 or the OBD adapter, and every J2534 bridge request, is written to a `.radrec` file (JSON lines, readable in a text
 editor) together with the commands the program ran and a stable summary of each result. **Options → Record
-communication** starts and stops it; recordings live in `%APPDATA%\RootsAutoDoctor\gravacoes` and the latest three
+communication** starts and stops it; recordings live in `%APPDATA%\Torqis\gravacoes` and the latest three
 go into the support package.
 
 **Replay** (`rad/replay.py`): the port `REPLAY:<file>` (or `J2534:REPLAY:<file>`) answers with the recording and
@@ -128,7 +128,7 @@ raw error messages.
 
 ```bat
 .venv\Scripts\pythonw.exe main.py --tecnico
-"C:\Program Files\Roots Auto Doctor\RootsAutoDoctor.exe" --tecnico
+"C:\Program Files\Torqis\Torqis.exe" --tecnico
 ```
 
 ## Running from source
@@ -137,8 +137,8 @@ Requires **Python 3.13, 64-bit** ([python.org](https://www.python.org/downloads/
 first run.
 
 ```bat
-git clone https://github.com/rNx1337k/RootsAutoDoctor.git
-cd RootsAutoDoctor
+git clone https://github.com/rNx1337k/Torqis.git
+cd Torqis
 run.bat
 ```
 
@@ -153,7 +153,7 @@ portable 32/64-bit Python used by the bridges (`runtime/`) and starts the app.
 | `python tools/i18n_check.py` | List interface texts that still have no English translation |
 | `ruff check .` | Style and common errors (also run by GitHub Actions) |
 | `tools\screenshots.bat` | Regenerate the README screenshots (`docs/screenshots/`) with the simulator |
-| `.venv\Scripts\python.exe tools\make_brand.py` | Regenerate the logo, icon (16–256 px) and README banner (only needs the program's PySide6) |
+| `.venv\Scripts\python.exe tools\make_brand.py <kit folder>` | Install the Torqis brand kit (icon 16–256 px, logo, README banner) into `rad/assets` and `docs` |
 | `python tools/license_tool.py` | Create licence keys (vendor only, see [LICENSING.md](LICENSING.md)) |
 
 ## Building a release
@@ -161,10 +161,10 @@ portable 32/64-bit Python used by the bridges (`runtime/`) and starts the app.
 `build_release.bat` produces two files in `dist\`, both self-contained (Python, Qt, Visual C++ runtime, bridges,
 portable Python) so a workshop PC needs nothing else:
 
-- `Setup_RootsAutoDoctor_<version>.exe` — installer ([Inno Setup 6](https://jrsoftware.org/isdl.php) must be
+- `Setup_Torqis_<version>.exe` — installer ([Inno Setup 6](https://jrsoftware.org/isdl.php) must be
   installed on the build PC). Refuses 32-bit Windows and versions older than Windows 10 1809 with a clear
   message, instead of installing a program that would not start.
-- `RootsAutoDoctor_<version>_portatil.zip` — portable version: extract and run.
+- `Torqis_<version>_portatil.zip` — portable version: extract and run.
 
 Steps: Nuitka compiles the app → `tools/finish_build.py check` copies any missing Visual C++ runtime DLLs into
 the build and fails if something the app needs is missing (Qt Windows plugin, bridges, portable Python) → the
@@ -181,8 +181,8 @@ self-test; the result is saved in `build\pc_limpo\autoteste.txt`.
 
 **Automatic updates:** once, run `python tools\update_key.py genkey`. It writes the public key to
 `rad/update_pubkey.py` (commit it) and keeps the private key outside the repository
-(`%USERPROFILE%\RootsAutoDoctor_licencas\update.key`; back it up). From then on `build_release.bat` signs each
-installer (`Setup_RootsAutoDoctor_<version>.exe.sig`: Ed25519 over the version and the installer's SHA-256).
+(`%USERPROFILE%\Torqis_licencas\update.key`; back it up). From then on `build_release.bat` signs each
+installer (`Setup_Torqis_<version>.exe.sig`: Ed25519 over the version and the installer's SHA-256).
 To release, create a GitHub Release with tag `v<version>` and attach the installer, its `.sig` and the portable
 zip. Installed copies (`rad/autoupdate.py`) see the release at start-up, download the installer in the
 background, check the signature, and run it silently (`/VERYSILENT`) when the program closes; the next start
@@ -235,7 +235,7 @@ release, signature checked), the portable version copies back the backup kept be
 Self-test of an installed copy (no car needed):
 
 ```bat
-"C:\Program Files\Roots Auto Doctor\RootsAutoDoctor.exe" --selftest "%USERPROFILE%\Desktop\autoteste.txt"
+"C:\Program Files\Torqis\Torqis.exe" --selftest "%USERPROFILE%\Desktop\autoteste.txt"
 ```
 
 ## Translations
@@ -247,8 +247,10 @@ same `{placeholders}` and HTML tags.
 ## Data and logs
 
 History, the vehicle and customer register (`vehicles` table in `historico.db`, `rad/vehicles.py`), logs,
-recordings, the change journal, the licence and the workshop logo are kept in `%APPDATA%\RootsAutoDoctor`
-(uninstalling keeps them); settings are in the Windows registry (`HKCU\Software\Roots\RootsAutoDoctor`). Logs and
-crash reports are in `%APPDATA%\RootsAutoDoctor\registos`; **Options → Support package** zips them for support.
+recordings, the change journal, the licence and the workshop logo are kept in `%APPDATA%\Torqis`
+(uninstalling keeps them); settings are in the Windows registry (`HKCU\Software\Torqis\Torqis`). On the first start, data and settings
+from the versions before the rename (up to 1.21, `%APPDATA%\RootsAutoDoctor` and `HKCU\Software\Roots\RootsAutoDoctor`)
+are copied over once (`rad.migrate_legacy_data`, `rad.settings.migrate_legacy_settings`). Logs and
+crash reports are in `%APPDATA%\Torqis\registos`; **Options → Support package** zips them for support.
 
 See [CHANGELOG.md](../CHANGELOG.md) for release notes.

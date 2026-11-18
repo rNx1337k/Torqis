@@ -4,7 +4,7 @@ Fluxo (só no programa compilado, com chave de actualizações configurada):
   1. rad/updates.py diz que há uma versão nova no GitHub, com o instalador, a versão portátil e as assinaturas
      (.sig) anexados.
   2. download() descarrega o ficheiro certo para esta cópia (o instalador na versão instalada, o zip na versão
-     portátil) e a assinatura para %APPDATA%\\RootsAutoDoctor\\actualizacoes e verifica-a: SHA-256 do ficheiro +
+     portátil) e a assinatura para %APPDATA%\\Torqis\\actualizacoes e verifica-a: SHA-256 do ficheiro +
      versão, assinados com a chave privada do fornecedor (Ed25519). Um ficheiro trocado ou corrompido é apagado e
      nunca corre.
   3. Instala-se sem o cliente fazer nada: logo que acaba de descarregar, se o cliente ainda não começou a trabalhar
@@ -36,6 +36,8 @@ import zipfile
 from . import APP_NAME, VERSION, ed25519
 from .i18n import tr
 from .updates import TIMEOUT, UpdateError, is_newer, parse_version
+from . import DATA_FOLDER, LEGACY_DATA_FOLDER
+from . import EXE_NAME as APP_EXE_NAME
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +50,7 @@ LOG_NAME = "instalacao.log"          # registo da última instalação (vai no p
 STAGING = "nova_versao"              # versão portátil: zip extraído, à espera de ser copiado
 BACKUP = "versao_anterior"           # versão portátil: cópia da versão actual, para repor se a cópia falhar
 SCRIPT = "aplicar_actualizacao.bat"
-EXE_NAME = "RootsAutoDoctor.exe"
+EXE_NAME = APP_EXE_NAME
 SETTLE_SECONDS = 180                 # depois de lançar a instalação, tempo em que ainda pode estar a decorrer
 INSTALLER, PORTABLE = "installer", "portable"
 
@@ -98,7 +100,7 @@ def verify_file(path, sig, version, public=None):
 # ------------------------------------------------------------------ onde e quando
 def updates_dir():
     base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-    path = os.path.join(base, "RootsAutoDoctor", "actualizacoes")
+    path = os.path.join(base, DATA_FOLDER, "actualizacoes")
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -226,8 +228,8 @@ def download(info, opener=None, progress=None, current=VERSION, mode=INSTALLER):
         return st                                            # já descarregada numa sessão anterior
     clear()
     folder = updates_dir()
-    name = (f"RootsAutoDoctor_{version}_portatil.zip" if mode == PORTABLE
-            else f"Setup_RootsAutoDoctor_{version}.exe")
+    name = (f"Torqis_{version}_portatil.zip" if mode == PORTABLE
+            else f"Setup_Torqis_{version}.exe")
     try:
         sig = json.loads(_fetch(sig_url, opener).decode("utf-8"))
         path = os.path.join(folder, name)
@@ -294,7 +296,7 @@ def _launch_script(path, args, elevate):
     return True
 
 
-RELAUNCH_ARG = "/RELAUNCH=1"          # o instalador volta a abrir o programa no fim (installer/RootsAutoDoctor.iss)
+RELAUNCH_ARG = "/RELAUNCH=1"          # o instalador volta a abrir o programa no fim (installer/Torqis.iss)
 
 
 # ------------------------------------------------------------------ versão portátil
@@ -332,7 +334,7 @@ def extract_portable(zip_path, dest=None):
 SCRIPT_TEMPLATE = r"""@echo off
 set "SYS=%SystemRoot%\System32"
 "%SYS%\chcp.com" 65001 >nul
-REM Roots Auto Doctor: aplica a versao portatil {version} depois de o programa fechar.
+REM Torqis: aplica a versao portatil {version} depois de o programa fechar.
 set "PID={pid}"
 set "APP={app}"
 set "NEW={new}"
@@ -538,7 +540,7 @@ HEALTHY_SECONDS = 20                 # janela aberta há este tempo: a versão f
 
 def rollback_dir():
     base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
-    path = os.path.join(base, "RootsAutoDoctor", "reposicao")
+    path = os.path.join(base, DATA_FOLDER, "reposicao")
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -574,8 +576,12 @@ def bad_versions():
     return set(_read(BAD, []) or [])
 
 
-def _installer_path(version):
-    return os.path.join(rollback_dir(), f"Setup_RootsAutoDoctor_{version}.exe")
+SETUP_PREFIX = "Setup_Torqis_"
+LEGACY_SETUP_PREFIX = f"Setup_{LEGACY_DATA_FOLDER}_"   # instaladores guardados pelas versões até 1.21
+
+
+def _installer_path(version, prefix=SETUP_PREFIX):
+    return os.path.join(rollback_dir(), f"{prefix}{version}.exe")
 
 
 def _keep_installer(path, sig, version, keep=()):
@@ -590,18 +596,21 @@ def _keep_installer(path, sig, version, keep=()):
 
 
 def _prune_installers(keep):
-    names = {os.path.basename(_installer_path(v)) for v in keep}
+    names = {os.path.basename(_installer_path(v, prefix))
+             for v in keep for prefix in (SETUP_PREFIX, LEGACY_SETUP_PREFIX)}
     for name in os.listdir(rollback_dir()):
-        if name.startswith("Setup_RootsAutoDoctor_") and name.replace(".sig", "") not in names:
+        if name.startswith((SETUP_PREFIX, LEGACY_SETUP_PREFIX)) and name.replace(".sig", "") not in names:
             _remove(name)
 
 
 def _kept_installer(version):
-    """(caminho, assinatura) do instalador guardado de uma versão, se ainda estiver bom."""
-    path = _installer_path(version)
-    sig = _read(os.path.basename(path) + ".sig")
-    if os.path.exists(path) and verify_file(path, sig, version):
-        return path, sig
+    """(caminho, assinatura) do instalador guardado de uma versão, se ainda estiver bom (também os guardados com o
+    nome antigo, para poder voltar a uma versão de antes do Torqis)."""
+    for prefix in (SETUP_PREFIX, LEGACY_SETUP_PREFIX):
+        path = _installer_path(version, prefix)
+        sig = _read(os.path.basename(path) + ".sig")
+        if os.path.exists(path) and verify_file(path, sig, version):
+            return path, sig
     return None, None
 
 
@@ -689,7 +698,7 @@ def _previous_installer(version, opener=None):
 ROLLBACK_TEMPLATE = r"""@echo off
 set "SYS=%SystemRoot%\System32"
 "%SYS%\chcp.com" 65001 >nul
-REM Roots Auto Doctor: volta a versao {previous} porque a {version} nao abriu neste computador.
+REM Torqis: volta a versao {previous} porque a {version} nao abriu neste computador.
 set "PID={pid}"
 set "APP={app}"
 set "OLD={old}"

@@ -162,7 +162,7 @@ class OptionsPage(QWidget):
         self.ws_logo_preview = QLabel()
         self.ws_logo_preview.setFixedSize(150, 60)
         self.ws_logo_preview.setAlignment(Qt.AlignCenter)
-        self.ws_logo_preview.setStyleSheet("background: #0B1120; border: 1px dashed #3A4A72; border-radius: 8px; "
+        self.ws_logo_preview.setStyleSheet("background: #0F1014; border: 1px dashed #3E424C; border-radius: 8px; "
                                            "color: #7C8BAD;")
         lrow.addWidget(self.ws_logo_preview)
         lrow.addWidget(btn(tr("Escolher imagem…"), None, self._pick_logo))
@@ -306,6 +306,11 @@ class OptionsPage(QWidget):
         for dev, desc in list_serial_ports():
             self.port.addItem(desc, dev)
         i = self.port.findData(cur)
+        if i < 0 and cur:
+            # o cabo escolhido não está ligado agora: fica na lista, em vez de passar sem aviso para outra porta
+            # (o simulador) e de se perder a escolha na próxima vez que as opções forem guardadas
+            self.port.addItem(tr("{port} — não encontrada agora (cabo desligado?)", port=cur), cur)
+            i = self.port.count() - 1
         if i >= 0:
             self.port.setCurrentIndex(i)
 
@@ -603,7 +608,7 @@ class OptionsPage(QWidget):
 
     def _support_bundle(self):
         from ... import applog
-        name = tr("RootsAutoDoctor_suporte_{v:%Y%m%d_%H%M}.zip", v=datetime.datetime.now())
+        name = tr("Torqis_suporte_{v:%Y%m%d_%H%M}.zip", v=datetime.datetime.now())
         path, _ = QFileDialog.getSaveFileName(self, tr("Guardar pacote de suporte"),
                                               os.path.join(os.path.expanduser("~"), "Desktop", name), tr("Zip (*.zip)"))
         if not path:

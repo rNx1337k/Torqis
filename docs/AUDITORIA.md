@@ -1,4 +1,4 @@
-# Technical audit — Roots Auto Doctor
+# Technical audit — Torqis
 
 > **Historical document.** This is the audit of **v1.2.0** (21/10/2026) that started the hardening work. The
 > findings below were fixed in v1.3.0 and the code has changed a lot since then. For the current state of
@@ -26,7 +26,7 @@ unintended operations), **HIGH** (major functional failure or misleading informa
 | Simulator | `rad/simulator.py` | 356 |
 | Interface | `rad/ui/` (window, 7 pages, widgets, style, palette) | ~4,200 |
 | Tests | `tests/` (15 files, 88 tests) | ~2,100 |
-| Tools / build | `tools/`, `*.bat`, `installer/RootsAutoDoctor.iss` | — |
+| Tools / build | `tools/`, `*.bat`, `installer/Torqis.iss` | — |
 
 Entry points: `main.py` (window; `--selftest` for the self-test), `tools/hex_probe.py`, `tools/hex_capture.py`,
 `tools/get_runtime.py`. Flow: UI → `Worker.submit()` → `QThread` → `ECUSession` → `KW1281`/`KWP2000` →

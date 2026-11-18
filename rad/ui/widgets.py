@@ -13,8 +13,7 @@ from PySide6.QtWidgets import (QAbstractSpinBox, QDialog, QFrame, QGraphicsDropS
                                QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, QTableView, QTreeView,
                                QVBoxLayout, QWidget)
 
-from .style import (BLUE, BLUE_SOFT, CYAN, DIM, LINE, MUTED, NIGHT, OK, RED, TEXT, VIOLET,
-                    WARN)
+from .style import (BLUE, BLUE_SOFT, CYAN, DIM, LINE, MUTED, NIGHT, OK, RED, TEXT, WARN)
 from ..i18n import decimal, tr, tr_data
 
 ASSETS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets")
@@ -177,7 +176,7 @@ def short_num(v):
 def _arc_gradient(cx, cy):
     """Gradiente da escala: azul no início, ciano no topo, ciano claro no fim (arco de 210° a -30°)."""
     g = QConicalGradient(cx, cy, -30)
-    g.setColorAt(0.0, QColor("#8AF6FF"))
+    g.setColorAt(0.0, QColor("#B4D2FF"))
     g.setColorAt(0.333, QColor(CYAN))
     g.setColorAt(0.667, QColor("#3B66FF"))
     g.setColorAt(1.0, QColor("#3B66FF"))
@@ -286,8 +285,8 @@ class GaugeCell(QWidget):
         w, h = self.width(), self.height()
         box = QRectF(0.5, 0.5, w - 1, h - 1)
         bg = QLinearGradient(0, 0, 0, h)
-        bg.setColorAt(0, QColor("#131E3B"))
-        bg.setColorAt(1, QColor("#0A1022"))
+        bg.setColorAt(0, QColor("#1A1D24"))
+        bg.setColorAt(1, QColor("#0F1014"))
         f = self.field
         live = f is not None
         p.setPen(QPen(alpha(CYAN, 70) if live else QColor(LINE), 1))
@@ -317,7 +316,7 @@ class GaugeCell(QWidget):
 
         # pista da escala
         p.setBrush(Qt.NoBrush)
-        p.setPen(QPen(QColor("#18244A"), 7, Qt.SolidLine, Qt.RoundCap))
+        p.setPen(QPen(QColor("#21242D"), 7, Qt.SolidLine, Qt.RoundCap))
         p.drawArc(dial, 210 * 16, -240 * 16)
         # traços (acendem até ao valor)
         for i in range(21):
@@ -365,7 +364,7 @@ class GaugeCell(QWidget):
             hub.setColorAt(1, QColor("#B81D2E"))
             p.setBrush(hub)
             p.drawEllipse(QPointF(cx, cy), 6.5, 6.5)
-            p.setBrush(QColor("#0A1022"))
+            p.setBrush(QColor("#0F1014"))
             p.drawEllipse(QPointF(cx, cy), 2.4, 2.4)
             # limites da escala: por fora das pontas do arco, para nunca tocarem no valor nem na unidade (que ficam
             # dentro do mostrador). Num cartão estreito, sem espaço ao lado do mostrador, não se desenham.
@@ -603,8 +602,8 @@ class ModuleTile(QPushButton):
         hover = self.underMouse()
         r = QRectF(0.5, 0.5, w - 1, h - 1)
         bg = QLinearGradient(0, 0, w, h)
-        bg.setColorAt(0, QColor("#1A2850" if hover else "#15213F"))
-        bg.setColorAt(1, QColor("#0D1428"))
+        bg.setColorAt(0, QColor("#242731" if hover else "#1D1F27"))
+        bg.setColorAt(1, QColor("#121418"))
         p.setPen(QPen(alpha(self.color, 150) if hover else QColor(LINE), 1))
         p.setBrush(bg)
         p.drawRoundedRect(r, 12, 12)
@@ -679,8 +678,8 @@ class LiveChart(QWidget):
         p.setRenderHint(QPainter.Antialiasing)
         w, h = self.width(), self.height()
         bg = QLinearGradient(0, 0, 0, h)
-        bg.setColorAt(0, QColor("#111B36"))
-        bg.setColorAt(1, QColor("#090F20"))
+        bg.setColorAt(0, QColor("#181A21"))
+        bg.setColorAt(1, QColor("#0E0F13"))
         p.setPen(QPen(QColor(LINE), 1))
         p.setBrush(bg)
         p.drawRoundedRect(QRectF(0.5, 0.5, w - 1, h - 1), 14, 14)
@@ -702,7 +701,7 @@ class LiveChart(QWidget):
         for i in range(5):
             y = plot.bottom() - plot.height() * i / 4
             val = lo + (hi - lo) * i / 4
-            p.setPen(QPen(QColor("#1A2545"), 1, Qt.DashLine))
+            p.setPen(QPen(QColor("#21232B"), 1, Qt.DashLine))
             p.drawLine(QPointF(plot.left(), y), QPointF(plot.right(), y))
             p.setPen(QColor(MUTED))
             p.drawText(QRectF(4, y - 9, left - 10, 18), int(Qt.AlignRight | Qt.AlignVCenter), short_num(val))
@@ -952,13 +951,13 @@ class HealthRing(QWidget):
         th = max(6.0, s / 11)
         r = QRectF(th + 3, th + 3, s - 2 * th - 6, s - 2 * th - 6)
         inner = QRadialGradient(s / 2, s / 2, s / 2)
-        inner.setColorAt(0, QColor("#16244A"))
+        inner.setColorAt(0, QColor("#20242D"))
         inner.setColorAt(1, alpha(NIGHT, 0))
         p.setPen(Qt.NoPen)
         p.setBrush(inner)
         p.drawEllipse(r)
         p.setBrush(Qt.NoBrush)
-        p.setPen(QPen(QColor("#18244A"), th, Qt.SolidLine, Qt.RoundCap))
+        p.setPen(QPen(QColor("#21242D"), th, Qt.SolidLine, Qt.RoundCap))
         p.drawArc(r, 90 * 16, -360 * 16)
         _text, color = health_label(self.score)
         if self.score is not None and self.shown > 0.3:
@@ -1000,9 +999,9 @@ class HeroBanner(_Animated, QFrame):
         clip.addRoundedRect(r, 20, 20)
         p.setClipPath(clip)
         bg = QLinearGradient(0, 0, w, h)
-        bg.setColorAt(0, QColor("#16295C"))
-        bg.setColorAt(0.5, QColor("#0E1736"))
-        bg.setColorAt(1, QColor("#0A0F26"))
+        bg.setColorAt(0, QColor("#252A36"))
+        bg.setColorAt(0.5, QColor("#161920"))
+        bg.setColorAt(1, QColor("#101117"))
         p.fillRect(r, bg)
         # brilho atrás do logo
         t = self.anim_time()
@@ -1013,8 +1012,8 @@ class HeroBanner(_Animated, QFrame):
         rg.setColorAt(1, alpha(BLUE, 0))
         p.fillRect(r, rg)
         vg = QRadialGradient(w * 0.85, -40, w * 0.5)
-        vg.setColorAt(0, alpha(VIOLET, 60))
-        vg.setColorAt(1, alpha(VIOLET, 0))
+        vg.setColorAt(0, alpha(BLUE, 60))
+        vg.setColorAt(1, alpha(BLUE, 0))
         p.fillRect(r, vg)
         # estrada em perspectiva (as linhas desvanecem para a esquerda, por baixo do texto)
         x0 = w * 0.55
@@ -1046,7 +1045,7 @@ class HeroBanner(_Animated, QFrame):
         bd = QLinearGradient(0, 0, w, 0)
         bd.setColorAt(0, alpha(CYAN, 160))
         bd.setColorAt(0.5, alpha(BLUE, 60))
-        bd.setColorAt(1, alpha(VIOLET, 120))
+        bd.setColorAt(1, alpha(BLUE, 120))
         p.setPen(QPen(QBrush(bd), 1.2))
         p.setBrush(Qt.NoBrush)
         p.drawRoundedRect(r, 20, 20)
@@ -1209,23 +1208,23 @@ class VehicleMap(_Animated, QWidget):
         p.drawEllipse(c.center(), w * 1.1, h * 0.62)
 
         # rodas
-        p.setBrush(QColor("#05080F"))
-        p.setPen(QPen(QColor("#2A3964"), 1))
+        p.setBrush(QColor("#070809"))
+        p.setPen(QPen(QColor("#323540"), 1))
         for wx in (x - w * 0.045, x + w * 0.955):
             for wy in (y + h * 0.14, y + h * 0.74):
                 p.drawRoundedRect(QRectF(wx, wy, w * 0.09, h * 0.13), 4, 4)
 
         body = self._body_path(c)
         bg = QLinearGradient(x, 0, x + w, 0)
-        bg.setColorAt(0, QColor("#16224A"))
-        bg.setColorAt(0.5, QColor("#1D2D5E"))
-        bg.setColorAt(1, QColor("#16224A"))
+        bg.setColorAt(0, QColor("#20232D"))
+        bg.setColorAt(0.5, QColor("#292D39"))
+        bg.setColorAt(1, QColor("#20232D"))
         p.setBrush(bg)
         p.setPen(QPen(alpha(CYAN, 120), 1.4))
         p.drawPath(body)
 
         # tejadilho e vidros
-        glass = QColor("#0B1430")
+        glass = QColor("#15171D")
         p.setPen(QPen(alpha(CYAN, 55), 1))
         p.setBrush(glass)
         ws = QPainterPath()
@@ -1247,7 +1246,7 @@ class VehicleMap(_Animated, QWidget):
         p.drawRoundedRect(QRectF(x + w * 0.17, y + h * 0.385, w * 0.66, h * 0.415), 10, 10)
         p.drawLine(QPointF(x + w * 0.04, y + h * 0.29), QPointF(x + w * 0.96, y + h * 0.29))  # capot
         # espelhos
-        p.setBrush(QColor("#1D2D5E"))
+        p.setBrush(QColor("#292D39"))
         p.setPen(QPen(alpha(CYAN, 90), 1))
         p.drawRoundedRect(QRectF(x - w * 0.08, y + h * 0.33, w * 0.09, h * 0.035), 3, 3)
         p.drawRoundedRect(QRectF(x + w * 0.99, y + h * 0.33, w * 0.09, h * 0.035), 3, 3)
@@ -1260,7 +1259,7 @@ class VehicleMap(_Animated, QWidget):
             p.setPen(Qt.NoPen)
             p.setBrush(gl)
             p.drawEllipse(r.center(), w * 0.22, h * 0.06)
-            p.setBrush(QColor("#BFF6FF"))
+            p.setBrush(QColor("#D6E6FF"))
             p.drawRoundedRect(r, 4, 4)
         for lx in (x + w * 0.06, x + w * 0.76):
             r = QRectF(lx, y + h * 0.958, w * 0.18, h * 0.024)
@@ -1282,7 +1281,7 @@ class VehicleMap(_Animated, QWidget):
             sw.setColorAt(0, alpha(CYAN, 0))
             sw.setColorAt(1, alpha(CYAN, 90))
             p.fillRect(QRectF(x - 10, sy - h * 0.18, w + 20, h * 0.18), sw)
-            p.setPen(QPen(alpha("#BFF6FF", 220), 2))
+            p.setPen(QPen(alpha("#D6E6FF", 220), 2))
             p.drawLine(QPointF(x, sy), QPointF(x + w, sy))
             p.restore()
 
@@ -1325,7 +1324,7 @@ class VehicleMap(_Animated, QWidget):
             p.setPen(QPen(QColor("white") if addr == self.hover else alpha("#FFFFFF", 90),
                           2 if addr == self.hover else 1))
             p.drawEllipse(pc, rad, rad)
-            p.setPen(QColor("#04101F"))
+            p.setPen(QColor("#0B0E11"))
             p.setFont(display_font(rad * 0.62))
             p.drawText(QRectF(pc.x() - rad, pc.y() - rad, rad * 2, rad * 2), int(Qt.AlignCenter), f"{addr:02X}")
 

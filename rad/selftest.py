@@ -1,4 +1,4 @@
-"""Auto-teste da instalação (sem carro): RootsAutoDoctor.exe --selftest [ficheiro.txt]
+"""Auto-teste da instalação (sem carro): Torqis.exe --selftest [ficheiro.txt]
 
 Confirma que um PC acabado de instalar tem tudo o que as interfaces precisam: o Python portátil das pontes
 (runtime/py32 e py64), a ponte J2534 e a ponte D2XX (com os simuladores) e, se o driver RT-USB original
@@ -75,7 +75,7 @@ def run():
         from PySide6.QtGui import QPageSize, QTextDocument
         from PySide6.QtPrintSupport import QPrinter
         from PySide6.QtWidgets import QApplication
-        app = QApplication.instance() or QApplication(["RootsAutoDoctor", "--selftest"])
+        app = QApplication.instance() or QApplication(["Torqis", "--selftest"])
         doc = QTextDocument()
         doc.setHtml(f"<h1>{APP_NAME}</h1><p>auto-teste</p>")
         path = os.path.join(tempfile.gettempdir(), f"rad_autoteste_{os.getpid()}.pdf")

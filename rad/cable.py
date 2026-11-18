@@ -126,7 +126,7 @@ def _d2xx_finding(d, name, chip, serial, caveat):
                 "title": tr("{name} — driver RT-USB OK, falta o componente de {bits} bits do programa",
                             name=name, bits=bits),
                 "detail": (tr("O {dll} é de {bits} bits e é carregado pelo componente de {bits} bits que vem com o "
-                              "Roots Auto Doctor (pasta runtime/py{bits}), que não foi encontrado. Volte a instalar o "
+                              "Torqis (pasta runtime/py{bits}), que não foi encontrado. Volte a instalar o "
                               "programa (ou, no código-fonte, execute o run.bat) e carregue outra vez em Detectar "
                               "cabo. ",
                               dll=dll, bits=bits) + caveat)}
@@ -151,7 +151,7 @@ def _hex_usb_finding(d, vid, pid):
         return {**base, "level": "warn", "kind": "needs_setup", "driver_url": "https://zadig.akeo.ie/",
                 "title": tr("{name} — chip {chip}, VID {vid} PID {pid}, sem driver",
                             name=name, chip=chip, vid=vid, pid=pid),
-                "detail": (tr("Esta interface não tem porta COM. Para o Roots Auto Doctor a usar por acesso USB "
+                "detail": (tr("Esta interface não tem porta COM. Para o Torqis a usar por acesso USB "
                               "directo, instale o driver WinUSB com o Zadig: Options → List All Devices → escolha "
                               "'{name}' → WinUSB → Install Driver. Depois carregue de novo em Detectar cabo. (Outros "
                               "programas deixam de reconhecer esta interface enquanto tiver o WinUSB.) ",
@@ -161,7 +161,7 @@ def _hex_usb_finding(d, vid, pid):
     if service not in WINUSB_SERVICES:
         return {**base, "level": "warn", "kind": "needs_setup", "driver_url": "https://zadig.akeo.ie/",
                 "title": tr("{name} — usa o driver '{v}'", name=name, v=d.get('service')),
-                "detail": (tr("Este driver é o do programa do fabricante e o Roots Auto Doctor não o usa. Para "
+                "detail": (tr("Este driver é o do programa do fabricante e o Torqis não o usa. Para "
                            "acesso USB directo substitua-o pelo WinUSB com o Zadig (pode voltar ao driver "
                            "anterior no Gestor de Dispositivos → Controlador → Reverter). ") + caveat)}
     if not _pyftdi_available():
@@ -252,7 +252,7 @@ def classify(devices, latency=None):
                 "title": tr("Interface {kind} ({v})", kind=kind, v=_plain_name(d['name']) or 'sem nome'),
                 "detail": (tr("Esta interface tem um microcontrolador com firmware {who} entre o USB e o carro, e só "
                               "fala com o programa desse fabricante. Não funciona como cabo KKL e não pode ser usada "
-                              "pelo Roots Auto Doctor, mesmo com drivers. É preciso um cabo KKL 409.1 (FTDI "
+                              "pelo Torqis, mesmo com drivers. É preciso um cabo KKL 409.1 (FTDI "
                               "ou CH340); para módulos KWP2000 também serve uma interface J2534.",
                               who=who)),
             })
@@ -305,11 +305,11 @@ def plain(finding):
     elif kind == "needs_driver":
         title = tr("Cabo encontrado, mas o Windows ainda não o preparou")
         detail = tr("Ligue o PC à internet com o cabo ligado e aguarde um minuto (o Windows prepara-o sozinho), "
-                    "ou volte a instalar o Roots Auto Doctor. Depois carregue outra vez em Detectar cabo.")
+                    "ou volte a instalar o Torqis. Depois carregue outra vez em Detectar cabo.")
         level = "warn"
     elif kind == "missing_component":
         title = tr("Cabo encontrado, mas falta uma parte do programa")
-        detail = tr("Volte a instalar o Roots Auto Doctor e carregue outra vez em Detectar cabo.")
+        detail = tr("Volte a instalar o Torqis e carregue outra vez em Detectar cabo.")
         level = "warn"
     elif kind == "unsupported":
         title = tr("Equipamento não compatível: {name}", name=finding.get("name") or tr("sem nome"))

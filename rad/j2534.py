@@ -87,7 +87,7 @@ def find_python(bits):
                 return path
         except Exception:
             continue
-    where = ("volte a instalar o Roots Auto Doctor" if is_frozen() else
+    where = ("volte a instalar o Torqis" if is_frozen() else
              r"execute o run.bat (prepara a pasta runtime) ou: .venv\Scripts\python.exe tools\get_runtime.py")
     raise ConnectError(tr("Esta interface usa um driver de {want} bits e falta o componente de {want} bits do "
                           "programa (pasta runtime/py{want}): {where}.",

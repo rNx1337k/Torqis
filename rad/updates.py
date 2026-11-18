@@ -21,7 +21,7 @@ from .i18n import tr
 
 log = logging.getLogger(__name__)
 
-REPO = "rNx1337k/RootsAutoDoctor"
+REPO = "rNx1337k/Torqis"
 API = "https://api.github.com/repos/" + REPO
 RELEASES_PAGE = f"https://github.com/{REPO}/releases"
 TIMEOUT = 6

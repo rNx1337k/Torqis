@@ -38,7 +38,7 @@ def test_versions():
 def test_release_with_installer():
     rel = {"tag_name": "v1.9.0", "html_url": "https://github.com/x/releases/tag/v1.9.0", "body": "Novidades",
            "assets": [{"name": "notas.txt", "browser_download_url": "a"},
-                      {"name": "Setup_RootsAutoDoctor_1.9.0.exe", "browser_download_url": "https://dl/setup.exe"}]}
+                      {"name": "Setup_Torqis_1.9.0.exe", "browser_download_url": "https://dl/setup.exe"}]}
     r = updates.check("1.7.0", opener=_opener({"/releases/latest": rel}))
     assert r["available"] and r["version"] == "1.9.0" and r["download"] == "https://dl/setup.exe"
     assert r["notes"] == "" and r["url"].endswith("v1.9.0")          # texto sem as marcas de novidades: não aparece
@@ -93,10 +93,10 @@ def test_only_the_customer_notes_of_a_release_are_shown():
 def test_release_offers_the_signed_portable_zip_and_the_repository_has_notes_for_this_version():
     from rad import VERSION
     rel = {"tag_name": "v9.0.0", "html_url": "h", "body": "",
-           "assets": [{"name": "Setup_RootsAutoDoctor_9.0.0.exe", "browser_download_url": "https://dl/s.exe"},
-                      {"name": "Setup_RootsAutoDoctor_9.0.0.exe.sig", "browser_download_url": "https://dl/s.sig"},
-                      {"name": "RootsAutoDoctor_9.0.0_portatil.zip", "browser_download_url": "https://dl/p.zip"},
-                      {"name": "RootsAutoDoctor_9.0.0_portatil.zip.sig", "browser_download_url": "https://dl/p.sig"}]}
+           "assets": [{"name": "Setup_Torqis_9.0.0.exe", "browser_download_url": "https://dl/s.exe"},
+                      {"name": "Setup_Torqis_9.0.0.exe.sig", "browser_download_url": "https://dl/s.sig"},
+                      {"name": "Torqis_9.0.0_portatil.zip", "browser_download_url": "https://dl/p.zip"},
+                      {"name": "Torqis_9.0.0_portatil.zip.sig", "browser_download_url": "https://dl/p.sig"}]}
     r = updates.latest(opener=_opener({"releases/latest": rel}))
     assert r["portable"] == "https://dl/p.zip" and r["portable_signature"] == "https://dl/p.sig"
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -108,8 +108,8 @@ def test_release_offers_the_signed_portable_zip_and_the_repository_has_notes_for
 
 def _rel(version, prerelease=False, draft=False):
     return {"tag_name": f"v{version}", "html_url": "h", "body": "", "prerelease": prerelease, "draft": draft,
-            "assets": [{"name": f"Setup_RootsAutoDoctor_{version}.exe", "browser_download_url": f"https://dl/{version}"},
-                       {"name": f"Setup_RootsAutoDoctor_{version}.exe.sig", "browser_download_url": "https://dl/s"}]}
+            "assets": [{"name": f"Setup_Torqis_{version}.exe", "browser_download_url": f"https://dl/{version}"},
+                       {"name": f"Setup_Torqis_{version}.exe.sig", "browser_download_url": "https://dl/s"}]}
 
 
 def test_test_versions_reach_only_the_beta_channel():

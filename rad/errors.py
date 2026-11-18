@@ -1,4 +1,4 @@
-"""Exceções comuns do Roots Auto Doctor."""
+"""Exceções comuns do Torqis."""
 
 
 class ProtocolError(Exception):
