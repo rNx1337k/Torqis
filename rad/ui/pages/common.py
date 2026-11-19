@@ -142,7 +142,7 @@ class FaultAdviceCard(QFrame):
         self.sev.setStyleSheet(pill_style(severity_color(a["severity"])))
         self.sev.show()
         self.system.setText(a["system"])
-        self.system.show()
+        self.system.setVisible(not fault.get("locked"))
         parts = []
         if a["notes"]:
             parts.append("".join(f"<p style='color:{SOFT}; margin:2px 0'>{html.escape(n)}</p>" for n in a["notes"]))
@@ -157,7 +157,7 @@ class FaultAdviceCard(QFrame):
                             "style='margin:0'>",
                             CYAN=CYAN)
                          + "".join(f"<li>{html.escape(c)}</li>" for c in a["checks"]) + "</ul>")
-        if not a["known"] and not fault.get("obd_kind"):
+        if not a["known"] and not fault.get("obd_kind") and not fault.get("locked"):
             parts.append(tr("<p style='color:{MUTED}; margin-top:6px'>Sem ficha específica para este código: use o "
                             "tipo de avaria acima como ponto de partida e consulte a documentação do motor.</p>",
                             MUTED=MUTED))

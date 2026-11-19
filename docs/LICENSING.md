@@ -9,9 +9,18 @@ needs an internet connection.
 - A licence key contains the workshop name, the PC ID, the issue date and an optional expiry date, signed with
   the vendor's **Ed25519 private key**. The app only contains the public key (`rad/license_pubkey.py`), so keys
   cannot be forged from the app.
-- Without a valid licence the app runs in **demo mode**: identification, fault reading, measuring values, OBD-II
-  and the simulator all work, but nothing is written to a real vehicle (coding, adaptation, basic settings,
-  clearing faults, output tests, service reset) and reports are marked as a demo version.
+- A new PC gets a **14-day trial** with everything unlocked, counted from the first start (the start date is kept
+  in `%APPDATA%\Torqis\inicio.dat` and in `HKCU\Software\Torqis\Inicio`; the older of the two wins).
+- After the trial, without a valid licence, the app runs in **demo mode**. It is enough to prove that the cable
+  and the car talk to each other, not to work with:
+  - it connects, identifies the modules and the Auto-Scan says which modules have faults and how many;
+  - only the first **2 VAG faults** per reading are shown; the others appear as "hidden fault" (with their
+    severity) on screen, in the report and in the history;
+  - VAG measuring values run for **60 s per connection** to a module; no CSV logging and no guided tests;
+  - nothing is written to a real vehicle (coding, adaptation, basic settings, clearing faults, output tests,
+    service reset) and reports are marked as a demo version;
+  - generic OBD-II reading and the simulator have no limits.
+- The limits live in `rad/licensing.py` (`TRIAL_DAYS`, `FREE_FAULTS`, `FREE_LIVE_SECONDS`).
 - While `PUBLIC_KEY` is `None` licensing is switched off (development builds).
 
 > The check runs inside the app, so someone who modifies the program can bypass it. It controls normal

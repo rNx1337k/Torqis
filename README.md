@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.22.0-3D7BFF?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.23.0-3D7BFF?style=flat-square" alt="Version">
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Tests"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/status-beta-E8343A?style=flat-square" alt="Status: beta">
@@ -119,8 +119,10 @@ No car nearby? Click **Open simulator** on the home screen.
 ## Licence
 
 Each licence is for one workshop PC and is activated **offline**: send the PC ID shown in **Options → Licence**
-to your supplier and paste the key you receive. Without a licence the program works in demo mode — it reads
-everything but does not change anything on a real car.
+to your supplier and paste the key you receive. The first 14 days are a full trial. After that, without a
+licence, the program works in demo mode: it connects to the car and identifies the modules, but shows only part
+of the faults and measuring values and does not change anything on a real car. Generic OBD-II and the simulator
+always work without limits.
 
 ## Support
 

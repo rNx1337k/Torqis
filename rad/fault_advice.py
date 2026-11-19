@@ -298,6 +298,13 @@ def advice(fault, address=None):
     Avarias OBD-II multimarca (com "obd_kind"): as fichas deste módulo foram escritas para motores VAG (grupos de
     medição, componentes N18/N75…) e não se aplicam a outras marcas — não são usadas. Só se mostra o que o código
     diz por si (sistema e categoria), sem gravidade inventada."""
+    if fault.get("locked"):                   # avaria escondida em modo demonstração (licensing.locked_fault)
+        sev = fault.get("severity") if fault.get("severity") in SEVERITY_TEXT else "na"
+        return {"severity": sev, "severity_text": tr_data(SEVERITY_TEXT[sev]),
+                "severity_short": tr_data(SEVERITY_SHORT[sev]), "system": "—", "causes": [], "checks": [],
+                "notes": [tr("Esta avaria está oculta no modo demonstração. Active a licença em Opções → Licença "
+                             "para ver o código, a descrição, as causas prováveis e o que verificar.")],
+                "known": False}
     if fault.get("obd_kind"):
         from .obd import dtc as obd_dtc
         code_txt = fault.get("vag") or ""

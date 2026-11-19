@@ -5,9 +5,14 @@ fornecedor gera uma chave com `tools/license_tool.py issue` e a oficina cola-a e
 é assinada (Ed25519) com a chave privada do fornecedor; o programa só tem a chave pública, por isso não é
 possível fabricar uma licença a partir do programa. Não é precisa internet em nenhum passo.
 
-Sem licença válida o programa funciona em modo demonstração: lê tudo (identificação, avarias, valores de
-medição, OBD-II) e o simulador funciona sem limites, mas não escreve em controladores reais (codificação,
-adaptação, ajustes básicos, apagar avarias, teste de saídas) e os relatórios saem marcados.
+Num PC novo há um período de teste de 14 dias com tudo desbloqueado. Depois, sem licença válida, o programa
+funciona em modo demonstração, que serve para confirmar que o cabo e o carro comunicam, mas não para trabalhar:
+  - liga aos controladores, identifica-os e o Auto-Scan diz que módulos têm avarias e quantas;
+  - mostra só as primeiras 2 avarias VAG por leitura (as outras aparecem como "avaria oculta");
+  - valores de medição VAG só durante 60 s por ligação ao controlador, sem gravação CSV nem testes guiados;
+  - não escreve em controladores reais (codificação, adaptação, ajustes básicos, apagar avarias, teste de saídas);
+  - os relatórios saem marcados;
+  - o OBD-II genérico lê tudo (há aplicações grátis que já o fazem) e o simulador funciona sem limites.
 
 Nota: num programa em Python a verificação pode ser contornada por quem altere o código; a licença serve
 para controlar a distribuição normal, não é uma protecção contra cópia determinada."""
@@ -29,6 +34,13 @@ log = logging.getLogger(__name__)
 PREFIX = "RAD1-"
 FILE_NAME = "licenca.txt"
 DIRECTORY = None             # pasta alternativa (testes); None = %APPDATA%\Torqis
+
+TRIAL_DAYS = 14             # período de teste com tudo desbloqueado, contado desde o primeiro arranque neste PC
+FREE_FAULTS = 2             # avarias VAG visíveis por leitura em modo demonstração
+FREE_LIVE_SECONDS = 60      # valores de medição VAG por ligação ao controlador em modo demonstração
+TRIAL_FILE = "inicio.dat"
+_TRIAL_REG_KEY = r"Software\Torqis"     # cópia do início do teste no registo (apagar a pasta não reinicia o teste)
+_TRIAL_REG_VALUE = "Inicio"
 
 # Comandos que escrevem no controlador ou no veículo: bloqueados em modo demonstração (fora do simulador).
 WRITE_COMMANDS = frozenset({"recode", "adaptation_test", "adaptation_save", "service_reset", "clear_faults",
@@ -180,16 +192,92 @@ def remove():
         pass
 
 
+# ------------------------------------------------------------ período de teste
+def _parse_date(text):
+    try:
+        return datetime.date.fromisoformat(str(text).strip()[:10])
+    except (TypeError, ValueError):
+        return None
+
+
+def _use_registry():
+    # fora do Windows, nos testes (DIRECTORY) e com definições num ficheiro (RAD_SETTINGS_INI: testes, cópias de
+    # desenvolvimento) o início do teste fica só no ficheiro
+    return not DIRECTORY and os.name == "nt" and not os.environ.get("RAD_SETTINGS_INI")
+
+
+def _trial_reg(value=None):
+    """Lê (value=None) ou grava o início do teste no registo do utilizador. Só no Windows e fora dos testes."""
+    if not _use_registry():
+        return None
+    try:
+        import winreg
+        if value is None:
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, _TRIAL_REG_KEY)
+            try:
+                return str(winreg.QueryValueEx(key, _TRIAL_REG_VALUE)[0])
+            finally:
+                winreg.CloseKey(key)
+        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, _TRIAL_REG_KEY)
+        try:
+            winreg.SetValueEx(key, _TRIAL_REG_VALUE, 0, winreg.REG_SZ, value)
+        finally:
+            winreg.CloseKey(key)
+    except OSError:
+        return None
+    return None
+
+
+def set_trial_start(date):
+    """Grava o início do período de teste (na pasta de dados e no registo)."""
+    text = date.isoformat()
+    try:
+        with open(os.path.join(license_dir(), TRIAL_FILE), "w", encoding="utf-8") as fh:
+            fh.write(text + "\n")
+    except OSError as e:
+        log.warning("Não foi possível gravar o início do teste: %s", e)
+    _trial_reg(text)
+
+
+def trial_start(today=None):
+    """Data do primeiro arranque neste PC (começa hoje se não houver). Fica a mais antiga das duas cópias."""
+    today = today or datetime.date.today()
+    try:
+        with open(os.path.join(license_dir(), TRIAL_FILE), encoding="utf-8") as fh:
+            from_file = _parse_date(fh.read())
+    except OSError:
+        from_file = None
+    from_reg = _parse_date(_trial_reg())
+    found = [d for d in (from_file, from_reg) if d]
+    start = min(found) if found else today
+    if start > today:                         # relógio andou para trás ou data mexida: não dá dias a mais
+        start = today - datetime.timedelta(days=TRIAL_DAYS)
+    if from_file != start or (from_reg != start and _use_registry()):
+        set_trial_start(start)
+    return start
+
+
+def trial_days_left(today=None):
+    today = today or datetime.date.today()
+    return max(0, TRIAL_DAYS - (today - trial_start(today)).days)
+
+
 def status(machine=None, today=None):
-    """Estado actual: {"state": "unconfigured" | "licensed" | "demo", "licensed", "message", ...}.
-    unconfigured = versão sem chave pública (desenvolvimento): tudo funciona."""
+    """Estado actual: {"state": "unconfigured" | "licensed" | "trial" | "demo", "licensed", "message", ...}.
+    unconfigured = versão sem chave pública (desenvolvimento): tudo funciona.
+    trial = sem chave, dentro do período de teste: tudo funciona ("licensed" True), com "days_left"."""
     if _public_key() is None:
         return {"state": "unconfigured", "licensed": True, "workshop": "", "expires": None,
                 "message": tr("Licenciamento não configurado (versão de desenvolvimento).")}
     key = stored_key()
     if not key:
+        left = trial_days_left(today)
+        if left > 0:
+            return {"state": "trial", "licensed": True, "workshop": "", "expires": None, "days_left": left,
+                    "message": tr("Período de teste: tudo desbloqueado durante mais {n} dia(s). Depois, sem licença, "
+                                  "o programa passa a modo demonstração.", n=left)}
         return {"state": "demo", "licensed": False, "workshop": "", "expires": None,
-                "message": tr("Modo demonstração: sem licença activada neste PC.")}
+                "message": tr("Modo demonstração: o período de teste terminou e não há licença activada neste PC.")}
     r = check_key(key, machine, today)
     if not r["valid"]:
         return {"state": "demo", "licensed": False, "workshop": r["workshop"], "expires": r["expires"],
@@ -201,6 +289,48 @@ def status(machine=None, today=None):
         message = tr("Licenciado a {workshop}, sem data de fim.", workshop=r["workshop"])
     return {"state": "licensed", "licensed": True, "workshop": r["workshop"], "expires": r["expires"],
             "message": message}
+
+
+def demo_feature_message():
+    """Recusa de uma função de leitura que o modo demonstração não inclui."""
+    return tr("Modo demonstração: esta função precisa de uma licença. Active a licença em Opções → Licença "
+              "(o simulador funciona sem limites).")
+
+
+def locked_fault(severity="na"):
+    """Linha que substitui uma avaria escondida em modo demonstração (mostra que existe, sem dizer qual é)."""
+    return {"vag": "🔒 •••••", "pcode": "", "code": None,
+            "desc": tr("Avaria oculta no modo demonstração — active a licença para a ver"),
+            "elab": "-", "elab_code": 0, "intermittent": False, "status": None, "locked": True,
+            "severity": severity}
+
+
+def redact_faults(faults, free, address=None):
+    """Devolve (avarias a mostrar, quantas ficaram livres): as primeiras `free` ficam, as outras são trocadas por
+    linhas "avaria oculta" com a mesma gravidade. As OBD-II genéricas (obd_kind) nunca se escondem."""
+    from . import fault_advice
+    out = []
+    for f in faults or []:
+        if f.get("obd_kind") or f.get("locked"):
+            out.append(f)
+        elif free > 0:
+            out.append(f)
+            free -= 1
+        else:
+            out.append(locked_fault(fault_advice.advice(f, address)["severity"]))
+    return out, free
+
+
+def redact_items(items, free=None):
+    """Itens de Auto-Scan/relatório com as avarias acima do limite gratuito escondidas (cópia; o original fica)."""
+    free = FREE_FAULTS if free is None else free
+    out = []
+    for it in items or []:
+        it = dict(it)
+        if it.get("faults"):
+            it["faults"], free = redact_faults(it["faults"], free, it.get("address"))
+        out.append(it)
+    return out
 
 
 def demo_block_message():

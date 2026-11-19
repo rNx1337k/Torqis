@@ -6,6 +6,17 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.23.0
+
+### pt
+- Nos primeiros 14 dias está tudo desbloqueado. Depois, sem licença, o programa continua a ligar ao carro e a
+  dizer que módulos têm avarias, mas mostra só parte das avarias e dos valores. Com licença não muda nada.
+
+### en
+- For the first 14 days everything is unlocked. After that, without a licence, the program still connects to the
+  car and says which modules have faults, but shows only part of the faults and values. With a licence nothing
+  changes.
+
 ## 1.22.0
 
 ### pt

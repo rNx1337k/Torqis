@@ -186,8 +186,6 @@ EN = {
         "The licence expired on {date}.",
     "Licenciamento não configurado (versão de desenvolvimento).":
         "Licensing not configured (development version).",
-    "Modo demonstração: sem licença activada neste PC.":
-        "Demo mode: no licence activated on this PC.",
     "Modo demonstração: {reason}":
         "Demo mode: {reason}",
     "Licenciado a {workshop}, válida até {date}.":
@@ -428,10 +426,8 @@ EN = {
         "Not connected",
     "MODO DE SIMULAÇÃO":
         "SIMULATION MODE",
-    "MODO DEMONSTRAÇÃO":
-        "DEMO MODE",
-    "Sem licença: lê tudo, mas não escreve em carros reais. Clique para activar.":
-        "No licence: reads everything but does not write to real cars. Click to activate.",
+    "SEM LICENÇA · DEMO":
+        "NO LICENCE · DEMO",
     "Nova versão disponível":
         "New version available",
     "Voltar a ligar":
@@ -1222,8 +1218,6 @@ EN = {
         "Activate licence",
     "Remover licença":
         "Remove licence",
-    "Para comprar ou renovar, envie o ID deste PC ao fornecedor. A activação não precisa de internet. Sem licença o programa lê tudo, mas não escreve em carros reais (codificação, adaptação, ajustes básicos, apagar avarias, teste de saídas).":
-        "To buy or renew, send this PC's ID to your supplier. Activation does not need internet. Without a licence the program reads everything but does not write to real cars (coding, adaptation, basic settings, clearing faults, output tests).",
     "Actualizações":
         "Updates",
     "Procurar agora":
@@ -4029,4 +4023,26 @@ EN = {
         "SAE J1850 PWM, engine and automatic gearbox, catalytic converter and EVAP leak",
     "{port} — não encontrada agora (cabo desligado?)":
         "{port} — not found right now (cable unplugged?)",
+    "(avaria oculta no modo demonstração)":
+        "(fault hidden in demo mode)",
+    "Avaria oculta no modo demonstração — active a licença para a ver":
+        "Fault hidden in demo mode — activate the licence to see it",
+    "Esta avaria está oculta no modo demonstração. Active a licença em Opções → Licença para ver o código, a descrição, as causas prováveis e o que verificar.":
+        "This fault is hidden in demo mode. Activate the licence in Options → Licence to see the code, the description, the likely causes and what to check.",
+    "Modo demonstração: esta função precisa de uma licença. Active a licença em Opções → Licença (o simulador funciona sem limites).":
+        "Demo mode: this function needs a licence. Activate the licence in Options → Licence (the simulator works without limits).",
+    "Modo demonstração: o período de teste terminou e não há licença activada neste PC.":
+        "Demo mode: the trial period has ended and there is no licence activated on this PC.",
+    "Modo demonstração: os valores de medição ficam disponíveis {n} segundos por ligação ao controlador. Active a licença em Opções → Licença para medir sem limite.":
+        "Demo mode: measuring values are available for {n} seconds per connection to a module. Activate the licence in Options → Licence to measure without limits.",
+    "Para comprar ou renovar, envie o ID deste PC ao fornecedor. A activação não precisa de internet. Nos primeiros {days} dias está tudo desbloqueado. Depois, sem licença, o programa liga ao carro e identifica os controladores, mas mostra só {faults} avarias por leitura e {secs} s de valores de medição por controlador, e não escreve em carros reais (codificação, adaptação, ajustes básicos, apagar avarias, teste de saídas). O OBD-II genérico e o simulador funcionam sempre sem limites.":
+        "To buy or renew, send this PC's ID to your supplier. Activation does not need the internet. For the first {days} days everything is unlocked. After that, without a licence, the program connects to the car and identifies the modules, but shows only {faults} faults per reading and {secs} s of measuring values per module, and does not write to real cars (coding, adaptation, basic settings, clearing faults, output tests). Generic OBD-II and the simulator always work without limits.",
+    "Período de teste com tudo desbloqueado. Clique para activar a licença.":
+        "Trial period with everything unlocked. Click to activate the licence.",
+    "Período de teste: tudo desbloqueado durante mais {n} dia(s). Depois, sem licença, o programa passa a modo demonstração.":
+        "Trial period: everything unlocked for {n} more day(s). After that, without a licence, the program switches to demo mode.",
+    "Sem licença: liga ao carro e mostra só parte das avarias e dos valores, e não escreve em carros reais. Clique para activar.":
+        "No licence: connects to the car but shows only part of the faults and values, and does not write to real cars. Click to activate.",
+    "TESTE · {n} DIA(S)":
+        "TRIAL · {n} DAY(S)",
 }

@@ -78,6 +78,11 @@ class Worker(QThread):
         """Escrever no veículo: com licença, ou sempre no simulador (modo demonstração)."""
         return self.licensed or is_simulated_port(self.cfg.get("port", ""))
 
+    def full_access(self):
+        """Todas as funções de leitura (sem os limites do modo demonstração): com licença ou período de teste, ou
+        sempre no simulador."""
+        return self.write_allowed()
+
     def set_live(self, mode, groups):
         """Devolve False se o modo foi recusado (ajustes básicos em modo demonstração)."""
         if mode == "basic" and groups and not self.write_allowed():

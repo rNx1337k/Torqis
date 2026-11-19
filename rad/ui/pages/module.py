@@ -11,7 +11,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
-from ... import fault_advice, guided, journal, live_alerts, logview, recordings, technician_mode, vag_data, APP_NAME
+from ... import (fault_advice, guided, journal, licensing, live_alerts, logview, recordings, technician_mode,
+                 vag_data, APP_NAME)
 from ..style import BAD, CYAN, MUTED, OK, SOFT, TEXT, WARN, severity_color
 from ..widgets import ChartDialog
 from .common import FaultAdviceCard, lbl, btn, card, ask, GroupCard
@@ -422,6 +423,7 @@ class ModulePage(QWidget):
     # ------------------------------------------------------------ estado
     def _reset_visit(self):
         """O que o relatório conta da medição deste controlador: grupos lidos e alertas que apareceram."""
+        self.demo_live_left = float(licensing.FREE_LIVE_SECONDS)   # modo demonstração: segundos de medição restantes
         self.visit_groups = set()
         self.visit_alerts = {}
         self.visit_checked = False          # houve regras de alerta para esta peça
@@ -430,6 +432,7 @@ class ModulePage(QWidget):
     def set_info(self, info):
         if not self.info or self.info.get("address") != info.get("address"):
             self._reset_visit()
+        self.demo_live_left = float(licensing.FREE_LIVE_SECONDS)   # modo demonstração: por cada ligação
         self.info = info
         self.title.setText(f"{info['address']:02X} — {info['module']}")
         if technician_mode():
@@ -613,6 +616,9 @@ class ModulePage(QWidget):
             return
         if self.gd_selected is None:
             return
+        if not self.w.full_access():
+            QMessageBox.information(self, APP_NAME, licensing.demo_feature_message())
+            return
         self.stop_live()
         self.guided_test = self.gd_selected
         self.gd_samples = []
@@ -659,6 +665,9 @@ class ModulePage(QWidget):
 
     # ------------------------------------------------------------ avarias
     def show_faults(self, faults):
+        if not self.w.full_access():
+            faults, _ = licensing.redact_faults(faults, licensing.FREE_FAULTS,
+                                                self.info["address"] if self.info else None)
         self.faults = faults
         t = self.fault_table
         t.setRowCount(0)
@@ -676,6 +685,8 @@ class ModulePage(QWidget):
             t.insertRow(r)
             code = f["vag"] + (f"  ({f['pcode']})" if f["pcode"] else "")
             elab = f"{f['elab_code']:02d} — {f['elab']}" if f["elab"] not in ("-", "") else f"{f['elab_code']:02d}"
+            if f.get("locked"):
+                elab = "—"
             if technician_mode() and isinstance(f.get("status"), int):
                 elab += f"  [0x{f['status']:02X}]"          # byte de estado tal como veio da centralina
             adv = fault_advice.advice(f, self.info["address"] if self.info else None)
@@ -717,6 +728,9 @@ class ModulePage(QWidget):
     def faults_text(self):
         lines = [tr("{v} avaria(s) encontrada(s):", v=len(self.faults))]
         for f in self.faults:
+            if f.get("locked"):
+                lines.append(tr("(avaria oculta no modo demonstração)"))
+                continue
             p = f" ({f['pcode']})" if f["pcode"] else ""
             lines.append(f"{f['vag']}{p} - {f['desc']}")
             lines.append(f"    {f['elab_code']:02d}-{'10' if f['intermittent'] else '00'} - {f['elab']}"
@@ -749,6 +763,8 @@ class ModulePage(QWidget):
         if not groups:
             QMessageBox.information(self, APP_NAME, tr("Active pelo menos um grupo."))
             return
+        if not self._demo_live_ok():
+            return
         for g in self.groups:
             g.reset_peaks()
         self.monitor = live_alerts.Monitor(self.info.get("part") if self.info else "")
@@ -757,6 +773,18 @@ class ModulePage(QWidget):
         self.w.set_live("read", groups)
         self._lock_groups(True)
         self.mvb_btn.setText(tr("■  Parar leitura"))
+
+    def _demo_live_text(self):
+        return tr("Modo demonstração: os valores de medição ficam disponíveis {n} segundos por ligação ao "
+                  "controlador. Active a licença em Opções → Licença para medir sem limite.",
+                  n=licensing.FREE_LIVE_SECONDS)
+
+    def _demo_live_ok(self):
+        """Modo demonstração: ainda há segundos de medição nesta ligação?"""
+        if self.w.full_access() or getattr(self, "demo_live_left", 1) > 0:
+            return True
+        QMessageBox.information(self, APP_NAME, self._demo_live_text())
+        return False
 
     def _toggle_basic(self):
         if self.w.live_mode == "basic":
@@ -796,6 +824,13 @@ class ModulePage(QWidget):
             dt = data["t"] - self._last_live_t
             if dt > 0:
                 self.mvb_rate.setText(tr("{v:.1f} leituras/s", v=1 / dt))
+                if data["mode"] == "read" and not self.w.full_access():
+                    self.demo_live_left -= min(dt, 2.0)
+                    if self.demo_live_left <= 0:
+                        self._last_live_t = None
+                        self.stop_live()
+                        QMessageBox.information(self, APP_NAME, self._demo_live_text())
+                        return
         self._last_live_t = data["t"]
         if self.monitor is not None and data["mode"] == "read":
             self.monitor.feed(data["t"], data["groups"])
@@ -864,6 +899,9 @@ class ModulePage(QWidget):
     def _toggle_csv(self):
         if self.csv_writer:
             self._stop_csv()
+            return
+        if not self.w.full_access():
+            QMessageBox.information(self, APP_NAME, licensing.demo_feature_message())
             return
         name = tr("RAD_{address:02X}_{v:%Y%m%d_%H%M%S}.csv",
                   address=self.info['address'], v=datetime.datetime.now()) if self.info else "log.csv"

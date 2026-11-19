@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
 )
 
-from ... import fault_advice, vag_data, APP_NAME, VERSION
+from ... import fault_advice, licensing, vag_data, APP_NAME, VERSION
 from ..style import BAD, CYAN, MUTED, OK, WARN, severity_color
 from ..widgets import HealthRing, ModuleTile, VehicleMap, health_label, health_score
 from .common import FaultAdviceCard, lbl, btn, page_header, ask
@@ -227,6 +227,7 @@ class AutoScanPage(QWidget):
 
     def rebuild(self):
         items, self.items = self.items, []
+        self._demo_free = licensing.FREE_FAULTS
         self.tree.clear()                  # não emite itemSelectionChanged: o assistente ficaria na avaria antiga
         self.advice.hide()
         self.tiles.clear()
@@ -253,6 +254,7 @@ class AutoScanPage(QWidget):
             self.current.setText(tr("Aguarde — ainda a comunicar com o carro"))
             return
         self.items = []
+        self._demo_free = licensing.FREE_FAULTS
         self.diff = None
         self.meta = {}
         self.session_id = None
@@ -283,6 +285,12 @@ class AutoScanPage(QWidget):
             self.map.set_probe(self.addresses[i])
         if item["status"] == "absent":
             return
+        if item.get("faults") and not self.w.full_access():
+            # modo demonstração: só as primeiras avarias do carro inteiro ficam visíveis (relatório e histórico
+            # também só recebem estas — o resto fica "avaria oculta", com a contagem e a gravidade certas)
+            item = dict(item)
+            item["faults"], self._demo_free = licensing.redact_faults(
+                item["faults"], getattr(self, "_demo_free", licensing.FREE_FAULTS), item.get("address"))
         self.items.append(item)
         self.map.add_item(item)
         tile = ModuleTile(item)
@@ -416,6 +424,8 @@ class AutoScanPage(QWidget):
                 lines.append(tr("   {v} avaria(s)", v=len(fl)))
                 for f in fl:
                     lines.append(f"   {f['vag']} - {f['desc']}")
+                    if f.get("locked"):
+                        continue
                     intermittent = " - Intermitente" if f["intermittent"] else ""
                     lines.append(f"      {f['elab_code']:02d} - {f['elab']}{intermittent}")
             else:

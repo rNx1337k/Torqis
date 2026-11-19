@@ -203,7 +203,7 @@ def build_html(workshop, vehicle, items, logo_src="logo.png", notes="", logo_siz
                                   causes="; ".join(c[0].lower() + c[1:] for c in adv["causes"][:2])))
                           + "</span>")
             raw = ""
-            if technical:
+            if technical and not f.get("locked"):
                 bits = [tr("tipo {n:02d}", n=f["elab_code"]) if f.get("elab_code") is not None else "",
                         tr("estado 0x{v:02X}", v=f["status"]) if isinstance(f.get("status"), int) else "",
                         f.get("ecu") or ""]

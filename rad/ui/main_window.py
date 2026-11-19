@@ -135,13 +135,12 @@ class MainWindow(QMainWindow):
         self.sim_badge.setToolTip(tr("Está a usar o simulador: os valores e avarias são fictícios."))
         self.sim_badge.hide()
         cv.addWidget(self.sim_badge)
-        self.demo_badge = QPushButton(tr("MODO DEMONSTRAÇÃO"))
+        self.demo_badge = QPushButton(tr("SEM LICENÇA · DEMO"))
         self.demo_badge.setObjectName("demoBadge")
         self.demo_badge.setStyleSheet(pill_style(BAD).replace("QLabel#pill", "QPushButton#demoBadge")
                                       + " QPushButton#demoBadge { border-radius: 10px; padding: 3px 10px; "
                                         "font-weight: 600; }")
         self.demo_badge.setCursor(Qt.PointingHandCursor)
-        self.demo_badge.setToolTip(tr("Sem licença: lê tudo, mas não escreve em carros reais. Clique para activar."))
         self.demo_badge.clicked.connect(lambda: self.show_page("options"))
         self.demo_badge.hide()
         cv.addWidget(self.demo_badge)
@@ -300,7 +299,19 @@ class MainWindow(QMainWindow):
             log.warning("Estado da licença ilegível: %s", e)
             self.license = {"state": "demo", "licensed": False, "message": tr("Modo demonstração ({e}).", e=e)}
         self.worker.licensed = self.license["licensed"]
-        self.demo_badge.setVisible(not self.license["licensed"])
+        trial = self.license.get("state") == "trial"
+        if trial:
+            self.demo_badge.setText(tr("TESTE · {n} DIA(S)", n=self.license.get("days_left", 0)))
+            self.demo_badge.setToolTip(tr("Período de teste com tudo desbloqueado. Clique para activar a licença."))
+        else:
+            self.demo_badge.setText(tr("SEM LICENÇA · DEMO"))
+            self.demo_badge.setToolTip(tr("Sem licença: liga ao carro e mostra só parte das avarias e dos valores, "
+                                          "e não escreve em carros reais. Clique para activar."))
+        self.demo_badge.setStyleSheet(
+            pill_style(WARN if trial else BAD).replace("QLabel#pill", "QPushButton#demoBadge")
+            + " QPushButton#demoBadge { border-radius: 10px; padding: 3px 10px; font-weight: 600; }")
+        self.demo_badge.setVisible(trial or not self.license["licensed"])
+        self.hist.full_access = self.worker.full_access
         self.options.show_license(self.license)
 
     def _after_update(self):
@@ -787,8 +798,11 @@ class MainWindow(QMainWindow):
             self.append_log(tr("Histórico: não foi possível guardar ({e})", e=e))
 
     def export_session(self, data):
-        done = self._write_report(data.get("items", []), data.get("vehicle", {}), data.get("notes", ""),
-                                  data.get("meta") or {}, data.get("date"))
+        items, meta = data.get("items", []), dict(data.get("meta") or {})
+        if not self.worker.full_access() and not meta.get("simulated"):
+            items = licensing.redact_items(items)          # modo demonstração: só as avarias livres
+            meta["demo"] = True
+        done = self._write_report(items, data.get("vehicle", {}), data.get("notes", ""), meta, data.get("date"))
         if done and data.get("id") and (done[0] != data.get("vehicle") or done[1] != data.get("notes", "")):
             try:                                      # dados corrigidos na janela do relatório: ficam no histórico
                 history.update_session(data["id"], done[0], done[1])

@@ -249,6 +249,8 @@ def test_license_demo_mode_and_update_notice():
     old = (license_pubkey.PUBLIC_KEY, licensing.DIRECTORY, QMessageBox.information, QMessageBox.warning)
     license_pubkey.PUBLIC_KEY = ed25519.public_key(secret).hex()
     licensing.DIRECTORY = tempfile.mkdtemp()
+    import datetime
+    licensing.set_trial_start(datetime.date.today() - datetime.timedelta(days=licensing.TRIAL_DAYS + 1))
     shown = []
     QMessageBox.information = staticmethod(lambda *a, **k: shown.append(a[2]) or QMessageBox.Ok)
     QMessageBox.warning = staticmethod(lambda *a, **k: shown.append(a[2]) or QMessageBox.Ok)
@@ -506,6 +508,74 @@ def test_report_dialog_preview_and_vehicle_register():
         app.processEvents()
 
 
+
+def test_demo_mode_limits_on_a_real_port():
+    """Sem licença e numa porta real: só 2 avarias à vista, medição limitada, sem CSV/testes guiados."""
+    app, w = _window()
+    from rad import licensing, vag_data
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QMessageBox
+    old = (QMessageBox.information, w.worker.licensed, dict(w.worker.cfg))
+    shown = []
+    QMessageBox.information = staticmethod(lambda *a, **k: shown.append(a[2]) or QMessageBox.Ok)
+    try:
+        w.worker.licensed = False
+        w.worker.cfg["port"] = "COM250"
+        assert not w.worker.full_access()
+        w.module.info = {"address": 1, "module": "Motor", "part": "", "component": ""}
+        faults = [vag_data.decode_fault(c, 0x23) for c in (283, 522, 1247, 16683)]
+        w.module.show_faults(faults)
+        t = w.module.fault_table
+        assert t.rowCount() == 4 and "4" in w.module.fault_count.text()
+        assert "1247" not in t.item(2, 0).text() and "🔒" in t.item(2, 0).text()
+        assert "1247" not in w.module.faults_text() and "16683" not in w.module.faults_text()
+        w.module._toggle_csv()
+        assert shown and "licença" in shown[-1] and not w.module.csv_writer
+        w.module.demo_live_left = 0
+        n = len(shown)
+        w.module.groups[0].enable.setChecked(True)
+        w.module._toggle_mvb()
+        assert len(shown) == n + 1 and w.worker.live_mode != "read"
+        # Auto-Scan: 2 avarias livres para o carro inteiro; relatório de texto, histórico e comparação aguentam
+        w.scan.items, w.scan._demo_free = [], licensing.FREE_FAULTS
+        info = {"part": "x", "component": "y"}
+        w.scan.on_progress(1, 2, {"address": 1, "module": "Motor", "status": "ok", "info": info,
+                                  "faults": faults[:1]})
+        w.scan.on_progress(2, 2, {"address": 3, "module": "ABS", "status": "ok", "info": info,
+                                  "faults": faults[1:]})
+        hidden = [f for it in w.scan.items for f in it["faults"] if f.get("locked")]
+        assert len(hidden) == 2 and sum(len(it["faults"]) for it in w.scan.items) == 4
+        text = w.scan.report()
+        assert "1247" not in text and "16683" not in text and "00283" in text
+        from rad import history, report
+        assert history.compare(w.scan.items, w.scan.items)["new"] == []
+        for variant in ("client", "technical"):
+            html = report.build_html({"name": "Oficina"}, {"plate": "AA-00-AA"}, w.scan.items, meta={"demo": True},
+                                     variant=variant)
+            assert "1247" not in html and "16683" not in html and "DEMONSTRAÇÃO" in html
+        sid = history.save_session("autoscan", {"plate": "DEMO-01"}, w.scan.items)
+        w.hist.refresh()
+        w.hist.full_access = w.worker.full_access
+        for r in range(w.hist.table.rowCount()):
+            if w.hist.table.item(r, 0).data(Qt.UserRole) == sid:
+                w.hist.table.selectRow(r)
+        app.processEvents()
+        assert w.hist.detail.topLevelItemCount() == 2
+        history.delete_session(sid)
+        # simulador: tudo à vista
+        w.worker.cfg["port"] = old[2]["port"]
+        assert w.worker.full_access()
+        w.module.show_faults(faults)
+        assert "1247" in w.module.fault_table.item(2, 0).text()
+    finally:
+        QMessageBox.information = old[0]
+        w.worker.licensed = old[1]
+        w.worker.cfg.clear()
+        w.worker.cfg.update(old[2])
+        w.close()
+        app.processEvents()
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
@@ -537,3 +607,4 @@ def test_home_leads_with_the_connection_and_shows_recent_cars_in_colour():
     texts = [lb.text() for lb in row.findChildren(type(h.link_pill))]
     assert "AA-02-AA" in texts and any(BAD in lb.styleSheet() for lb in row.findChildren(type(h.link_pill)))
     h.close()
+

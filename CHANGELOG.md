@@ -3,6 +3,32 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.23.0] — 2026-11-19
+Without a licence, the program is now a trial and then a demo, no longer a free full version.
+
+### Added
+- **14-day trial** with everything unlocked on a new PC, counted from the first start. The start date is kept in
+  `%APPDATA%\Torqis\inicio.dat` and in `HKCU\Software\Torqis\Inicio`; the older one wins, and a clock set
+  backwards gives no extra days. The sidebar shows "TESTE · N DIA(S)".
+- **Real-car test sheet** (`docs/TESTE_CARRO_REAL.md`): which cars to look for, what to check on each one, what to
+  keep when something fails, and when the program can be called "tested on a real car".
+
+### Changed
+- **Demo mode (after the trial, without a licence) is restricted**, on real interfaces only:
+  - only the first **2 VAG faults** per reading (per car in the Auto-Scan) are shown; the others appear as
+    "hidden fault" with their severity, on screen, in the report, in the history and in Copy;
+  - VAG measuring values run for **60 s per connection** to a module; no CSV logging and no guided tests;
+  - writing to the car stays blocked, as before.
+  - Generic OBD-II and the simulator have no limits; licensed PCs see no difference. The limits are in
+    `rad/licensing.py` (`TRIAL_DAYS`, `FREE_FAULTS`, `FREE_LIVE_SECONDS`).
+- Sidebar badge "SEM LICENÇA · DEMO" (the old text was cut off).
+
+### Fixed
+- **Licensing is switched on.** Up to 1.22 `rad/license_pubkey.py` had no public key, so every release worked
+  without limits and nobody ever saw demo mode. Customers who already have the program get the 14-day trial
+  from the moment they update to 1.23.0.
+- Comparing with the previous visit ignores modules with hidden faults (it could not tell new from resolved).
+
 ## [1.22.0] — 2026-11-18
 The program is now called **Torqis**.
 

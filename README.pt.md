@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/vers%C3%A3o-1.22.0-3D7BFF?style=flat-square" alt="Versão">
+  <img src="https://img.shields.io/badge/vers%C3%A3o-1.23.0-3D7BFF?style=flat-square" alt="Versão">
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/estado-beta-E8343A?style=flat-square" alt="Estado: beta">
@@ -122,8 +122,10 @@ Sem carro por perto? Clique em **Abrir simulador** no ecrã inicial.
 ## Licença
 
 Cada licença é para um PC da oficina e é activada **sem internet**: envie ao seu fornecedor o ID do PC que aparece
-em **Opções → Licença** e cole a chave que receber. Sem licença o programa funciona em modo de demonstração — lê
-tudo, mas não altera nada num carro real.
+em **Opções → Licença** e cole a chave que receber. Os primeiros 14 dias são um teste com tudo desbloqueado. Depois,
+sem licença, o programa funciona em modo de demonstração: liga ao carro e identifica os controladores, mas mostra
+só parte das avarias e dos valores de medição e não altera nada num carro real. O OBD-II genérico e o simulador
+funcionam sempre sem limites.
 
 ## Suporte
 

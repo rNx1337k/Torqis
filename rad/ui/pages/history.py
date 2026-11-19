@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QTabWidget, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
 )
 
-from ... import APP_NAME
+from ... import APP_NAME, licensing
 from ..style import BAD, CYAN, MUTED, OK, WARN
 from .common import lbl, btn, page_header, ask
 from ...i18n import tr
@@ -201,6 +201,11 @@ class HistoryPage(QWidget):
         it = self.table.item(r, 0)
         return it.data(Qt.UserRole) if it else None
 
+    @staticmethod
+    def full_access():
+        """Substituída pela janela (Worker.full_access): sem licença, as avarias acima do limite ficam ocultas."""
+        return True
+
     def _show_detail(self):
         sid = self._selected_id()
         self.detail.clear()
@@ -211,7 +216,10 @@ class HistoryPage(QWidget):
         except Exception as e:
             QMessageBox.warning(self, APP_NAME, tr("Não foi possível abrir o registo: {e}", e=e))
             return
-        for item in data.get("items", []):
+        items = data.get("items", [])
+        if not self.full_access() and not (data.get("meta") or {}).get("simulated"):
+            items = licensing.redact_items(items)     # modo demonstração: as mesmas avarias que o ecrã mostrou
+        for item in items:
             top = QTreeWidgetItem([f"{item['address']:02X}", item.get("module", ""), ""])
             if item.get("status") == "ok":
                 n = len(item.get("faults", []))
@@ -219,7 +227,7 @@ class HistoryPage(QWidget):
                 top.setText(2, tr("OK") if n == 0 else tr("{n} avaria(s)", n=n))
                 top.setForeground(2, QBrush(QColor(OK if n == 0 else WARN)))
                 for f in item.get("faults", []):
-                    elab = f"  —  {f['elab']}" if f["elab"] not in ("-", "") else ""
+                    elab = f"  —  {f['elab']}" if f.get("elab") not in ("-", "", None) else ""
                     QTreeWidgetItem(top, ["", f"{f['vag']}  {f['desc']}{elab}",
                                           tr("Intermitente") if f.get("intermittent") else ""])
             else:

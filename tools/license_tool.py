@@ -80,7 +80,8 @@ def cmd_genkey(args):
     write_pubkey(public_hex)
     print(f"Chave privada: {path}  (faça cópia de segurança e NUNCA a envie a ninguém)")
     print(f"Chave pública escrita em: {PUBKEY_FILE}")
-    print("A partir do próximo build, o programa precisa de licença para escrever em carros reais.")
+    print("A partir do próximo build: 14 dias de teste e depois, sem licença, modo demonstração "
+          "(ver docs/LICENSING.md).")
 
 
 def cmd_issue(args):

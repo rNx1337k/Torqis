@@ -204,8 +204,12 @@ class OptionsPage(QWidget):
         krow.addStretch(1)
         lf.addRow(QLabel(), krow)
         lf.addRow(lbl(tr("Para comprar ou renovar, envie o ID deste PC ao fornecedor. A activação não precisa de "
-                         "internet. Sem licença o programa lê tudo, mas não escreve em carros reais (codificação, "
-                         "adaptação, ajustes básicos, apagar avarias, teste de saídas)."), "muted", wrap=True))
+                         "internet. Nos primeiros {days} dias está tudo desbloqueado. Depois, sem licença, o programa "
+                         "liga ao carro e identifica os controladores, mas mostra só {faults} avarias por leitura e "
+                         "{secs} s de valores de medição por controlador, e não escreve em carros reais (codificação, "
+                         "adaptação, ajustes básicos, apagar avarias, teste de saídas). O OBD-II genérico e o "
+                         "simulador funcionam sempre sem limites.", days=licensing.TRIAL_DAYS,
+                         faults=licensing.FREE_FAULTS, secs=licensing.FREE_LIVE_SECONDS), "muted", wrap=True))
         v.addWidget(lc)
 
         uc = card()
@@ -495,7 +499,7 @@ class OptionsPage(QWidget):
     # ------------------------------------------------------------- licença
     def show_license(self, st):
         self._license_state = st.get("state")
-        color = {"licensed": OK, "demo": BAD}.get(st.get("state"), WARN)
+        color = {"licensed": OK, "demo": BAD, "trial": WARN}.get(st.get("state"), WARN)
         self.lic_state.setText(st.get("message", "—"))
         self.lic_state.setStyleSheet(f"color: {color};")
         self.lic_remove_btn.setVisible(bool(licensing.stored_key()))

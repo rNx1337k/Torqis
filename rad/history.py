@@ -259,20 +259,27 @@ def _fault_keys(items):
         if it.get("status") != "ok":
             continue
         for f in it.get("faults", []):
+            if f.get("locked"):                       # avaria oculta (modo demonstração): não se sabe qual é
+                continue
             out[(it["address"], f.get("vag"))] = dict(f, address=it["address"], module=it.get("module", ""))
     return out
+
+
+def _has_hidden(item):
+    return any(f.get("locked") for f in item.get("faults", []))
 
 
 def compare(old_items, new_items):
     """Compara dois diagnósticos: {"new": [...], "resolved": [...], "persisting": [...]}.
     Cada avaria leva também "address" e "module". Só entram os módulos lidos nos dois diagnósticos,
     para um módulo que não respondeu não parecer "resolvido"."""
-    read_old = {i["address"] for i in old_items or [] if i.get("status") == "ok"}
-    read_new = {i["address"] for i in new_items or [] if i.get("status") == "ok"}
+    # módulos com avarias ocultas (modo demonstração) ficam de fora: não dá para dizer o que é novo ou resolvido
+    read_old = {i["address"] for i in old_items or [] if i.get("status") == "ok" and not _has_hidden(i)}
+    read_new = {i["address"] for i in new_items or [] if i.get("status") == "ok" and not _has_hidden(i)}
     both = read_old & read_new
     a, b = _fault_keys(old_items), _fault_keys(new_items)
     return {
         "new": [b[k] for k in b if k not in a and k[0] in both],
         "resolved": [a[k] for k in a if k not in b and k[0] in both],
-        "persisting": [b[k] for k in b if k in a],
+        "persisting": [b[k] for k in b if k in a and k[0] in both],
     }

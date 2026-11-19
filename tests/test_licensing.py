@@ -72,10 +72,12 @@ def test_machine_id_format_is_stable_and_readable():
     assert len(licensing.machine_id()) == 14
 
 
-def _with_key(public_hex, fn):
+def _with_key(public_hex, fn, trial_over=True):
     old_key, old_dir = license_pubkey.PUBLIC_KEY, licensing.DIRECTORY
     license_pubkey.PUBLIC_KEY = public_hex
     licensing.DIRECTORY = tempfile.mkdtemp()
+    if trial_over:
+        licensing.set_trial_start(datetime.date.today() - datetime.timedelta(days=licensing.TRIAL_DAYS + 1))
     try:
         fn()
     finally:
@@ -103,6 +105,46 @@ def test_expired_installed_license_falls_back_to_demo():
         st = licensing.status(PC, today=datetime.date(2027, 6, 1))
         assert st["state"] == "demo" and "expirou" in st["message"]
     _with_key(PUBLIC.hex(), run)
+
+
+def test_trial_unlocks_everything_for_14_days_then_demo():
+    def run():
+        start = datetime.date(2027, 3, 1)
+        st = licensing.status(PC, today=start)                       # primeiro arranque: começa o teste
+        assert st["state"] == "trial" and st["licensed"] and st["days_left"] == licensing.TRIAL_DAYS
+        last = start + datetime.timedelta(days=licensing.TRIAL_DAYS - 1)
+        assert licensing.status(PC, today=last)["days_left"] == 1
+        st = licensing.status(PC, today=start + datetime.timedelta(days=licensing.TRIAL_DAYS))
+        assert st["state"] == "demo" and not st["licensed"] and "teste terminou" in st["message"]
+        # apagar o ficheiro não dá novo teste quando a outra cópia existe; aqui (testes) só há o ficheiro,
+        # por isso verifica-se que o ficheiro foi gravado com o início e que o relógio para trás não dá dias
+        assert licensing.trial_start(start + datetime.timedelta(days=30)) == start
+        assert licensing.trial_days_left(start - datetime.timedelta(days=5)) == 0
+        # com licença válida o teste deixa de interessar
+        licensing.install(licensing.make_key(SECRET, "Oficina", PC), PC)
+        assert licensing.status(PC, today=start + datetime.timedelta(days=99))["state"] == "licensed"
+    _with_key(PUBLIC.hex(), run, trial_over=False)
+
+
+def test_demo_hides_faults_beyond_the_free_ones():
+    from rad import vag_data
+    faults = [vag_data.decode_fault(c, 0x23) for c in (283, 522, 1247, 16683)]
+    shown, left = licensing.redact_faults(faults, 2, 0x01)
+    assert [f["vag"] for f in shown[:2]] == [faults[0]["vag"], faults[1]["vag"]] and left == 0
+    assert all(f["locked"] and "1247" not in f["vag"] and "16683" not in f["vag"] for f in shown[2:])
+    assert len(shown) == 4                                           # a contagem continua certa
+    from rad import fault_advice
+    a = fault_advice.advice(shown[3], 0x01)
+    assert a["severity"] == fault_advice.advice(faults[3], 0x01)["severity"] and "licença" in a["notes"][0]
+    # Auto-Scan: o limite é para o carro inteiro, não por módulo
+    items = [{"address": 1, "status": "ok", "faults": faults[:1]},
+             {"address": 3, "status": "ok", "faults": faults[1:3]}]
+    red = licensing.redact_items(items)
+    assert not red[0]["faults"][0].get("locked") and not red[1]["faults"][0].get("locked")
+    assert red[1]["faults"][1]["locked"] and not items[1]["faults"][1].get("locked")   # o original não muda
+    # OBD-II genérico nunca é escondido
+    obd = [{"vag": "P0300", "obd_kind": "stored", "desc": "x"}] * 5
+    assert not any(f.get("locked") for f in licensing.redact_faults(obd, 0)[0])
 
 
 def test_license_tool_issues_keys_that_the_program_accepts():
