@@ -118,11 +118,26 @@ No car nearby? Click **Open simulator** on the home screen.
 
 ## Licence
 
-Each licence is for one workshop PC and is activated **offline**: send the PC ID shown in **Options → Licence**
-to your supplier and paste the key you receive. The first 14 days are a full trial. After that, without a
-licence, the program works in demo mode: it connects to the car and identifies the modules, but shows only part
-of the faults and measuring values and does not change anything on a real car. Generic OBD-II and the simulator
-always work without limits.
+Every new PC starts with a **14-day trial with everything unlocked**. After that, without a licence, the program
+switches to **demo mode**: enough to check that the cable and the car talk to each other, not to work with.
+
+| | Trial (14 days) | Demo mode | Licence |
+|---|:---:|:---:|:---:|
+| Connect, identify modules, Auto-Scan (which modules have faults and how many) | ✅ | ✅ | ✅ |
+| VAG fault codes and descriptions | ✅ | First 2 only | ✅ |
+| VAG measuring values | ✅ | 60 s per module | ✅ |
+| CSV logging and guided tests | ✅ | — | ✅ |
+| Clear faults, coding, adaptation, basic settings, output tests | ✅ | — | ✅ |
+| Customer report | ✅ | Marked as demo | ✅ |
+| Generic OBD-II (all makes) and the simulator | ✅ | ✅ | ✅ |
+
+**Getting a licence** — each licence is for one workshop PC and is activated **offline**:
+
+1. Open **Options → Licence** and copy the **PC ID** (e.g. `ABCD-EFGH-JKLM`).
+2. Send it to your supplier.
+3. Paste the key you receive (it starts with `RAD1-`) and click **Activate licence**.
+
+A new PC, or Windows reinstalled, gets a new PC ID and needs a new key.
 
 ## Support
 
@@ -144,7 +159,8 @@ finish, the program keeps working on the previous version and tells you.
 ## Status
 
 Torqis is in **beta**. Every function can be tried with the built-in simulator, and on-vehicle
-validation is in progress. Simulated results are always labelled as such, on screen and in reports.
+validation is in progress (test sheet, in Portuguese: [docs/TESTE_CARRO_REAL.md](docs/TESTE_CARRO_REAL.md)).
+Simulated results are always labelled as such, on screen and in reports.
 
 ---
 

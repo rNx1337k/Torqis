@@ -121,11 +121,26 @@ Sem carro por perto? Clique em **Abrir simulador** no ecrã inicial.
 
 ## Licença
 
-Cada licença é para um PC da oficina e é activada **sem internet**: envie ao seu fornecedor o ID do PC que aparece
-em **Opções → Licença** e cole a chave que receber. Os primeiros 14 dias são um teste com tudo desbloqueado. Depois,
-sem licença, o programa funciona em modo de demonstração: liga ao carro e identifica os controladores, mas mostra
-só parte das avarias e dos valores de medição e não altera nada num carro real. O OBD-II genérico e o simulador
-funcionam sempre sem limites.
+Cada PC novo começa com um **teste de 14 dias com tudo desbloqueado**. Depois, sem licença, o programa passa a
+**modo demonstração**: chega para confirmar que o cabo e o carro comunicam, mas não para trabalhar.
+
+| | Teste (14 dias) | Modo demonstração | Licença |
+|---|:---:|:---:|:---:|
+| Ligar, identificar controladores, Auto-Scan (que módulos têm avarias e quantas) | ✅ | ✅ | ✅ |
+| Códigos e descrição das avarias VAG | ✅ | Só as 2 primeiras | ✅ |
+| Valores de medição VAG | ✅ | 60 s por controlador | ✅ |
+| Gravação CSV e testes guiados | ✅ | — | ✅ |
+| Apagar avarias, codificação, adaptação, ajustes básicos, teste de saídas | ✅ | — | ✅ |
+| Relatório para o cliente | ✅ | Marcado como demonstração | ✅ |
+| OBD-II genérico (todas as marcas) e simulador | ✅ | ✅ | ✅ |
+
+**Como obter a licença** — cada licença é para um PC da oficina e é activada **sem internet**:
+
+1. Abra **Opções → Licença** e copie o **ID deste PC** (ex.: `ABCD-EFGH-JKLM`).
+2. Envie-o ao seu fornecedor.
+3. Cole a chave que receber (começa por `RAD1-`) e carregue em **Activar licença**.
+
+Um PC novo, ou o Windows reinstalado, tem outro ID e precisa de uma chave nova.
 
 ## Suporte
 
@@ -147,8 +162,8 @@ a funcionar na versão anterior e avisa.
 ## Estado
 
 O Torqis está em **beta**. Todas as funções podem ser experimentadas com o simulador incluído, e a
-validação nos veículos está em curso. Os resultados simulados estão sempre identificados como tal, no ecrã e nos
-relatórios.
+validação nos veículos está em curso (folha de testes: [docs/TESTE_CARRO_REAL.md](docs/TESTE_CARRO_REAL.md)). Os
+resultados simulados estão sempre identificados como tal, no ecrã e nos relatórios.
 
 ---
 
