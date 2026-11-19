@@ -45,7 +45,9 @@ def main():
     english = "--en" in sys.argv
     review = "--review" in sys.argv
     out = os.path.join(ROOT, "build", "ui_review") if review else OUT
-    from rad import history, i18n, vag_data
+    from rad import history, i18n, license_pubkey, vag_data
+    # as capturas mostram o programa como o vê uma oficina com licença (sem o aviso do teste/demonstração)
+    license_pubkey.PUBLIC_KEY = None
     if english:
         i18n.set_language("en")
     from PySide6.QtGui import QFont, QIcon
