@@ -11,6 +11,7 @@
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Tests"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/status-beta-E8343A?style=flat-square" alt="Status: beta">
+  <a href="https://www.instagram.com/torqis.pt/"><img src="https://img.shields.io/badge/Instagram-@torqis.pt-E4405F?style=flat-square&logo=instagram&logoColor=white" alt="Instagram @torqis.pt"></a>
 </p>
 
 <p align="center">
@@ -147,6 +148,11 @@ customer data.
 
 Diagnostics, settings, the licence and the workshop logo are kept on the PC and are not removed when the program
 is uninstalled or updated.
+
+## Contact
+
+Questions, licences, or a workshop that wants to try Torqis on real cars? Send a message on Instagram:
+**[@torqis.pt](https://www.instagram.com/torqis.pt/)**.
 
 ## Updates
 

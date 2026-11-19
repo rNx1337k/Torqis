@@ -11,6 +11,7 @@
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/estado-beta-E8343A?style=flat-square" alt="Estado: beta">
+  <a href="https://www.instagram.com/torqis.pt/"><img src="https://img.shields.io/badge/Instagram-@torqis.pt-E4405F?style=flat-square&logo=instagram&logoColor=white" alt="Instagram @torqis.pt"></a>
 </p>
 
 <p align="center">
@@ -150,6 +151,11 @@ dos clientes.
 
 Os diagnósticos, as definições, a licença e o logótipo da oficina ficam no PC e não são apagados quando o programa
 é desinstalado ou actualizado.
+
+## Contacto
+
+Dúvidas, licenças, ou uma oficina que queira experimentar o Torqis em carros reais? Envie mensagem no Instagram:
+**[@torqis.pt](https://www.instagram.com/torqis.pt/)**.
 
 ## Actualizações
 
