@@ -5,8 +5,7 @@ claro com escala, ponteiro azul (#3D7BFF → #5AA8FF) e fundo grafite. Este scri
 programa e o README usam:
 
     icone.ico            → rad/assets/icon.ico      (janela, barra de tarefas, instalador)
-    icone_512/64/32/16   → rad/assets/logo*.png     (barra lateral, splash, relatório sem logótipo da oficina)
-    icone.svg            → rad/assets/logo.svg
+    icone_512.png        → rad/assets/logo.png      (barra lateral, splash, relatório sem logótipo da oficina)
     capa_1500x500.png    → docs/banner.png          (topo do README)
 
 Correr:  .venv\\Scripts\\python.exe tools\\make_brand.py <pasta do kit>
@@ -22,10 +21,6 @@ DOCS = os.path.join(ROOT, "docs")
 FILES = {
     "icone.ico": os.path.join(ASSETS, "icon.ico"),
     "icone_512.png": os.path.join(ASSETS, "logo.png"),
-    "icone_64.png": os.path.join(ASSETS, "logo_64.png"),
-    "icone_32.png": os.path.join(ASSETS, "logo_32.png"),
-    "icone_16.png": os.path.join(ASSETS, "logo_16.png"),
-    "icone.svg": os.path.join(ASSETS, "logo.svg"),
     "capa_1500x500.png": os.path.join(DOCS, "banner.png"),
 }
 
