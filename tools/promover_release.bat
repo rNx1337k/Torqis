@@ -8,6 +8,6 @@ set VER=%~1
 if "%VER%"=="" (echo Uso: tools\promover_release.bat ^<versao^> & exit /b 1)
 where gh >nul 2>nul || (echo Falta o GitHub CLI: winget install GitHub.cli e depois gh auth login & exit /b 1)
 gh release edit v%VER% --repo rNx1337k/Torqis --draft=false --prerelease=false --latest || (echo Nao foi possivel promover a v%VER%. & exit /b 1)
-gh release edit v%VER% --repo rNx1337k/Torqis-download --draft=false --prerelease=false --latest || (echo Nao foi possivel promover a v%VER% no repositorio de downloads. & exit /b 1)
+gh release edit v%VER% --repo rNx1337k/TorqisDiagnostics --draft=false --prerelease=false --latest || (echo Nao foi possivel promover a v%VER% no repositorio de downloads. & exit /b 1)
 echo.
 echo v%VER% publicada para todos: os programas instalados e portateis actualizam-se sozinhos.

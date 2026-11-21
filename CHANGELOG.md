@@ -3,6 +3,12 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.23.2] — 2026-11-21
+### Changed
+- The public download repository is now called **`rNx1337k/TorqisDiagnostics`** (it was `Torqis-download`), the
+  name on the logo. Updates look there directly (`rad/updates.py` → `REPO`); 1.23.1 copies, which still ask for
+  the old name, are redirected by GitHub. Release scripts, README links and docs follow the new name.
+
 ## [1.23.1] — 2026-11-21
 Downloads and updates move to a public repository of their own.
 

@@ -207,10 +207,11 @@ The update signature (`.sig`) is created after the Authenticode signature, so it
 ### Publishing a release
 
 Two repositories: **`rNx1337k/Torqis`** holds the source code (and the draft Releases that GitHub Actions builds);
-**`rNx1337k/Torqis-download`** is public and holds only the installers. Customers download from the public one and
+**`rNx1337k/TorqisDiagnostics`** is public and holds only the installers. Customers download from the public one and
 installed copies look for updates there (`rad/updates.py` → `REPO`). `publicar_release.bat`, `promover_release.bat`
 and `retirar_release.bat` act on both. Up to 1.23.0 installed copies looked in `rNx1337k/Torqis`; 1.23.1 was
-published in both so that those copies move over.
+published in both so that those copies move over. (1.23.1 looks in `rNx1337k/Torqis-download`, the former name of the download repository; GitHub
+redirects it.)
 
 1. Bump `rad/__init__.py` → `VERSION`, update `CHANGELOG.md`, commit, then `git tag v<version>` and
    `git push origin main v<version>`.

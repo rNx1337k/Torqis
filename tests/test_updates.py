@@ -132,12 +132,12 @@ def test_test_versions_reach_only_the_beta_channel():
 def test_updates_and_releases_use_the_public_download_repository():
     # o código-fonte pode ficar privado: os programas procuram as actualizações num repositório público só com os
     # instaladores, e o processo de publicação põe lá cada versão
-    assert updates.REPO == "rNx1337k/Torqis-download"
-    assert updates.API.endswith("/repos/rNx1337k/Torqis-download")
+    assert updates.REPO == "rNx1337k/TorqisDiagnostics"
+    assert updates.API.endswith("/repos/rNx1337k/TorqisDiagnostics")
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     for name in ("publicar_release.bat", "promover_release.bat", "retirar_release.bat"):
         with open(os.path.join(root, "tools", name), encoding="utf-8") as fh:
-            assert "rNx1337k/Torqis-download" in fh.read(), name
+            assert "rNx1337k/TorqisDiagnostics" in fh.read(), name
     sys.path.insert(0, os.path.join(root, "tools"))
     import finish_build
     body = finish_build.release_notes("1.23.1", log=lambda m: None)

@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.23.1-3D7BFF?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.23.2-3D7BFF?style=flat-square" alt="Version">
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Tests"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/status-beta-E8343A?style=flat-square" alt="Status: beta">
@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/rNx1337k/Torqis-download/releases/latest"><img src="https://img.shields.io/badge/Download_for_Windows-2F5BFF?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows"></a>
+  <a href="https://github.com/rNx1337k/TorqisDiagnostics/releases/latest"><img src="https://img.shields.io/badge/Download_for_Windows-2F5BFF?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows"></a>
 </p>
 
 ---
@@ -98,7 +98,7 @@ against real data captured from a car. The full, per-protocol status is in [docs
 
 ## Download
 
-Get it from the [Releases](https://github.com/rNx1337k/Torqis-download/releases/latest) page:
+Get it from the [Releases](https://github.com/rNx1337k/TorqisDiagnostics/releases/latest) page:
 
 - **`Setup_Torqis_<version>.exe`** — installs the program with Start menu and desktop shortcuts
   (recommended)

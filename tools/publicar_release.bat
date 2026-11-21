@@ -6,7 +6,7 @@ REM  2) assina o instalador com o certificado de codigo, se estiver configurado 
 REM  3) cria as assinaturas das actualizacoes automaticas (.sig) com a chave privada deste PC
 REM  4) testa a versao portatil num Windows limpo (Windows Sandbox, se estiver activo)
 REM  5) envia o instalador e os .sig para a Release, poe as novidades (docs\NOVIDADES.md) e publica-a
-REM  6) publica a mesma versao no repositorio publico de downloads (rNx1337k/Torqis-download): e ai que os
+REM  6) publica a mesma versao no repositorio publico de downloads (rNx1337k/TorqisDiagnostics): e ai que os
 REM     clientes descarregam e que os programas instalados procuram as actualizacoes (rad\updates.py)
 REM  Uso: tools\publicar_release.bat 1.13.0          publica para todos os clientes
 REM       tools\publicar_release.bat 1.13.0 teste    versao de teste: so os PCs com "Receber versoes de teste"
@@ -15,7 +15,7 @@ REM  Precisa do GitHub CLI (winget install GitHub.cli) com sessao iniciada (gh a
 REM ============================================================
 cd /d "%~dp0\.."
 set CODE=rNx1337k/Torqis
-set DL=rNx1337k/Torqis-download
+set DL=rNx1337k/TorqisDiagnostics
 set VER=%~1
 set KIND=%~2
 if "%VER%"=="" (echo Uso: tools\publicar_release.bat ^<versao^> [teste] & exit /b 1)

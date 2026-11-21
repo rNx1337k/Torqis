@@ -22,8 +22,9 @@ from .i18n import tr
 log = logging.getLogger(__name__)
 
 # Repositório público só com os instaladores (o código-fonte está num repositório privado). Até à 1.23.0 os
-# programas procuravam em rNx1337k/Torqis; a 1.23.1 foi publicada nos dois para fazer a passagem.
-REPO = "rNx1337k/Torqis-download"
+# programas procuravam em rNx1337k/Torqis; a 1.23.1 foi publicada nos dois para fazer a passagem (e procurava em
+# rNx1337k/Torqis-download, o nome anterior deste repositório: o GitHub redirecciona-o para o nome actual).
+REPO = "rNx1337k/TorqisDiagnostics"
 API = "https://api.github.com/repos/" + REPO
 RELEASES_PAGE = f"https://github.com/{REPO}/releases"
 TIMEOUT = 6
