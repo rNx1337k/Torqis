@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/vers%C3%A3o-1.23.0-3D7BFF?style=flat-square" alt="Versão">
+  <img src="https://img.shields.io/badge/vers%C3%A3o-1.23.1-3D7BFF?style=flat-square" alt="Versão">
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/estado-beta-E8343A?style=flat-square" alt="Estado: beta">
@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/rNx1337k/Torqis/releases"><img src="https://img.shields.io/badge/Descarregar_para_Windows-2F5BFF?style=for-the-badge&logo=windows&logoColor=white" alt="Descarregar para Windows"></a>
+  <a href="https://github.com/rNx1337k/Torqis-download/releases/latest"><img src="https://img.shields.io/badge/Descarregar_para_Windows-2F5BFF?style=for-the-badge&logo=windows&logoColor=white" alt="Descarregar para Windows"></a>
 </p>
 
 ---
@@ -100,7 +100,7 @@ foi também conferida com dados reais capturados num carro. O estado completo, p
 
 ## Descarregar
 
-Na página [Releases](https://github.com/rNx1337k/Torqis/releases):
+Na página [Releases](https://github.com/rNx1337k/Torqis-download/releases/latest):
 
 - **`Setup_Torqis_<versão>.exe`** — instala o programa com atalhos no menu Iniciar e no ambiente de
   trabalho (recomendado)

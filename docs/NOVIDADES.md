@@ -6,6 +6,15 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.23.1
+
+### pt
+- As actualizações e as transferências passam a vir de uma página própria do Torqis. Não é preciso fazer nada: o
+  programa continua a actualizar-se sozinho.
+
+### en
+- Updates and downloads now come from a page of Torqis's own. Nothing to do: the program keeps updating itself.
+
 ## 1.23.0
 
 ### pt

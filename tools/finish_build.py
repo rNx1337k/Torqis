@@ -253,7 +253,7 @@ def sign(setup, version, secret=None, log=print):
 
 
 NOTES_FILE = os.path.join(ROOT, "docs", "NOVIDADES.md")
-REPO_URL = "https://github.com/rNx1337k/Torqis"
+INSTAGRAM_URL = "https://www.instagram.com/torqis.pt/"
 
 
 def customer_notes(version, path=None):
@@ -288,7 +288,8 @@ def release_notes(version, path=None, log=print):
         parts += [NOTES_END, ""]
     else:
         log(f"AVISO: docs/NOVIDADES.md não tem a versão {version}: a Release sai sem novidades para os clientes.")
-    parts.append(f"Torqis {version} · [CHANGELOG]({REPO_URL}/blob/v{version}/CHANGELOG.md)")
+    # sem ligação para o código: o repositório do código é privado, a Release sai no repositório de downloads
+    parts.append(f"Torqis {version} · Windows 10/11 (64 bits) · [Instagram @torqis.pt]({INSTAGRAM_URL})")
     return "\n".join(parts) + "\n"
 
 

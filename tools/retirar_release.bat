@@ -11,6 +11,7 @@ cd /d "%~dp0\.."
 set VER=%~1
 if "%VER%"=="" (echo Uso: tools\retirar_release.bat ^<versao^> & exit /b 1)
 where gh >nul 2>nul || (echo Falta o GitHub CLI: winget install GitHub.cli e depois gh auth login & exit /b 1)
-gh release edit v%VER% --draft=true || (echo Nao foi possivel retirar a v%VER%. & exit /b 1)
+gh release edit v%VER% --repo rNx1337k/Torqis-download --draft=true || (echo Nao foi possivel retirar a v%VER% do repositorio de downloads. & exit /b 1)
+gh release edit v%VER% --repo rNx1337k/Torqis --draft=true || (echo Nao foi possivel retirar a v%VER%. & exit /b 1)
 echo.
 echo v%VER% retirada: os programas deixam de a receber. Publique uma versao corrigida com um numero novo.

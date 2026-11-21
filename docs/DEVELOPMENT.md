@@ -206,6 +206,12 @@ The update signature (`.sig`) is created after the Authenticode signature, so it
 
 ### Publishing a release
 
+Two repositories: **`rNx1337k/Torqis`** holds the source code (and the draft Releases that GitHub Actions builds);
+**`rNx1337k/Torqis-download`** is public and holds only the installers. Customers download from the public one and
+installed copies look for updates there (`rad/updates.py` → `REPO`). `publicar_release.bat`, `promover_release.bat`
+and `retirar_release.bat` act on both. Up to 1.23.0 installed copies looked in `rNx1337k/Torqis`; 1.23.1 was
+published in both so that those copies move over.
+
 1. Bump `rad/__init__.py` → `VERSION`, update `CHANGELOG.md`, commit, then `git tag v<version>` and
    `git push origin main v<version>`.
 2. GitHub Actions (`.github/workflows/release.yml`) runs the tests, compiles the program on a clean Windows runner,
@@ -215,7 +221,8 @@ The update signature (`.sig`) is created after the Authenticode signature, so it
    `tools\publicar_release.bat <version> teste`: it downloads the installer and the portable zip from the draft,
    signs the installer (Authenticode, if configured), creates both `.sig` files, **tests the portable version in a
    clean Windows** (Windows Sandbox, if enabled: the release is not published if the self-test fails), uploads the
-   files, writes the customer notes from `docs/NOVIDADES.md` and publishes it as a **pre-release**. Only PCs with
+   files, writes the customer notes from `docs/NOVIDADES.md`, copies everything to the public download repository
+   and publishes it in both as a **pre-release**. Only PCs with
    **Options → Updates → Receive test versions** (technician mode, `--tecnico`; the setting is kept) get it.
    Requires the GitHub CLI (`winget install GitHub.cli`, then `gh auth login`).
 4. Once the test version works on your PC, `tools\promover_release.bat <version>` makes it the latest release:

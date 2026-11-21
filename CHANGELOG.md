@@ -3,6 +3,22 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.23.1] — 2026-11-21
+Downloads and updates move to a public repository of their own.
+
+### Changed
+- **Updates now come from `rNx1337k/Torqis-download`**, a public repository with only the installers, the portable
+  zip and their signatures (`rad/updates.py` → `REPO`). The source code repository can then be made private
+  without stopping updates. This version was published in both repositories, so copies up to 1.23.0 (which look
+  in `rNx1337k/Torqis`) receive it and move over by themselves.
+- `tools/publicar_release.bat` also publishes in the download repository; `promover_release.bat` and
+  `retirar_release.bat` act on both. The release notes no longer link to the source code.
+- README download links point to the download repository.
+
+### Fixed
+- Running from source (`run.bat`), the taskbar showed the Python icon instead of the Torqis one: the process now
+  has its own AppUserModelID (`main.set_taskbar_identity`). The compiled `Torqis.exe` is unchanged.
+
 ## [1.23.0] — 2026-11-19
 Without a licence, the program is now a trial and then a demo, no longer a free full version.
 
