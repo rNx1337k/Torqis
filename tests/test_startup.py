@@ -75,3 +75,19 @@ def test_ui_scale_setting_is_applied_at_startup_only_when_valid():
             os.environ.pop("RAD_SETTINGS_INI", None)
         else:
             os.environ["RAD_SETTINGS_INI"] = old
+
+
+def test_taskbar_shows_the_torqis_icon_when_run_from_source():
+    # a partir do código-fonte o processo é o pythonw.exe: sem identidade própria a barra de tarefas mostrava o
+    # ícone do Python. O Torqis.exe compilado fica como está (o ícone já é o dele).
+    sys.path.insert(0, ROOT)
+    import main
+    assert main.set_taskbar_identity(r"C:\x\Torqis.exe", "win32") is False
+    assert main.set_taskbar_identity("/usr/bin/python3", "linux") is False
+    if sys.platform == "win32":
+        assert main.set_taskbar_identity(r"C:\x\.venv\Scripts\pythonw.exe", "win32") is True
+        import ctypes
+        from ctypes import wintypes
+        buf = wintypes.LPWSTR()
+        ctypes.windll.shell32.GetCurrentProcessExplicitAppUserModelID(ctypes.byref(buf))
+        assert buf.value == main.TASKBAR_ID

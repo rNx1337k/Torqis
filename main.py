@@ -3,6 +3,7 @@
 Os módulos Qt e a janela só são importados depois de o registo de erros estar activo: assim, uma falha no
 arranque noutro PC (DLL do Qt em falta, ficheiro do programa em falta...) fica no crash.log e aparece numa
 caixa de erro do Windows, em vez de o programa simplesmente não abrir."""
+import os
 import sys
 
 from rad import APP_NAME, VERSION, applog
@@ -159,6 +160,25 @@ def roll_back():
         return None
 
 
+TASKBAR_ID = "Torqis.Diagnostics"
+
+
+def set_taskbar_identity(executable=None, platform=None):
+    """A correr do código-fonte, o processo é o python(w).exe e a barra de tarefas mostrava o ícone do Python.
+    Com uma identidade própria (AppUserModelID) o Windows usa o ícone da janela (o do Torqis). No Torqis.exe
+    compilado não se mexe: o ícone já é o do próprio executável e os atalhos do instalador ficam agrupados com ele.
+    Devolve True se a identidade foi definida."""
+    executable = os.path.basename(executable or sys.executable).lower()
+    if (platform or sys.platform) != "win32" or not executable.startswith("python"):
+        return False
+    try:
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(TASKBAR_ID)
+        return True
+    except (AttributeError, OSError):
+        return False
+
+
 def create_app():
     """Cria a aplicação Qt (idioma, tamanho da interface, estilo e ícone)."""
     from rad import i18n
@@ -166,6 +186,7 @@ def create_app():
     from PySide6.QtGui import QFont, QIcon
     from PySide6.QtWidgets import QApplication
     from rad.ui.widgets import asset_path
+    set_taskbar_identity()
     if QApplication.instance() is None:
         from rad.settings import apply_ui_scale
         apply_ui_scale()                          # tamanho da interface escolhido em Opções
