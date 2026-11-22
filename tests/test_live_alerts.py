@@ -91,7 +91,7 @@ def test_measuring_tab_shows_alerts_from_the_simulator():
         assert _wait(app, lambda: w.module.info is not None)
         page = w.module
         assert not page.alerts_lbl.isVisible()
-        page.tabs.setCurrentIndex(2)
+        page.tabs.setCurrentIndex(page.MVB_TAB)
         page.groups[0].spin.setValue(11)
         page._toggle_mvb()
         assert page.monitor is not None and page.monitor.groups() == [1, 3, 11, 13]

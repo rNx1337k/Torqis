@@ -35,14 +35,30 @@ class ModulePage(QWidget):
 
         v = QVBoxLayout(self)
         v.setContentsMargins(26, 20, 26, 20)
+        # cabeçalho: o controlador e a sua identificação numa linha (o que antes era o separador Informação)
         head = QHBoxLayout()
         hv = QVBoxLayout()
+        hv.setSpacing(2)
         self.title = lbl("—", "h1")
         self.subtitle = lbl("", "muted")
+        self.subtitle.setTextInteractionFlags(Qt.TextSelectableByMouse)
         hv.addWidget(self.title)
-        hv.addWidget(self.subtitle)
+        idrow = QHBoxLayout()
+        idrow.setSpacing(10)
+        idrow.addWidget(self.subtitle)
+        self.copy_info_btn = btn(tr("Copiar"), "link", self._copy_info)
+        self.copy_info_btn.setToolTip(tr("Copiar a identificação do controlador"))
+        idrow.addWidget(self.copy_info_btn)
+        idrow.addStretch(1)
+        hv.addLayout(idrow)
         head.addLayout(hv, 1)
-        self.close_btn = btn(tr("Fechar controlador"), "danger", lambda: self.w.submit("disconnect"))
+        # painéis de instrumentos Golf IV / Bora / Passat B5 / Octavia I: repor a revisão (canal 02 = 0)
+        self.service_btn = btn(tr("Repor indicador de revisão"), None, self._reset_service)
+        self.service_btn.setToolTip(tr("Painéis de instrumentos do tipo Golf IV / Bora / Passat B5 / Octavia I: "
+                                       "a revisão é reposta escrevendo 0 no canal de adaptação 02."))
+        self.service_btn.hide()
+        head.addWidget(self.service_btn, 0, Qt.AlignTop)
+        self.close_btn = btn(tr("Fechar controlador"), None, lambda: self.w.submit("disconnect"))
         head.addWidget(self.close_btn, 0, Qt.AlignTop)
         v.addLayout(head)
 
@@ -50,14 +66,14 @@ class ModulePage(QWidget):
         self.tabs.setElideMode(Qt.ElideRight)        # janela estreita: encolher os nomes em vez de setas
         self.tabs.setUsesScrollButtons(False)
         v.addWidget(self.tabs, 1)
-        self.tabs.addTab(self._build_info(), tr("Informação"))
-        self.tabs.addTab(self._build_faults(), tr("Avarias"))
-        self.tabs.addTab(self._build_mvb(), tr("Medição"))
-        self.tabs.addTab(self._scrolled(self._build_basic()), tr("Ajustes básicos"))
-        self.tabs.addTab(self._build_adapt(), tr("Adaptação"))
-        self.tabs.addTab(self._build_coding(), tr("Codificação"))
-        self.tabs.addTab(self._build_login(), tr("Login"))
-        self.tabs.addTab(self._build_outputs(), tr("Saídas"))
+        # abre directamente nas Avarias (é por aí que começa o trabalho); o Login aparece dentro da Adaptação e da
+        # Codificação, que são as funções que o pedem
+        self.FAULTS_TAB = self.tabs.addTab(self._build_faults(), tr("Avarias"))
+        self.MVB_TAB = self.tabs.addTab(self._build_mvb(), tr("Medição"))
+        self.BASIC_TAB = self.tabs.addTab(self._scrolled(self._build_basic()), tr("Ajustes básicos"))
+        self.ADAPT_TAB = self.tabs.addTab(self._scrolled(self._build_adapt()), tr("Adaptação"))
+        self.CODING_TAB = self.tabs.addTab(self._scrolled(self._build_coding()), tr("Codificação"))
+        self.OUTPUTS_TAB = self.tabs.addTab(self._build_outputs(), tr("Saídas"))
         self.tabs.addTab(self._scrolled(self._build_guided()), tr("Testes TDI"))
         self.GUIDED_TAB = self.tabs.count() - 1
         self.CHANGES_TAB = self.tabs.addTab(self._build_changes(), tr("Alterações"))
@@ -83,137 +99,8 @@ class ModulePage(QWidget):
         s.setWidget(w)
         return s
 
-    def _build_info(self):
-        w, v = self._pad()
-        self.info_lbls = {}
-
-        def value_label(key, big=False):
-            l = lbl("—", "value" if big else None)
-            l.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            l.setWordWrap(True)
-            self.info_lbls[key] = l
-            return l
-
-        # identificação em destaque — o que se aponta numa ficha de oficina
-        top = QHBoxLayout()
-        top.setSpacing(12)
-        for key, name, stretch in (("part", tr("Nº de peça VAG"), 2), ("component", tr("Componente"), 3),
-                                   ("coding", tr("Codificação"), 2)):
-            c = card()
-            cl = QVBoxLayout(c)
-            cl.setContentsMargins(18, 14, 18, 16)
-            cl.setSpacing(2)
-            cl.addWidget(lbl(name, "cellName"))
-            cl.addWidget(value_label(key, big=True))
-            if key == "coding":
-                cl.addWidget(value_label("wsc"))
-            cl.addStretch(1)
-            top.addWidget(c, stretch)
-        v.addLayout(top)
-
-        # detalhes do controlador (protocolo, velocidade e dados brutos só no modo técnico)
-        technical = technician_mode()
-        c = card()
-        g = QGridLayout(c)
-        g.setContentsMargins(20, 16, 20, 16)
-        g.setHorizontalSpacing(24)
-        g.setVerticalSpacing(8)
-        details = [("address", tr("Endereço")), ("module", tr("Módulo"))]
-        if technical:
-            details += [("protocol", tr("Protocolo")), ("baud", tr("Velocidade"))]
-        details.append(("extra", tr("Info extra")))
-        for i, (key, name) in enumerate(details):
-            r, col = i // 3, (i % 3) * 2
-            g.addWidget(lbl(name, "muted"), r, col)
-            g.addWidget(value_label(key), r, col + 1)
-        if technical:
-            g.addWidget(lbl(tr("Dados brutos"), "muted"), 2, 0)
-            raw = value_label("raw")
-            raw.setStyleSheet("font-family: Consolas, monospace; color: #6A7BA0; font-size: 8.5pt;")
-            g.addWidget(raw, 2, 1, 1, 5)
-        for col in (1, 3, 5):
-            g.setColumnStretch(col, 1)
-        v.addWidget(c)
-
-        row = QHBoxLayout()
-        row.addWidget(btn(tr("Ler avarias"), "primary", self._quick_faults))
-        row.addWidget(btn(tr("Copiar informação"), None, self._copy_info))
-        row.addStretch(1)
-        v.addLayout(row)
-
-        # o que se pode fazer neste controlador: uma entrada por separador disponível (as que o protocolo ou a
-        # identificação não permitem ficam escondidas em set_info)
-        v.addSpacing(4)
-        v.addWidget(lbl(tr("O que pode fazer neste controlador"), "h2"))
-        grid = QGridLayout()
-        grid.setHorizontalSpacing(12)
-        grid.setVerticalSpacing(12)
-        self.fn_tiles = {}
-        functions = [
-            (2, tr("Valores de medição"), tr("Leitura contínua dos grupos, com mostradores, gráficos e gravação.")),
-            (3, tr("Ajustes básicos"), tr("Rotinas de afinação do controlador (ex.: borboleta, EGR).")),
-            (4, tr("Adaptação"), tr("Ler, testar e gravar canais; o valor anterior fica guardado.")),
-            (5, tr("Codificação"), tr("Mudar a codificação, confirmada pelo controlador.")),
-            (6, tr("Login"), tr("Código de acesso para funções protegidas.")),
-            (7, tr("Saídas"), tr("Activar os componentes um a um para os testar.")),
-            (None, tr("Testes TDI"), tr("Equilíbrio dos injectores, turbo e medidor de massa de ar, guiados.")),
-            (None, tr("Alterações"), tr("Codificações e adaptações feitas, com o valor anterior para repor.")),
-        ]
-        for n, (index, title, sub) in enumerate(functions):
-            b = btn("", "tile", lambda _=False, t=title: self._open_function(t))
-            b.setMinimumHeight(86)
-            lay = QVBoxLayout(b)
-            lay.setContentsMargins(16, 12, 16, 12)
-            lay.setSpacing(3)
-            t = lbl(title, "h2")
-            d = lbl(sub, "muted", wrap=True)
-            for x in (t, d):
-                x.setAttribute(Qt.WA_TransparentForMouseEvents)
-                lay.addWidget(x)
-            lay.addStretch(1)
-            self.fn_tiles[title] = (index, b)
-            grid.addWidget(b, n // 3, n % 3)
-        for col in range(3):
-            grid.setColumnStretch(col, 1)
-        self.fn_grid = grid
-        v.addLayout(grid)
-        self.quick = card()
-        qv = QVBoxLayout(self.quick)
-        qv.setContentsMargins(20, 16, 20, 16)
-        qv.addWidget(lbl(tr("Funções rápidas"), "h2"))
-        qv.addWidget(lbl(tr("Painéis de instrumentos do tipo Golf IV / Bora / Passat B5 / Octavia I: "
-                            "a revisão é reposta escrevendo 0 no canal de adaptação 02."), "muted", wrap=True))
-        qrow = QHBoxLayout()
-        qrow.addWidget(btn(tr("Repor indicador de revisão"), "primary", self._reset_service))
-        qrow.addStretch(1)
-        qv.addLayout(qrow)
-        self.quick.hide()
-        v.addWidget(self.quick)
-        v.addStretch(1)
-        return w
-
-    def _open_function(self, title):
-        index, _b = self.fn_tiles[title]
-        if index is None:
-            index = self.GUIDED_TAB if title == tr("Testes TDI") else self.CHANGES_TAB
-        self.tabs.setCurrentIndex(index)
-
-    def _refresh_function_tiles(self):
-        """Só as funções que este controlador permite, arrumadas sem buracos na grelha."""
-        shown = []
-        for title, (index, b) in self.fn_tiles.items():
-            if index is None:
-                index = self.GUIDED_TAB if title == tr("Testes TDI") else self.CHANGES_TAB
-            ok = self.tabs.isTabEnabled(index)
-            b.setVisible(ok)
-            self.fn_grid.removeWidget(b)
-            if ok:
-                shown.append(b)
-        for n, b in enumerate(shown):
-            self.fn_grid.addWidget(b, n // 3, n % 3)
-
     def _quick_faults(self):
-        self.tabs.setCurrentIndex(1)
+        self.tabs.setCurrentIndex(self.FAULTS_TAB)
         self.w.submit("read_faults")
 
     def _reset_service(self):
@@ -226,21 +113,20 @@ class ModulePage(QWidget):
     def _build_faults(self):
         w, v = self._pad()
         row = QHBoxLayout()
-        row.addWidget(btn(tr("Ler avarias"), "primary", lambda: self.w.submit("read_faults")))
+        row.addWidget(btn(tr("Ler de novo"), "primary", lambda: self.w.submit("read_faults")))
         row.addWidget(btn(tr("Apagar avarias"), "danger", self._clear_faults))
-        row.addWidget(btn(tr("Copiar"), None, self._copy_faults))
         row.addWidget(btn(tr("Relatório para o cliente"), None, lambda: self.report_req.emit()))
         row.addStretch(1)
         self.fault_count = lbl("", "h2")
         row.addWidget(self.fault_count)
         v.addLayout(row)
-        self.fault_table = QTableWidget(0, 5)
-        self.fault_table.setHorizontalHeaderLabels([tr("Código"), tr("Descrição"), tr("Tipo de avaria"), tr("Estado"),
-                                                    tr("Gravidade")])
+        # 4 colunas: o tipo de avaria vai junto à descrição ("Tensão B+ — sinal demasiado baixo")
+        self.fault_table = QTableWidget(0, 4)
+        self.fault_table.setHorizontalHeaderLabels([tr("Código"), tr("Avaria"), tr("Estado"), tr("Gravidade")])
         hh = self.fault_table.horizontalHeader()
         hh.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         hh.setSectionResizeMode(1, QHeaderView.Stretch)
-        for c in (2, 3, 4):
+        for c in (2, 3):
             hh.setSectionResizeMode(c, QHeaderView.ResizeToContents)
         self.fault_table.verticalHeader().setVisible(False)
         self.fault_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -341,8 +227,9 @@ class ModulePage(QWidget):
         g.addWidget(btn(tr("Gravar"), "danger", self._adapt_save), 4, 2)
         g.setColumnStretch(3, 1)
         v.addWidget(c)
-        v.addWidget(lbl(tr("Canal 00 = repor todas as adaptações (cuidado!). Alguns canais exigem Login antes."),
-                        "muted", wrap=True))
+        v.addWidget(lbl(tr("Canal 00 = repor todas as adaptações (cuidado!)."), "muted", wrap=True))
+        self.login_box, self.login_code, self.login_wsc = self._login_box()
+        v.addWidget(self.login_box)
         v.addStretch(1)
         return w
 
@@ -372,31 +259,34 @@ class ModulePage(QWidget):
         v.addWidget(lbl(tr("Uma codificação errada pode desactivar funções ou acender avisos. Cada codificação "
                            "gravada fica no separador Alterações, com o valor anterior, para poder voltar atrás."),
                         "muted", wrap=True))
+        self.cod_login_box, self.cod_login_code, self.cod_login_wsc = self._login_box()
+        v.addWidget(self.cod_login_box)
         v.addStretch(1)
         return w
 
-    def _build_login(self):
-        w, v = self._pad()
+    def _login_box(self):
+        """Login, só para quando o controlador o pede antes de uma adaptação ou codificação."""
         c = card()
         g = QGridLayout(c)
-        g.setContentsMargins(20, 18, 20, 18)
-        g.setVerticalSpacing(12)
-        self.login_code = QLineEdit()
-        self.login_code.setPlaceholderText(tr("Código de login (5 dígitos)"))
-        self.login_code.setMaxLength(5)
-        self.login_wsc = QSpinBox()
-        self.login_wsc.setRange(0, 99999)
-        g.addWidget(lbl(tr("Código"), "muted"), 0, 0)
-        g.addWidget(self.login_code, 0, 1)
-        g.addWidget(lbl(tr("Código de oficina"), "muted"), 1, 0)
-        g.addWidget(self.login_wsc, 1, 1)
-        g.addWidget(btn(tr("Fazer login"), "primary", self._login), 2, 1)
-        g.setColumnStretch(2, 1)
-        v.addWidget(c)
-        v.addWidget(lbl(tr("Exemplos comuns: motor 12233 (cruise control em alguns EDC15), painel 13861 "
-                           "(algumas adaptações). Confirme sempre para o seu controlador."), "muted", wrap=True))
-        v.addStretch(1)
-        return w
+        g.setContentsMargins(20, 14, 20, 14)
+        g.setVerticalSpacing(10)
+        code = QLineEdit()
+        code.setPlaceholderText(tr("Código de login (5 dígitos)"))
+        code.setMaxLength(5)
+        code.setMinimumWidth(220)
+        wsc = QSpinBox()
+        wsc.setRange(0, 99999)
+        g.addWidget(lbl(tr("Login — só se o controlador o pedir"), "h2"), 0, 0, 1, 3)
+        g.addWidget(lbl(tr("Código"), "muted"), 1, 0)
+        g.addWidget(code, 1, 1)
+        g.addWidget(btn(tr("Fazer login"), None, lambda: self._login(code, wsc)), 1, 2)
+        g.addWidget(lbl(tr("Código de oficina"), "muted"), 2, 0)
+        g.addWidget(wsc, 2, 1)
+        g.addWidget(lbl(tr("Exemplos comuns: motor 12233 (cruise control em alguns EDC15), painel 13861 "
+                           "(algumas adaptações). Confirme sempre para o seu controlador."), "muted", wrap=True),
+                    3, 0, 1, 4)
+        g.setColumnStretch(3, 1)
+        return c, code, wsc
 
     def _build_outputs(self):
         w, v = self._pad()
@@ -435,30 +325,31 @@ class ModulePage(QWidget):
         self.demo_live_left = float(licensing.FREE_LIVE_SECONDS)   # modo demonstração: por cada ligação
         self.info = info
         self.title.setText(f"{info['address']:02X} — {info['module']}")
-        if technician_mode():
-            self.subtitle.setText(tr("{part}   {component}   ·   {protocol} @ {baud} baud",
-                                     part=info['part'], component=info['component'], protocol=info['protocol'],
-                                     baud=info['baud']))
-        else:
-            self.subtitle.setText(f"{info['part']}   {info['component']}".strip())
-        vals = dict(info)
-        vals["address"] = f"{info['address']:02X}"
-        vals["baud"] = tr("{baud} baud", baud=info['baud'])
         digits = int(info.get("coding_digits") or 5)
-        vals["coding"] = f"{info['coding']:0{digits}d}" if info.get("coding") is not None else "—"
-        vals["wsc"] = (tr("Código de oficina {wsc:05d}", wsc=info["wsc"]) if info.get("wsc") is not None
-                       else tr("Código de oficina —"))
-        vals["raw"] = "\n".join(info.get("raw") or []) or "—"
-        for k, l in self.info_lbls.items():
-            l.setText(str(vals.get(k) or "—"))
-        self.cod_current.setText(vals["coding"])
+        coding = f"{info['coding']:0{digits}d}" if info.get("coding") is not None else "—"
+        parts = [x for x in (info.get("part"), info.get("component")) if x]
+        if info.get("coding") is not None:
+            parts.append(tr("Codificação {v}", v=coding))
         if info.get("wsc") is not None:
-            for s in (self.cod_wsc, self.ad_wsc, self.login_wsc):
+            parts.append(tr("Oficina {wsc:05d}", wsc=info["wsc"]))
+        if technician_mode():
+            parts.append(tr("{protocol} @ {baud} baud", protocol=info['protocol'], baud=info['baud']))
+        self.subtitle.setText("   ·   ".join(str(x).strip() for x in parts))
+        tip = [x for x in (info.get("extra"),) if x]
+        if technician_mode() and info.get("raw"):
+            tip.append("\n".join(info.get("raw")))
+        self.subtitle.setToolTip("\n".join(tip))
+        self.cod_current.setText(coding)
+        if info.get("wsc") is not None:
+            for s in (self.cod_wsc, self.ad_wsc, self.login_wsc, self.cod_login_wsc):
                 s.setValue(info["wsc"])
         kw = info["protocol"] == "KW1281"
         features = set(info.get("features") or (("basic", "adaptation", "coding", "login", "outputs") if kw else ()))
-        for i, feature in ((3, "basic"), (4, "adaptation"), (5, "coding"), (6, "login"), (7, "outputs")):
+        for i, feature in ((self.BASIC_TAB, "basic"), (self.ADAPT_TAB, "adaptation"), (self.CODING_TAB, "coding"),
+                           (self.OUTPUTS_TAB, "outputs")):
             self.tabs.setTabEnabled(i, feature in features)
+        for box in (self.login_box, self.cod_login_box):
+            box.setVisible("login" in features)
         self.cod_digits = digits
         self.cod_new.setMaxLength(digits)
         self.cod_new.setPlaceholderText("0" * digits)
@@ -467,21 +358,21 @@ class ModulePage(QWidget):
         self.tabs.setTabEnabled(self.GUIDED_TAB, guided.available_for(info))
         if self.guided_test is None and self.gd_selected is not None:   # nomes dos campos deste motor
             self._guided_select(guided.TESTS.index(self.gd_selected))
-        self._refresh_function_tiles()
         self.refresh_changes()
-        self.quick.setVisible(kw and info["address"] == 0x17)
+        self.service_btn.setVisible(kw and info["address"] == 0x17)
         for c in self.charts:
             c.close()
         self.charts = []
         self.fault_table.setRowCount(0)
         self.fault_count.setText("")
+        self.tabs.setTabText(self.FAULTS_TAB, tr("Avarias"))
         self.out_list.clear()
         self._out_running = False
         self.out_current.setText("—")
         self.out_desc.setText("")
         self.ad_current.setText("—")
         self.ad_test_lbl.setText("—")
-        self.tabs.setCurrentIndex(0)
+        self.tabs.setCurrentIndex(self.FAULTS_TAB)
 
     def _lock_groups(self, locked):
         for g in self.groups:
@@ -673,6 +564,7 @@ class ModulePage(QWidget):
         t.setRowCount(0)
         self.fault_advice.clear()
         self.fault_advice.setVisible(bool(faults))
+        self.tabs.setTabText(self.FAULTS_TAB, tr("Avarias ({n})", n=len(faults)) if faults else tr("Avarias"))
         if not faults:
             self._fit_fault_table()
             self.fault_count.setText(tr("✔  Nenhuma avaria"))
@@ -684,25 +576,28 @@ class ModulePage(QWidget):
             r = t.rowCount()
             t.insertRow(r)
             code = f["vag"] + (f"  ({f['pcode']})" if f["pcode"] else "")
-            elab = f"{f['elab_code']:02d} — {f['elab']}" if f["elab"] not in ("-", "") else f"{f['elab_code']:02d}"
+            elab = f["elab"].lower() if f["elab"] not in ("-", "") else ""
+            if technician_mode():
+                elab = f"{f['elab_code']:02d} {f['elab']}" if f["elab"] not in ("-", "") else f"{f['elab_code']:02d}"
             if f.get("locked"):
-                elab = "—"
+                elab = ""
             if technician_mode() and isinstance(f.get("status"), int):
                 elab += f"  [0x{f['status']:02X}]"          # byte de estado tal como veio da centralina
             adv = fault_advice.advice(f, self.info["address"] if self.info else None)
-            items = [code, f["desc"], elab,
+            desc = f["desc"] if elab in ("—", "") else f"{f['desc']}  —  {elab}"
+            items = [code, desc,
                      tr("Intermitente") if f["intermittent"] else tr("Permanente"),
                      adv["severity_short"]]
             for c, text in enumerate(items):
                 it = QTableWidgetItem(text)
                 if c == 0:
                     it.setForeground(QBrush(QColor(CYAN)))
-                if c == 3:
+                if c == 2:
                     # cor própria, sem usar RED/WARN/BLUE: esta coluna diz se a avaria está activa agora
                     # (Permanente) ou não (Intermitente) — não é a mesma coisa que a gravidade na coluna ao lado,
                     # e antes podiam sair exactamente com a mesma cor (ex.: Intermitente = Gravidade média).
                     it.setForeground(QBrush(QColor(SOFT if f["intermittent"] else TEXT)))
-                if c == 4:
+                if c == 3:
                     it.setForeground(QBrush(QColor(severity_color(adv["severity"]))))
                 t.setItem(r, c, it)
         self._fit_fault_table()
@@ -747,7 +642,7 @@ class ModulePage(QWidget):
         lines = [tr("Endereço {address:02X}: {module}", address=i['address'], module=i['module']),
                  tr("Nº de peça: {part}", part=i['part']),
                  tr("Componente: {component}", component=i['component']),
-                 tr("Codificação: {v}", v=self.info_lbls['coding'].text())]
+                 tr("Codificação: {v}", v=self.cod_current.text())]
         if i.get("wsc") is not None:
             lines.append(tr("WSC: {wsc:05d}", wsc=i['wsc']))
         if technician_mode():
@@ -1117,12 +1012,13 @@ class ModulePage(QWidget):
                                   v=f"{int(t):0{self.cod_digits}d}", v2=self.cod_current.text())):
             self.w.submit("recode", int(t), self.cod_wsc.value())
 
-    def _login(self):
-        t = self.login_code.text().strip()
+    def _login(self, code=None, wsc=None):
+        code, wsc = code or self.login_code, wsc or self.login_wsc
+        t = code.text().strip()
         if not t.isdigit() or int(t) > 65535:
             QMessageBox.warning(self, APP_NAME, tr("Código de login inválido (00000 a 65535)."))
             return
-        self.w.submit("login", int(t), self.login_wsc.value())
+        self.w.submit("login", int(t), wsc.value())
 
     def _output_step(self):
         if not self._out_running:

@@ -172,6 +172,7 @@ class MainWindow(QMainWindow):
         self.module = ModulePage(self.worker)
         self.module.vehicle = lambda: self.home.vehicle()
         self.scan = AutoScanPage(self.worker)
+        self.scan.vehicle = lambda: self.home.vehicle()
         self.options = OptionsPage(self.settings)
         self.hist = HistoryPage()
         self.obd = ObdPage(self.worker)
@@ -954,7 +955,7 @@ class MainWindow(QMainWindow):
                     QMessageBox.warning(self, APP_NAME, data.get("message", "Resultado desconhecido."))
         elif cmd == "recode":
             self.module.set_info(data["info"])
-            self.module.tabs.setCurrentIndex(5)
+            self.module.tabs.setCurrentIndex(self.module.CODING_TAB)
             if data["status"] == "ok":
                 self.toast.show_msg(data["message"])
             else:

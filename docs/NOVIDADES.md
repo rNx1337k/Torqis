@@ -6,6 +6,16 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.24.0
+
+### pt
+- Ecrãs mais simples e directos: o Início é o carro na oficina e o botão do Auto-Scan (clique num carro recente
+  para o voltar a abrir), o controlador abre logo nas avarias e o Auto-Scan mostra só as avarias, por controlador.
+
+### en
+- Simpler, more direct screens: Home is the car in the workshop and the Auto-Scan button (click a recent car to
+  open it again), a module opens straight on its faults, and the Auto-Scan shows only the faults, by module.
+
 ## 1.23.2
 
 ### pt

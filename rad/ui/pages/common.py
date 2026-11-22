@@ -1,7 +1,8 @@
 """Peças partilhadas pelas páginas: atalhos de widgets e cartões de valores de medição."""
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QDialog, QFrame, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSpinBox, QVBoxLayout, QWidget,
+    QCheckBox, QDialog, QFrame, QHBoxLayout, QLabel, QMessageBox, QPushButton, QScrollArea, QSpinBox, QVBoxLayout,
+    QWidget,
 )
 
 from ... import fault_advice
@@ -119,16 +120,24 @@ class FaultAdviceCard(QFrame):
         self.body = lbl("", None, wrap=True)
         self.body.setTextFormat(Qt.RichText)
         self.body.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        v.addWidget(self.body)
-        self.body.hide()
-        v.addStretch(1)
+        self.body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        # o texto rola dentro do cartão: num ecrã baixo o assistente não empurra a lista de avarias para fora
+        self.body_scroll = QScrollArea()
+        self.body_scroll.setWidgetResizable(True)
+        self.body_scroll.setFrameShape(QFrame.NoFrame)
+        self.body_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.body_scroll.setStyleSheet("QScrollArea, QScrollArea > QWidget > QWidget { background: transparent; }")
+        self.body_scroll.setWidget(self.body)
+        self.body_scroll.setMinimumHeight(60)
+        v.addWidget(self.body_scroll, 1)
+        self.body_scroll.hide()
         self.empty_text = empty_text
 
     def clear(self):
         self.title.setText(self.empty_text)
         self.sev.hide()
         self.system.hide()
-        self.body.hide()
+        self.body_scroll.hide()
 
     def set_fault(self, fault, address=None):
         import html
@@ -142,7 +151,7 @@ class FaultAdviceCard(QFrame):
         self.sev.setStyleSheet(pill_style(severity_color(a["severity"])))
         self.sev.show()
         self.system.setText(a["system"])
-        self.system.setVisible(not fault.get("locked"))
+        self.system.hide()                       # redesenho: a categoria não ajuda a oficina; fica a gravidade
         parts = []
         if a["notes"]:
             parts.append("".join(f"<p style='color:{SOFT}; margin:2px 0'>{html.escape(n)}</p>" for n in a["notes"]))
@@ -162,7 +171,7 @@ class FaultAdviceCard(QFrame):
                             "tipo de avaria acima como ponto de partida e consulte a documentação do motor.</p>",
                             MUTED=MUTED))
         self.body.setText("".join(parts))
-        self.body.show()
+        self.body_scroll.show()
 
 
 class FaultInfoDialog(QDialog):

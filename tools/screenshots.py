@@ -102,14 +102,15 @@ def main():
     w.module.fault_table.selectRow(0)
     shot(w, "03_faults")
 
-    w.module.tabs.setCurrentIndex(2)
+    w.module.tabs.setCurrentIndex(w.module.MVB_TAB)
     w.module._toggle_mvb()
     _wait(app, lambda: len(w.module.groups[0].cells[0].hist) > 8, 20)
     shot(w, "04_live_data")
     w.module.stop_live()
     if review:
-        for i, name in ((0, "10_module_info"), (4, "11_module_adaptation"), (5, "12_module_coding"),
-                        (8, "13_module_guided_tests")):
+        m = w.module
+        for i, name in ((m.ADAPT_TAB, "11_module_adaptation"), (m.CODING_TAB, "12_module_coding"),
+                        (m.GUIDED_TAB, "13_module_guided_tests")):
             w.module.tabs.setCurrentIndex(i)
             shot(w, name)
     w.worker.submit("disconnect")

@@ -590,20 +590,10 @@ EN = {
         "ERROR ({cmd}): {msg}",
     "Auto-Scan {i}/{total}: {address:02X} {module}":
         "Auto-Scan {i}/{total}: {address:02X} {module}",
-    "Diagnóstico completo":
-        "Full diagnosis",
     "▶  Iniciar Auto-Scan":
         "▶  Start Auto-Scan",
     "Copiar":
         "Copy",
-    "Guardar .txt":
-        "Save .txt",
-    "Apagar avarias em todos":
-        "Clear faults in all",
-    "Pronto para ler":
-        "Ready to read",
-    "Ligue a ignição e inicie o Auto-Scan.":
-        "Switch the ignition on and start the Auto-Scan.",
     "Ainda não há resultados. Ligue a ignição e carregue em Iniciar Auto-Scan.":
         "No results yet. Switch the ignition on and click Start Auto-Scan.",
     "Endereço":
@@ -620,8 +610,6 @@ EN = {
         "Clear the fault memory in {v} module(s) ({names})?\n\nSaving or printing the report first is recommended.",
     "A apagar avarias…":
         "Clearing faults…",
-    "Saúde do veículo: {text}":
-        "Vehicle health: {text}",
     "Nenhum controlador lido.":
         "No module read.",
     "Avaria mais grave: {v}":
@@ -634,8 +622,6 @@ EN = {
         " — {errs} without communication",
     " — {unknown} por confirmar":
         " — {unknown} unconfirmed",
-    "{v} módulo(s) · {nf} avaria(s)":
-        "{v} module(s) · {nf} fault(s)",
     "  (interrompido)":
         "  (interrupted)",
     "  · SIMULAÇÃO":
@@ -644,8 +630,6 @@ EN = {
         "Stopping…",
     "A ler os controladores…":
         "Reading the modules…",
-    "A varrer o veículo":
-        "Scanning the vehicle",
     "■  Parar":
         "■  Stop",
     "NOVA":
@@ -656,16 +640,12 @@ EN = {
         "Select to see the probable causes",
     "Erro: ":
         "Error: ",
-    "Concluído":
-        "Finished",
     "Interrompido":
         "Interrupted",
     "Não foi possível ler":
         "Could not read",
     "Nenhum controlador respondeu. Confirme a ignição, o cabo e a porta nas Opções.":
         "No module answered. Check the ignition, the cable and the port in Options.",
-    "Veja a explicação ao lado.":
-        "See the explanation alongside.",
     "a última visita":
         "the last visit",
     "Desde {when}: sem avarias em nenhum dos diagnósticos.":
@@ -774,30 +754,10 @@ EN = {
         "Delete this diagnostic from the history?",
     "  Iniciar Auto-Scan":
         "  Start Auto-Scan",
-    "Escolher controlador":
-        "Choose module",
-    "Nenhuma comunicação feita nesta sessão.":
-        "No communication in this session.",
-    "Diagnósticos hoje":
-        "Diagnostics today",
-    "Diagnósticos este mês":
-        "Diagnostics this month",
-    "Avarias encontradas este mês":
-        "Faults found this month",
-    "Veículos no histórico":
-        "Vehicles in history",
-    "Veículo em diagnóstico":
-        "Vehicle being diagnosed",
     "Estes dados aparecem no relatório para o cliente.":
         "This data appears in the customer report.",
-    "Últimos veículos":
-        "Latest vehicles",
-    "Ver histórico":
-        "View history",
     "Os diagnósticos guardados aparecem aqui.":
         "Saved diagnostics appear here.",
-    "Veículo sem matrícula":
-        "Vehicle without licence plate",
     "nenhum controlador lido":
         "no module read",
     "sem avarias nos lidos":
@@ -808,8 +768,6 @@ EN = {
         "   ·   simulation",
     "Fechar controlador":
         "Close module",
-    "Informação":
-        "Identification",
     "Medição":
         "Measuring",
     "Ajustes básicos":
@@ -826,24 +784,14 @@ EN = {
         "Changes",
     "Componente":
         "Component",
-    "Nº de peça VAG":
-        "VAG part number",
     "Módulo":
         "Module",
     "Protocolo":
         "Protocol",
-    "Info extra":
-        "Extra info",
     "Velocidade":
         "Baud rate",
-    "Dados brutos":
-        "Raw data",
     "Valores de medição":
         "Measuring values",
-    "Copiar informação":
-        "Copy identification",
-    "Funções rápidas":
-        "Quick functions",
     "Painéis de instrumentos do tipo Golf IV / Bora / Passat B5 / Octavia I: a revisão é reposta escrevendo 0 no canal de adaptação 02.":
         "Golf IV / Bora / Passat B5 / Octavia I type instrument clusters: the service reminder is reset by writing 0 to adaptation channel 02.",
     "Repor indicador de revisão":
@@ -856,8 +804,6 @@ EN = {
         "Code",
     "Descrição":
         "Description",
-    "Tipo de avaria":
-        "Fault type",
     "Gravidade":
         "Severity",
     "▶  Iniciar leitura":
@@ -892,8 +838,6 @@ EN = {
         "Workshop code",
     "Gravar":
         "Save",
-    "Canal 00 = repor todas as adaptações (cuidado!). Alguns canais exigem Login antes.":
-        "Channel 00 = reset all adaptations (careful!). Some channels need a Login first.",
     "Codificação actual":
         "Current coding",
     "Nova codificação (0–32767)":
@@ -912,14 +856,10 @@ EN = {
         "Activates the actuators one by one (relays, solenoid valves…). With the engine OFF and the ignition on. Click 'Next' to move on.",
     "▶  Iniciar / Seguinte":
         "▶  Start / Next",
-    "{part}   {component}   ·   {protocol} @ {baud} baud":
-        "{part}   {component}   ·   {protocol} @ {baud} baud",
     "{baud} baud":
         "{baud} baud",
     "Código de oficina {wsc:05d}":
         "Workshop code {wsc:05d}",
-    "Código de oficina —":
-        "Workshop code —",
     "Campo {index}":
         "Field {index}",
     "Testes rápidos ao motor 1.9 TDI. Escolha o teste, siga as instruções e veja o resultado no fim. As referências são valores habituais de oficina.":
@@ -3931,8 +3871,6 @@ EN = {
         "{prefix}: keep the session open",
     "Carro":
         "Car",
-    "Este mês":
-        "This month",
     "Experimente todas as funções sem carro (motor 1.9 TDI, ABS e painel).":
         "Try every function without a car (1.9 TDI engine, ABS and instrument cluster).",
     "escolhido":
@@ -3941,40 +3879,16 @@ EN = {
         "not set up",
     "simulador":
         "simulator",
-    "versão {v}":
-        "version {v}",
-    'Activar os componentes um a um para os testar.':
-        'Switch the components on one by one to test them.',
-    'Codificações e adaptações feitas, com o valor anterior para repor.':
-        'Codings and adaptations made, with the previous value to restore.',
-    'Código de acesso para funções protegidas.':
-        'Access code for protected functions.',
-    'Equilíbrio dos injectores, turbo e medidor de massa de ar, guiados.':
-        'Guided injector balance, turbo and air mass meter tests.',
     'Grupo {group:03d}  ·  pára quando carregar em «Parar e ver resultado»':
         'Group {group:03d}  ·  stops when you click “Stop and see result”',
     'Grupo {group:03d}  ·  pára sozinho ao fim de {d} s':
         'Group {group:03d}  ·  stops by itself after {d} s',
-    'Leitura contínua dos grupos, com mostradores, gráficos e gravação.':
-        'Continuous reading of the groups, with gauges, charts and recording.',
-    'Ler, testar e gravar canais; o valor anterior fica guardado.':
-        'Read, test and save channels; the previous value is kept.',
     'Ligação ao carro':
         'Connection to the car',
-    'Mudar a codificação, confirmada pelo controlador.':
-        'Change the coding, confirmed by the module.',
-    'O que pode fazer neste controlador':
-        'What you can do in this module',
-    'Rotinas de afinação do controlador (ex.: borboleta, EGR).':
-        'Module calibration routines (e.g. throttle, EGR).',
     'Conforto e carroçaria':
         'Comfort and body',
     'Ligar ao controlador {addr:02X} — {name}':
         'Connect to module {addr:02X} — {name}',
-    'Lê a identificação e as avarias de todos os controladores. Clique no mapa, ou duas vezes na lista, para abrir um controlador.':
-        'Reads the identification and faults of every module. Click the map, or double-click the list, to open a module.',
-    'Mapa do veículo':
-        'Vehicle map',
     'Motor e transmissão':
         'Engine and transmission',
     'Neste carro':
@@ -4045,4 +3959,60 @@ EN = {
         "No licence: connects to the car but shows only part of the faults and values, and does not write to real cars. Click to activate.",
     "TESTE · {n} DIA(S)":
         "TRIAL · {n} DAY(S)",
+    "Carro na oficina":
+        "Car in the workshop",
+    "Carro sem matrícula":
+        "Car without a plate",
+    "Clique num carro para o voltar a abrir.":
+        "Click a car to open it again.",
+    "Configurar cabo":
+        "Set up cable",
+    "Histórico completo":
+        "Full history",
+    "Lê todos os controladores e mostra as avarias de cada um.":
+        "Reads every module and shows the faults of each one.",
+    "Novo carro":
+        "New car",
+    "VIN (opcional)":
+        "VIN (optional)",
+    "Últimos carros":
+        "Recent cars",
+    "Avaria":
+        "Fault",
+    "Avarias ({n})":
+        "Faults ({n})",
+    "Canal 00 = repor todas as adaptações (cuidado!).":
+        "Channel 00 = reset all adaptations (careful!).",
+    "Codificação {v}":
+        "Coding {v}",
+    "Copiar a identificação do controlador":
+        "Copy the module identification",
+    "Ler de novo":
+        "Read again",
+    "Login — só se o controlador o pedir":
+        "Login — only if the module asks for it",
+    "Oficina {wsc:05d}":
+        "Workshop {wsc:05d}",
+    "{protocol} @ {baud} baud":
+        "{protocol} @ {baud} baud",
+    " · {v} controlador(es) lido(s)":
+        " · {v} module(s) read",
+    "<b style='color:{c}'>Sem avarias:</b> {v}":
+        "<b style='color:{c}'>No faults:</b> {v}",
+    "Apaga as avarias em todos os controladores que as têm":
+        "Clears the faults in every module that has them",
+    "Controlador / avaria":
+        "Module / fault",
+    "Duas vezes num controlador para o abrir.":
+        "Double-click a module to open it.",
+    "Duas vezes para abrir este controlador":
+        "Double-click to open this module",
+    "Lê a identificação e as avarias de todos os controladores.":
+        "Reads the identification and faults of every module.",
+    "Sem comunicação — veja a explicação abaixo.":
+        "No communication — see the explanation below.",
+    "{nf} avaria(s) em {n} controlador(es)":
+        "{nf} fault(s) in {n} module(s)",
+    "↻  Ler de novo":
+        "↻  Read again",
 }

@@ -62,7 +62,7 @@ def test_tr_fallback_and_formatting():
     try:
         assert i18n.tr("Ligado a {where}", where="01") == "Connected to 01"
         assert i18n.tr("Texto que não existe no catálogo") == "Texto que não existe no catálogo"
-        assert i18n.tr("Saúde do veículo: {text}", text="Bom") == "Vehicle health: Bom"   # valor chamado "text"
+        assert i18n.tr("Versão instalada: {VERSION}. {text}", VERSION="1", text="Ok") == "Installed version: 1. Ok"
         assert i18n.tr_data("{não é um modelo}") == "{não é um modelo}"
     finally:
         i18n.set_language("pt")

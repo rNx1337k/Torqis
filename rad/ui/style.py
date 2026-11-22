@@ -84,6 +84,8 @@ QPushButton:pressed {{ background: {BLUE_SOFT}; }}
 QPushButton:focus {{ border-color: {BLUE}; }}
 QPushButton:checked {{ border-color: {CYAN}; background: rgba(111, 168, 255, 0.16); color: white; }}
 QPushButton:disabled {{ color: #464852; border-color: #21232B; background: #17191F; }}
+QPushButton#link {{ background: transparent; border: none; color: {CYAN}; padding: 0 4px; min-height: 0; }}
+QPushButton#link:hover {{ color: {TEXT}; text-decoration: underline; }}
 QPushButton#primary {{ background: {GRAD_PRIMARY}; border: none; color: #0C0F14; }}
 QPushButton#primary:hover {{ background: {GRAD_PRIMARY_HOVER}; }}
 QPushButton#primary:pressed {{ background: #2E6AE8; }}

@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/vers%C3%A3o-1.23.2-3D7BFF?style=flat-square" alt="Versão">
+  <img src="https://img.shields.io/badge/vers%C3%A3o-1.24.0-3D7BFF?style=flat-square" alt="Versão">
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/estado-beta-E8343A?style=flat-square" alt="Estado: beta">
@@ -28,8 +28,8 @@
 ## O que faz
 
 ### 🔍 Diagnóstico
-- **Auto-Scan com mapa do veículo** — lê todos os controladores e mostra no carro onde estão as avarias, com uma
-  pontuação de saúde do veículo e apagar avarias num clique
+- **Auto-Scan** — lê todos os controladores e mostra só as avarias, agrupadas por controlador, com a mais grave em
+  destaque e apagar avarias num clique; a pontuação de saúde do veículo vai no relatório para o cliente
 - **Assistente de diagnóstico** — gravidade, causas prováveis e o que verificar em cada avaria
 - **Comparação de visitas** — avarias novas, resolvidas e repetidas desde a última visita do carro
 - **Valores em tempo real** em mostradores e gráficos, com gravação para folha de cálculo
@@ -62,7 +62,7 @@
   <img src="docs/screenshots/01_home.png" alt="Ecrã inicial" width="100%">
 </p>
 
-| Auto-Scan com mapa do veículo | Avarias com assistente de diagnóstico |
+| Auto-Scan, avarias por controlador | Avarias com assistente de diagnóstico |
 |---|---|
 | <img src="docs/screenshots/02_autoscan.png" alt="Auto-Scan"> | <img src="docs/screenshots/03_faults.png" alt="Avarias"> |
 | **Valores em tempo real** | **Qualquer marca (OBD)** |

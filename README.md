@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.23.2-3D7BFF?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.24.0-3D7BFF?style=flat-square" alt="Version">
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Tests"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/status-beta-E8343A?style=flat-square" alt="Status: beta">
@@ -28,8 +28,8 @@
 ## What it does
 
 ### 🔍 Diagnosis
-- **Auto-Scan with a vehicle map** — reads every module and shows on the car where the faults are, with a vehicle
-  health score and one-click fault clearing
+- **Auto-Scan** — reads every module and lists only the faults, grouped by module, with the most severe one at the
+  top and one-click fault clearing; the vehicle health score goes in the customer report
 - **Diagnostic assistant** — severity, probable causes and what to check for each fault
 - **Visit comparison** — new, resolved and recurring faults since the car's last visit
 - **Live data** on gauges and charts, with recording to a spreadsheet file
@@ -61,7 +61,7 @@
   <img src="docs/screenshots/01_home_en.png" alt="Home screen" width="100%">
 </p>
 
-| Auto-Scan with vehicle map | Fault codes with diagnostic assistant |
+| Auto-Scan, faults by module | Fault codes with diagnostic assistant |
 |---|---|
 | <img src="docs/screenshots/02_autoscan_en.png" alt="Auto-Scan"> | <img src="docs/screenshots/03_faults_en.png" alt="Fault codes"> |
 | **Live data on gauges** | **Any make (OBD)** |

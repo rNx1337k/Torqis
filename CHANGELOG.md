@@ -3,6 +3,27 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.24.0] — 2026-11-22
+Redesign of the three main screens, keeping only what a workshop uses (the mock-up agreed on 15/11).
+
+### Changed
+- **Home**: the screen is the car in the workshop and **Start Auto-Scan**. The cable and car status is one line at
+  the top (with **Set up cable** when no cable is chosen); out: the 1-2-3 connection strip, the buttons that repeated
+  the menu (Choose module, OBD, Test connection), the month statistics and the version. "Clear" is now **New car**,
+  and clicking a car in **Recent cars** opens it again.
+- **Module**: opens straight on **Faults** (with the count on the tab). The identification (part number, component,
+  coding, workshop code) is in the header with **Copy**; the Information tab and its function tiles are gone. The
+  Login tab is gone: login is inside Adaptation and Coding, the functions that ask for it. The fault table has 4
+  columns (the fault type goes with the description: "B+ supply voltage — signal too low"). **Read again** replaces
+  Read faults; Copy is gone; **Close module** is no longer red; the service reset of Golf IV-type clusters is a button
+  in the header.
+- **Auto-Scan**: only the faults, grouped by module; modules without faults are one line ("No faults: 02 Gearbox ·
+  17 Instruments…"). Header with the plate and "N faults in M modules" and the most severe fault. Buttons **Read
+  again · Clear faults · Customer report**. Out: the vehicle map, the health score on screen (it stays in the
+  report), Copy and Save .txt. The progress bar only shows while reading.
+- **Diagnostic assistant**: no category tag (the severity stays); the text scrolls inside the card so the fault list
+  keeps its space.
+
 ## [1.23.2] — 2026-11-21
 ### Changed
 - The public download repository is now called **`rNx1337k/TorqisDiagnostics`** (it was `Torqis-download`), the

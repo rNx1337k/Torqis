@@ -59,13 +59,17 @@ def test_full_flow_with_simulator():
         # --- Auto-Scan
         w.home.vehicle_edits["plate"].setText("UI-00-01")
         w._home_go("autoscan_start")
-        assert w.scan.running and w.scan.map.scanning
+        assert w.scan.running and w.scan.start_btn.text().endswith("Parar")
         assert _wait(app, lambda: not w.scan.running, 30), "Auto-Scan não terminou"
         golf = [0x01, 0x02, 0x03, 0x08, 0x15, 0x17, 0x46, 0x56]          # os controladores do Golf IV simulado
         assert sorted(i["address"] for i in w.scan.items) == golf
-        assert set(w.scan.map.items) == set(golf) and not w.scan.map.scanning
-        assert w.scan.tiles.count() == len(golf) and w.scan.tree.topLevelItemCount() == len(golf)
-        assert w.scan.ring.score is not None and w.scan.ring.score < 100
+        # redesenho: na lista só os controladores com avarias; os outros numa linha "Sem avarias"
+        with_faults = [i for i in w.scan.items if i.get("faults")]
+        assert w.scan.tree.topLevelItemCount() == len(with_faults) and 0 < len(with_faults) < len(golf)
+        assert "Sem avarias" in w.scan.ok_lbl.text() and "17" in w.scan.ok_lbl.text()
+        assert w.scan.summary.text().startswith("UI-00-01") and "controlador" in w.scan.summary.text()
+        assert "Ler de novo" in w.scan.start_btn.text()
+        assert not hasattr(w.scan, "map") and not hasattr(w.scan, "ring")      # mapa e pontuação: só no relatório
         assert "alta" in w.scan.severity_lbl.text()                      # ABS: sensor de velocidade
         # comparação automática com a visita anterior
         d = w.scan.diff
@@ -91,10 +95,10 @@ def test_full_flow_with_simulator():
         assert _wait(app, lambda: w.module.fault_table.rowCount() == 2)
         assert w.module.fault_table.item(0, 0).text().startswith("00532")
         assert "00532" in w.module.fault_advice.title.text()
-        assert w.module.fault_table.item(1, 4).text() == "Média"
+        assert w.module.fault_table.item(1, 3).text() == "Média"
 
         # --- valores de medição: os mostradores recebem valores e animam
-        w.module.tabs.setCurrentIndex(2)
+        w.module.tabs.setCurrentIndex(w.module.MVB_TAB)
         w.module._toggle_mvb()
         g = w.module.groups[0].cells[0]
         assert _wait(app, lambda: g.field is not None and len(g.hist) > 3), "sem valores de medição"
@@ -343,10 +347,10 @@ def test_english_interface_end_to_end():
         w.connect_module(0x01)
         assert _wait(app, lambda: w.nav_btns["module"].isEnabled()), "did not connect to the engine"
         assert w.module.info["module"] == "Engine electronics"
-        assert w.module.tabs.tabText(1) == "Faults"
+        assert w.module.tabs.tabText(w.module.FAULTS_TAB).startswith("Faults")
         w.module._quick_faults()
         assert _wait(app, lambda: w.module.fault_table.rowCount() == 2)
-        assert w.module.fault_table.item(1, 4).text() in ("High", "Medium", "Low")
+        assert w.module.fault_table.item(1, 3).text() in ("High", "Medium", "Low")
         html = report.build_html({"name": "Garage"}, {"plate": "EN-00-01"}, w._report_items("module"))
         assert "Vehicle health" in html and "Customer" in html
         w.worker.submit("disconnect")
@@ -387,7 +391,7 @@ def test_failed_connect_and_repeated_clicks():
         assert _wait(app, lambda: not w.scan.running and not w.worker.is_busy)
         app.processEvents()
         assert "ignição" in w.scan.empty.text() and not w.scan.empty.isHidden()
-        assert w.scan.tiles_scroll.isHidden()
+        assert w.scan.tree.isHidden() and w.scan.ok_lbl.isHidden()
     finally:
         QMessageBox.warning = old
         w.close()
@@ -583,9 +587,9 @@ if __name__ == "__main__":
             print("OK", name)
 
 
-def test_home_leads_with_the_connection_and_shows_recent_cars_in_colour():
-    """Página Início: o estado do cabo e do carro no topo, o simulador só se oferece fora do modo de simulação, e
-    a lista de últimos veículos tem a matrícula e o estado (com cor) de cada carro."""
+def test_home_leads_with_the_car_and_shows_recent_cars_in_colour():
+    """Página Início (redesenho): uma linha com o estado do cabo e do carro, o carro na oficina com o botão do
+    Auto-Scan, e os últimos carros com a matrícula e o estado em cor; clicar num carro reabre-o."""
     app = _app()
     from rad.ui.pages.home import HomePage
     from rad.ui.style import BAD, OK, WARN
@@ -594,17 +598,25 @@ def test_home_leads_with_the_connection_and_shows_recent_cars_in_colour():
     h.resize(1200, 800)
     h.show()
     app.processEvents()
+    assert not hasattr(h, "stat_lbls")                                   # sem estatísticas do mês
+    h.set_port("Escolha a porta do cabo em Opções")
+    assert h.cable_btn.isVisibleTo(h) and h.sim_btn.isVisibleTo(h)      # sem cabo: atalho para o configurar
     h.set_port("Cabo escolhido: COM3", ok=True)
-    assert h.port_pill.text() == "escolhido" and h.sim_btn.isVisibleTo(h)
+    assert h.port_pill.text() == "escolhido" and h.sim_btn.isVisibleTo(h) and not h.cable_btn.isVisibleTo(h)
     h.set_port("Modo de simulação", sim=True)
     assert h.port_pill.text() == "simulador" and not h.sim_btn.isVisibleTo(h)
     h.set_link(connstate.LinkStatus(connstate.ECU_CONNECTED, "Ligado a 01"))
     assert h.link_pill.text() == connstate.LABELS[connstate.ECU_CONNECTED]
     for n, (faults, tone) in enumerate(((0, OK), (2, WARN), (7, BAD))):
-        h._add_recent(f"AA-0{n}-AA", "Golf IV", "12/11  10:00", f"{faults} avaria(s)", tone)
+        h._add_recent(f"AA-0{n}-AA", "Golf IV", "12/11  10:00", f"{faults} avaria(s)", tone,
+                      vehicle={"plate": f"AA-0{n}-AA", "model": "VW Golf IV", "client": "Rui"})
     assert h.recent.count() == 3
     row = h.recent.itemWidget(h.recent.item(2))
     texts = [lb.text() for lb in row.findChildren(type(h.link_pill))]
     assert "AA-02-AA" in texts and any(BAD in lb.styleSheet() for lb in row.findChildren(type(h.link_pill)))
+    h.vehicle_edits["km"].setText("123")
+    h._open_recent(h.recent.item(1))                                     # reabrir um carro da lista
+    v = h.vehicle()
+    assert v["plate"] == "AA-01-AA" and v["model"] == "VW Golf IV" and v["client"] == "Rui" and v["km"] == ""
     h.close()
 
