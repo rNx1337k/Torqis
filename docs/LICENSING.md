@@ -42,9 +42,27 @@ needs an internet connection.
 
 2. **For each workshop:** ask for the PC ID shown in Options → Licence and issue a key.
 
+   **Licence window** (`tools\licencas.bat`, or the "Torqis - Licenças" desktop shortcut on the publisher's PC):
+   - **Emitir licença:** paste the PC ID (checked as you type; if that PC already has a licence it says so and fills
+     in the workshop), workshop name, contact (Instagram/phone/email), validity (1/3/6 months, 1 year, no end
+     date, or a chosen date) and notes. **Gerar licença** creates the key, checks that the program accepts it and
+     shows it with a ready-made message for the customer (key + how to activate) and copy buttons.
+   - **Licenças emitidas:** every licence issued, newest first, with its status: *Activa*, *Sem fim*, *A acabar*
+     (30 days or less, amber), *Expirada* (red) or *Substituída* (a newer key exists for the same PC). Search by
+     workshop, PC ID, contact or notes; filter by status; copy the key or the message again; **Renovar…** issues a
+     new key for the same PC, counting from the end of the current one if it has not ended yet (no days lost);
+     edit contact/notes; open the register in Excel or open the folder.
+   - The register is `licencas_emitidas.csv` next to the private key (columns `data;oficina;id_pc;expira;chave;
+     contacto;notas`, UTF-8 with BOM so Excel shows accents; older 5-column files are still read). After every change
+     it is copied to `D:\Torqis_copia_chaves` if that folder exists (`license_tool.BACKUP_DIRS`).
+   - Without the private key, or with one that does not match `rad/license_pubkey.py`, the window refuses to
+     issue and says why.
+
+   Command line (the same functions and register):
+
    ```bat
    .venv\Scripts\python.exe tools\license_tool.py issue --machine ABCD-EFGH-JKLM --workshop "Oficina Silva"
-   .venv\Scripts\python.exe tools\license_tool.py issue --machine ABCD-EFGH-JKLM --workshop "Oficina Silva" --expires 2027-12-31
+   .venv\Scripts\python.exe tools\license_tool.py issue --machine ABCD-EFGH-JKLM --workshop "Oficina Silva" --expires 2027-12-31 --contact "@oficinasilva" --notes "beta"
    ```
 
    The key (starting with `RAD1-`) is printed and logged in `licencas_emitidas.csv` next to the private key.
