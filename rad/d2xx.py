@@ -27,10 +27,6 @@ DRIVERS = {"rt-usb": "RT-USB.DLL"}
 USB_IDS = [("0403", pid) for pid in ("FA20", "FA23", "FA24", "FA25")]
 
 
-def is_d2xx_port(port):
-    return bool(port) and port.startswith(PREFIX)
-
-
 def find_dll():
     """Caminho do RT-USB.DLL (ou o indicado em RAD_D2XX_DLL), ou None."""
     env = os.environ.get("RAD_D2XX_DLL")

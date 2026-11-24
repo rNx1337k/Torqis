@@ -408,41 +408,24 @@ def test_custom_widgets_paint():
     app = _app()
     from PySide6.QtWidgets import QWidget
     from rad import vag_data
-    from rad.ui.widgets import (GaugeCell, HealthRing, HeroBanner, LiveChart, ModuleTile, PulseIndicator,
-                                VehicleMap)
+    from rad.ui.widgets import GaugeCell, IconBadge, LiveChart, PulseIndicator
     from rad.ui.pages.common import FaultAdviceCard
-    ok_item = {"address": 0x17, "module": "Painel", "status": "ok", "info": {"part": "1J0920926C"}, "faults": []}
-    bad_item = {"address": 0x03, "module": "ABS", "status": "ok", "info": {"part": "1C0907379K"},
-                "faults": [vag_data.decode_fault(283, 0x23)]}
-    err_item = {"address": 0x42, "module": "Desconhecido", "status": "error", "error": "Sem resposta"}
-    m = VehicleMap()
-    m.resize(340, 560)
-    m.set_scanning(True)
-    m.set_probe(0x01)
-    for it in (ok_item, bad_item, err_item, {"address": 0x08, "status": "absent"}):
-        m.add_item(it)
-    assert set(m.items) == {0x17, 0x03, 0x42}
-    assert m._hit(m._pos(0x03)) == 0x03 and m._hit(m._pos(0x55)) is None    # só os lidos são clicáveis
     gauge = GaugeCell(1)
     gauge.resize(220, 240)
     for v in (0, 900, 4200, 7000, -5):
         gauge.set({"formula": 1, "unit": "/min", "a": 0, "b": 0, "value": str(v), "numeric": float(v)})
     assert gauge.hi >= 7000 and gauge.lo < 0 and gauge.peak == 7000
     gauge.set({"formula": 0x3F, "unit": "", "a": 0, "b": 0, "value": "ABC", "numeric": None})
-    ring = HealthRing(96)
-    ring.set_score(42)
     chart = LiveChart()
     for i in range(50):
         chart.add(i * 0.1, (i % 7) * 10.0)
     pulse = PulseIndicator()
     pulse.set_mode("on")
-    hero = HeroBanner()
-    hero.resize(1000, 230)
     card = FaultAdviceCard()
     card.set_fault(vag_data.decode_fault(1247, 0x1E), 0x01)
     assert "N75" in card.body.text()
     card.set_fault({"vag": "09999", "pcode": "", "desc": "?", "elab_code": 3, "intermittent": True}, None)
-    widgets = [m, gauge, ring, chart, pulse, hero, card] + [ModuleTile(i) for i in (ok_item, bad_item, err_item)]
+    widgets = [gauge, chart, pulse, card, IconBadge("fault")]
     for wd in widgets:
         if isinstance(wd, QWidget) and wd.width() < 50:
             wd.resize(260, 200)

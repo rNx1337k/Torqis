@@ -24,8 +24,6 @@ OK = "#2EE59D"
 WARN = "#FFB547"
 BAD = RED
 
-ACCENT = BLUE          # compatibilidade
-
 DISPLAY_FONT = '"Bahnschrift", "DIN Alternate", "Roboto Condensed", "Segoe UI"'
 BODY_FONT = '"Segoe UI", "Inter", "Helvetica Neue", Arial'
 
@@ -68,8 +66,6 @@ QPushButton#search:hover {{ border-color: {BLUE}; color: {TEXT}; }}
 
 QFrame#card {{ background: {GRAD_CARD}; border: 1px solid {LINE}; border-radius: 14px; }}
 QFrame#cardGlow {{ background: {GRAD_CARD}; border: 1px solid rgba(111, 168, 255, 0.35); border-radius: 14px; }}
-QFrame#stat {{ background: {GRAD_CARD}; border: 1px solid {LINE}; border-radius: 14px; }}
-QFrame#stat:hover {{ border-color: {BLUE}; }}
 QFrame#banner {{
     border-radius: 12px; border: 1px solid rgba(111, 168, 255, 0.35);
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(111, 168, 255, 0.14), stop:1 rgba(61, 123, 255, 0.08));
@@ -180,7 +176,6 @@ QLabel#h2 {{ font-family: {DISPLAY_FONT}; font-size: 13pt; font-weight: 600; col
 QLabel#eyebrow {{ font-family: {DISPLAY_FONT}; font-size: 9pt; font-weight: 600; color: {CYAN}; letter-spacing: 2px; padding-top: 4px; }}
 QLabel#muted {{ color: {MUTED}; }}
 QLabel#value {{ font-family: {DISPLAY_FONT}; font-size: 21pt; font-weight: 700; color: white; }}
-QLabel#bigValue {{ font-family: {DISPLAY_FONT}; font-size: 28pt; font-weight: 700; color: white; }}
 QLabel#unit {{ color: {BLUE}; font-weight: 600; }}
 QLabel#cellName {{ color: {MUTED}; font-size: 9pt; font-weight: 600; letter-spacing: 1px; }}
 QLabel#kbd {{

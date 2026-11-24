@@ -36,7 +36,6 @@ log = logging.getLogger(__name__)
 FORMAT = 1
 EXT = ".radrec"
 REPLAY_PREFIX = "REPLAY:"
-CONTROL = ("baud", "flush", "break", "lines", "init5")
 
 _active = None
 _active_lock = threading.Lock()

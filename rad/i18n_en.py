@@ -1208,14 +1208,8 @@ EN = {
         "Field {n}",
     "{unit}   ·   máx {v}":
         "{unit}   ·   max {v}",
-    "{n} avaria{v}":
-        "{n} fault{v}",
     "Sem comunicação":
         "No communication",
-    "Clique para ligar a este controlador":
-        "Click to connect to this module",
-    "Abrir  →":
-        "Open  →",
     "À espera de dados — inicie a leitura":
         "Waiting for data — start reading",
     "Grupo {group:03d} · campo {index} — {title}":
@@ -1228,14 +1222,8 @@ EN = {
         "Current value: {value} {unit} (not numeric)",
     "Actual {value} {u}     mín {v}     máx {v2}     média {v3}":
         "Current {value} {u}     min {v}     max {v2}     average {v3}",
-    "SAÚDE":
-        "HEALTH",
-    "sem comunicação":
-        "no communication",
     "sem avarias":
         "no faults",
-    "{a:02X} · {v}\n{st}\nClique para ligar":
-        "{a:02X} · {v}\n{st}\nClick to connect",
     "Avarias":
         "Faults",
     "Sem dados":

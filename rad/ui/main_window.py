@@ -45,7 +45,6 @@ class MainWindow(QMainWindow):
         if QApplication.instance() is not None:
             install_spinbox_margin(QApplication.instance())     # número das caixas numéricas afastado da margem
         self.settings = app_settings()
-        self.module_faults = None
         self.disk_log = applog.DiskLog()
 
         self.worker = Worker()

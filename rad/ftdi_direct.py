@@ -25,9 +25,6 @@ log = logging.getLogger(__name__)
 PREFIX = "FTDI:"
 FTDI_VID = 0x0403
 
-# PIDs normais da FTDI: com o driver VCP oficial já aparecem como porta COM.
-VCP_PIDS = {0x6001, 0x6010, 0x6011, 0x6014, 0x6015}
-
 # Interfaces conhecidas com chip FTDI e PID próprio (VID 0403).
 KNOWN_DIRECT = {
     (FTDI_VID, 0xFA24): "HEX-USB (clone)",
@@ -40,10 +37,6 @@ CHIPS = {0x0200: "FT232AM", 0x0400: "FT232BM", 0x0500: "FT2232C", 0x0600: "FT232
 
 def chip_name(bcd):
     return CHIPS.get(bcd, f"FTDI (bcdDevice {bcd:04X})" if bcd is not None else "FTDI")
-
-
-def is_ftdi_port(port):
-    return bool(port) and port.startswith(PREFIX)
 
 
 def make_port(vid, pid, serial):
@@ -264,9 +257,6 @@ class FtdiSerial:
 
     def reset_input_buffer(self):
         self._guard("Limpar buffer", self.dev.purge_rx_buffer)
-
-    def reset_output_buffer(self):
-        self._guard("Limpar buffer", self.dev.purge_tx_buffer)
 
 
 def _explain_open_error(port, e):

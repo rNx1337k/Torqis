@@ -12,7 +12,6 @@ texto. Os códigos do fabricante (P1xxx, …) só têm descrição se uma base d
 """
 import json
 import logging
-import os
 
 from ..i18n import tr, tr_data
 
@@ -23,7 +22,7 @@ SYSTEM_NAMES = {"P": "Motor / transmissão", "C": "Chassis", "B": "Carroçaria",
 
 # Fontes das descrições. A base genérica incluída é um resumo, em português, dos títulos dos códigos genéricos
 # mais frequentes (SAE J2012 / ISO 15031-6). Outras bases (licenciadas ou do fabricante) podem ser acrescentadas
-# como ficheiros JSON em `data/` com o mesmo formato — ver load_database().
+# com load_database() (ficheiro JSON com o mesmo formato e a origem indicada).
 SOURCES = {
     "generic": "Base genérica do Torqis — títulos resumidos dos códigos normalizados SAE J2012 / "
                "ISO 15031-6 (só códigos genéricos; confirmar sempre com a documentação do fabricante)",
@@ -292,24 +291,3 @@ def load_database(path, source_key, source_text):
         n += 1
     return n
 
-
-def load_installed_databases():
-    """Carrega os ficheiros rad/obd/data/dtc_*.json (cada um com "_source" a dizer de onde vem)."""
-    folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
-    if not os.path.isdir(folder):
-        return 0
-    total = 0
-    for name in sorted(os.listdir(folder)):
-        if not (name.startswith("dtc_") and name.endswith(".json")):
-            continue
-        path = os.path.join(folder, name)
-        try:
-            with open(path, encoding="utf-8") as fh:
-                meta = json.load(fh).get("_source")
-            if not meta:
-                log.warning("Base %s sem \"_source\": ignorada (a origem das descrições tem de ser conhecida)", name)
-                continue
-            total += load_database(path, name[:-5], meta)
-        except Exception:
-            log.warning("Não foi possível carregar a base de avarias %s", name, exc_info=True)
-    return total

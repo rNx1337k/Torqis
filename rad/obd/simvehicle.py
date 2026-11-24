@@ -11,7 +11,6 @@ import math
 import time
 
 from . import dtc as dtcmod
-from . import pids as pidmod
 
 SIM_VIN = "RADSMLT0000000001"
 
@@ -247,10 +246,6 @@ class SimVehicle:
                         if final is not None:
                             out.append((e.resp_id, final))
         return out
-
-
-def describe_pid(pid):
-    return pidmod.name(pid)
 
 
 class SimCanBus:

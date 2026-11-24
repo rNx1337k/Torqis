@@ -23,7 +23,6 @@ PAD = 0xAA
 
 # Endereços normalizados OBD em CAN 11 bits (ISO 15765-4)
 FUNCTIONAL_11 = 0x7DF
-PHYS_REQ_11 = range(0x7E0, 0x7E8)
 PHYS_RESP_11 = range(0x7E8, 0x7F0)
 
 

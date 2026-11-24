@@ -73,9 +73,6 @@ class UdsClient:
             raise NoResponse(tr("Resposta inválida ao pedido de sessão"))
         return tr_data(SESSIONS[kind])
 
-    def tester_present(self):
-        self._req([0x3E, 0x00])
-
     def read_did(self, did):
         r = self._req([0x22, did >> 8, did & 0xFF])
         if len(r) < 3 or (r[1] << 8 | r[2]) != did:

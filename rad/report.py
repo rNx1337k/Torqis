@@ -58,9 +58,6 @@ def verdict_lines(items, meta=None):
     return color, out
 
 
-VARIANTS = ("client", "technical")
-
-
 def format_coding(info):
     """Codificação com os algarismos que o controlador usa (5 no KW1281, 7 no KWP2000)."""
     coding = (info or {}).get("coding")
@@ -254,7 +251,7 @@ def build_html(workshop, vehicle, items, logo_src="logo.png", notes="", logo_siz
                    "O diagnóstico final cabe ao técnico. Controladores que não comunicaram não foram avaliados.",
                    app=APP_NAME, version=VERSION))
 
-    # os mesmos limites que o texto (ui_score.health_text) e o anel do programa (widgets.health_label)
+    # os mesmos limites que o texto (ui_score.health_text)
     score_color = OK if score is not None and score >= 85 else (WARN if score is not None and score >= 60 else RED)
     if score is None:
         score_color = "#6B7182"

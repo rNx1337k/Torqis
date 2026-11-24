@@ -6,6 +6,14 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.25.2
+
+### pt
+- Programa mais leve e arrumado por dentro (sem mudanças no que faz).
+
+### en
+- Lighter, tidier program inside (no change in what it does).
+
 ## 1.25.1
 
 ### pt

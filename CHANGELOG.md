@@ -3,6 +3,20 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.25.2] — 2026-11-24
+Code clean-up after a second full review; no change in what the program does.
+
+### Removed
+- Screen pieces no longer used since the 1.24.0 redesign: the vehicle map, the health-score ring, the home banner,
+  the module tiles and the animation helper behind them (`rad/ui/widgets.py` went from 1345 to about 780 lines),
+  and the home statistics card.
+- Unused functions and constants: `is_ftdi_port`, `is_d2xx_port`, the FTDI VCP PID list, the never-called
+  `load_installed_databases` (there is no `obd/data` folder; `load_database` stays), `describe_pid`, UDS
+  `tester_present`, `report.VARIANTS`, `style.ACCENT`, the old "copy faults" action of the module screen, the capture
+  `CONTROL` list and a few attributes that were written but never read.
+- English catalogue entries for texts that no longer exist, and two stylesheet rules (`#stat`, `#bigValue`) that no
+  widget uses any more.
+
 ## [1.25.1] — 2026-11-24
 Fixes from a full code review after 1.25.0.
 

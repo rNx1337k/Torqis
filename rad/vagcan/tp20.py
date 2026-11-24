@@ -98,7 +98,6 @@ class Tp20Channel:
         self.tx_seq = 0
         self.rx_seq = 0
         self.is_open = False
-        self.last_activity = 0.0
         self.raw_log = False
 
     # ------------------------------------------------------------------ CAN
@@ -109,7 +108,6 @@ class Tp20Channel:
             self.bus.send(arb_id, bytes(data))
         except Exception as e:
             raise InterfaceError(tr("Erro ao enviar na interface CAN: {e}", e=e)) from e
-        self.last_activity = time.monotonic()
 
     def _recv(self, wanted, timeout):
         """Próxima trama com o identificador wanted, ou None quando o tempo acaba."""

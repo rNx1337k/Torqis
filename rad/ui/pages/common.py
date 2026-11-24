@@ -62,27 +62,6 @@ def pill(text, color):
     return w
 
 
-class StatCard(QFrame):
-    """Número grande com ícone e legenda (página inicial)."""
-
-    def __init__(self, icon, name, color=CYAN):
-        super().__init__()
-        self.setObjectName("stat")
-        h = QHBoxLayout(self)
-        h.setContentsMargins(16, 14, 16, 14)
-        h.setSpacing(12)
-        h.addWidget(IconBadge(icon, color, 40), 0, Qt.AlignVCenter)
-        v = QVBoxLayout()
-        v.setSpacing(0)
-        self.value = lbl("0", "bigValue")
-        v.addWidget(self.value)
-        v.addWidget(lbl(name, "muted", wrap=True))
-        h.addLayout(v, 1)
-
-    def set(self, n):
-        self.value.setText(str(n))
-
-
 # ------------------------------------------------------ assistente de avarias
 class FaultAdviceCard(QFrame):
     """Mostra a gravidade, as causas prováveis e o que verificar para a avaria seleccionada."""

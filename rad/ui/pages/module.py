@@ -259,7 +259,7 @@ class ModulePage(QWidget):
         v.addWidget(lbl(tr("Uma codificação errada pode desactivar funções ou acender avisos. Cada codificação "
                            "gravada fica no separador Alterações, com o valor anterior, para poder voltar atrás."),
                         "muted", wrap=True))
-        self.cod_login_box, self.cod_login_code, self.cod_login_wsc = self._login_box()
+        self.cod_login_box, _code, self.cod_login_wsc = self._login_box()
         v.addWidget(self.cod_login_box)
         v.addStretch(1)
         return w
@@ -631,9 +631,6 @@ class ModulePage(QWidget):
             lines.append(f"    {f['elab_code']:02d}-{'10' if f['intermittent'] else '00'} - {f['elab']}"
                          f"{' - Intermitente' if f['intermittent'] else ''}")
         return "\n".join(lines)
-
-    def _copy_faults(self):
-        QGuiApplication.clipboard().setText(self.faults_text())
 
     def _copy_info(self):
         if not self.info:

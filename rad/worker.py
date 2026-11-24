@@ -56,7 +56,6 @@ class Worker(QThread):
         self.licensed = True               # a janela actualiza com rad.licensing.status() ao abrir
         self.capture_path = None           # gravação da comunicação em curso (rad/capture.py)
         self._baud_hints = {}              # (porta, endereço) → velocidade a que o controlador respondeu da última vez
-        self._cap_cmd = None
         self._awake = power.KeepAwake()    # o PC não suspende com comunicação em curso (só nesta thread)
         # A gravação regista os resultados na própria thread de comunicação, pela ordem em que acontecem
         # (ligação directa: não passa pela fila de eventos da janela).
@@ -420,7 +419,6 @@ class Worker(QThread):
 
     # ------------------------------------------------------------ comandos
     def _dispatch(self, cmd, args):
-        self._cap_cmd = cmd
         if not cmd.startswith("capture_"):
             capture.note("cmd", cmd=cmd, args=list(args))
         if cmd in licensing.WRITE_COMMANDS and not self.write_allowed():
