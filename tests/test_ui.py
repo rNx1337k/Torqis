@@ -119,7 +119,7 @@ def test_full_flow_with_simulator():
         w.palette.run_current()
         app.processEvents()
         assert not w.palette.isVisible() and w.stack.currentWidget() is w.hist
-        assert w.hist.table.rowCount() >= 2
+        assert w.hist.table.rowCount() >= 2 and w.hist.car_title.text() == "UI-00-01"
 
         # --- histórico: comparar a última visita com a anterior
         w.hist.table.selectRow(0)
@@ -133,7 +133,12 @@ def test_full_flow_with_simulator():
             w.show_page(key)
             app.processEvents()
         w.select.filter.setText("abs")
-        assert w.select.mod_btns[0x03].isVisibleTo(w.select) and not w.select.mod_btns[0x01].isVisibleTo(w.select)
+        sel = w.select                                  # depois do Auto-Scan os do carro estão em cartões
+
+        def shown(a):
+            return sel.cards[a].isVisibleTo(sel) or sel.mod_btns[a].isVisibleTo(sel)
+        assert not sel.cards[0x03].isHidden() and sel.mod_btns[0x03].isHidden()
+        assert shown(0x03) and not shown(0x01) and shown(0x44) is False
         w.select.filter.setText("")
     finally:
         w.close()
@@ -147,7 +152,8 @@ def test_simulator_car_choice_in_options():
     from rad import simcars
     try:
         o = w.options
-        assert o._form.isRowVisible(o.sim_car)                      # porta de simulação: a escolha aparece
+        assert not o.sim_box.isHidden() and not o.sim_car.isHidden()   # o cartão do simulador está sempre à vista
+        assert "Simulador" in o.cable_title.text()
         o.sim_car.setCurrentIndex(o.sim_car.findData("golf5_can"))
         assert "CAN" in o.sim_car_desc.text()
         o._save()
@@ -498,9 +504,9 @@ def test_report_dialog_preview_and_vehicle_register():
         w.hist.refresh()
         w.hist.search.setText("123456")                       # pesquisa pelo VIN
         app.processEvents()
-        assert w.hist.vtable.rowCount() == 1 and w.hist.table.rowCount() == 1
+        assert w.hist.car_list.count() == 1 and w.hist.table.rowCount() == 1
+        assert "WAUZZZ8L71A123456" in w.hist.car_sub.text()
         w.home.clear_vehicle()
-        w.hist.vtable.setCurrentCell(0, 0)
         w.hist._use_vehicle()
         app.processEvents()
         assert w.home.vehicle()["client"] == "Rui" and "visita" in w.home.known_lbl.text()
@@ -517,7 +523,6 @@ def test_demo_mode_limits_on_a_real_port():
     """Sem licença e numa porta real: só 2 avarias à vista, medição limitada, sem CSV/testes guiados."""
     app, w = _window()
     from rad import licensing, vag_data
-    from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QMessageBox
     old = (QMessageBox.information, w.worker.licensed, dict(w.worker.cfg))
     shown = []
@@ -560,9 +565,7 @@ def test_demo_mode_limits_on_a_real_port():
         sid = history.save_session("autoscan", {"plate": "DEMO-01"}, w.scan.items)
         w.hist.refresh()
         w.hist.full_access = w.worker.full_access
-        for r in range(w.hist.table.rowCount()):
-            if w.hist.table.item(r, 0).data(Qt.UserRole) == sid:
-                w.hist.table.selectRow(r)
+        assert w.hist.select_session(sid)
         app.processEvents()
         assert w.hist.detail.topLevelItemCount() == 2
         history.delete_session(sid)
@@ -620,3 +623,23 @@ def test_home_leads_with_the_car_and_shows_recent_cars_in_colour():
     assert v["plate"] == "AA-01-AA" and v["model"] == "VW Golf IV" and v["client"] == "Rui" and v["km"] == ""
     h.close()
 
+
+
+def test_module_field_opens_by_address_or_by_a_single_name():
+    from rad.ui.pages.module_select import ModuleSelectPage
+    from PySide6.QtWidgets import QApplication
+    QApplication.instance() or QApplication([])
+    page = ModuleSelectPage()
+    opened = []
+    page.connect_req.connect(opened.append)
+    page.filter.setText("17")
+    page._go_manual()
+    page.filter.setText("airbag")
+    assert [a for a in page.order if page._matches(a)] == [0x15]
+    page._go_manual()
+    assert opened == [0x17, 0x15]
+    page.mark_scan([{"address": 0x01, "status": "ok", "faults": [{}]}, {"address": 0x17, "status": "ok",
+                                                                        "faults": []}])
+    page.filter.setText("")
+    assert not page.cards[0x01].isHidden() and page.mod_btns[0x01].isHidden()
+    assert "1 avaria" in page.cards[0x01].pill.text() and page.others_title.text() == "Outros controladores"

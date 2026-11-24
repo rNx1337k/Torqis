@@ -11,7 +11,10 @@ estarem confirmadas em vários carros.
 ## Antes de sair
 
 - [ ] Portátil carregado, com o carregador.
-- [ ] O cabo (KKL/HEX/ELM327) e o cabo USB de reserva, se houver.
+- [ ] O cabo (KKL 409.1 com chip FTDI; OBDLink EX para os CAN) e o cabo USB de reserva, se houver.
+- [ ] **Em casa, com o cabo ligado ao PC:** Opções → Detectar cabo. Tem de aparecer "Cabo FTDI pronto". Se
+      disser que falta um ajuste, carregue em **Ajustar cabo** (o Windows pede autorização), desligue e volte a
+      ligar o cabo e detecte outra vez. Os cabos HEX (VCDS) não servem: o Torqis não lê controladores por eles.
 - [ ] Torqis instalado a partir do **instalador da última versão** (não da pasta de desenvolvimento).
 - [ ] Atalho para o modo técnico: copiar o atalho do Torqis e acrescentar ` --tecnico` ao destino. Este modo mostra
       a **Validação no carro**, o protocolo e o registo da comunicação.
@@ -21,10 +24,10 @@ estarem confirmadas em vários carros.
 
 | # | Carro | Porquê | Cabo |
 |---|-------|--------|------|
-| 1 | VW/Audi/Seat/Skoda TDI de 1998 a 2004 (Golf IV, A3 8L, Leon 1M, Octavia 1U) | Linha K, KW1281: o caso mais comum dos clientes | KKL ou HEX |
-| 2 | Um carro de 2004 a 2008 com KWP2000 na linha K (Golf V inicial, Passat B6 inicial) | Byte de estado das avarias e sessões KWP | KKL ou HEX |
-| 3 | Golf VI / Passat B6-B7 / A3 8P (CAN, TP2.0) | Protocolo CAN da VAG | HEX-CAN ou J2534 |
-| 4 | Um VAG de 2013 em diante (Golf VII, MQB) | UDS | HEX-V2 ou J2534 |
+| 1 | VW/Audi/Seat/Skoda TDI de 1998 a 2004 (Golf IV, A3 8L, Leon 1M, Octavia 1U) | Linha K, KW1281: o caso mais comum dos clientes | KKL FTDI |
+| 2 | Um carro de 2004 a 2008 com KWP2000 na linha K (Golf V inicial, Passat B6 inicial) | Byte de estado das avarias e sessões KWP | KKL FTDI |
+| 3 | Golf VI / Passat B6-B7 / A3 8P (CAN, TP2.0) | Protocolo CAN da VAG | OBDLink EX ou J2534 |
+| 4 | Um VAG de 2013 em diante (Golf VII, MQB) | Só OBD genérico do motor (o Auto-Scan VAG por UDS ainda não existe) | OBDLink EX |
 | 5 | Qualquer carro de outra marca a gasolina, de 2001 em diante | OBD-II genérico com ELM327 | ELM327 |
 | 6 | Um ELM327 clone barato (de 5 a 10 €) | Os clones respondem de forma diferente | ELM327 clone |
 

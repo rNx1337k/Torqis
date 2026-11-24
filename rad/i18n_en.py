@@ -42,8 +42,6 @@ EN = {
         "{kind} interface ({v})",
     "Cabo {chip} pronto em {com} — Latency Timer {lat} ms":
         "{chip} cable ready on {com} — Latency Timer {lat} ms",
-    "Funciona, mas a leitura será lenta. Gestor de Dispositivos → Portas (COM e LPT) → {com} → Propriedades → Definições da porta → Avançadas → Latency Timer = 1.":
-        "It works, but reading will be slow. Device Manager → Ports (COM & LPT) → {com} → Properties → Port Settings → Advanced → Latency Timer = 1.",
     "Cabo {chip} pronto em {com}":
         "{chip} cable ready on {com}",
     "Cabo FTDI sem porta COM":
@@ -600,8 +598,6 @@ EN = {
         "Address",
     "Estado":
         "Status",
-    "Módulo / Avaria":
-        "Module / Fault",
     "Seleccione uma avaria na lista para ver as causas prováveis.":
         "Select a fault in the list to see the probable causes.",
     "Não há avarias para apagar. Faça primeiro um Auto-Scan.":
@@ -708,34 +704,20 @@ EN = {
         "Interface and protocol compatibility",
     "Fonte: rad/coverage.py · também em docs/COBERTURA.md":
         "Source: rad/coverage.py · also in docs/COVERAGE.md",
-    "Módulos":
-        "Modules",
     "Tipo":
         "Type",
     "Veículo":
         "Vehicle",
     "Origem":
         "Source",
-    "Interface real":
-        "Real interface",
     "Simulação":
         "Simulation",
     "Oficina":
         "Workshop",
     "Relatório":
         "Report",
-    "Comparar com anterior":
-        "Compare with previous",
-    "Apagar":
-        "Delete",
-    "Abrir pasta":
-        "Open folder",
-    "Ainda não há diagnósticos guardados. Faça um Auto-Scan para começar.":
-        "No saved diagnostics yet. Run an Auto-Scan to get started.",
     "Não foi possível abrir o registo: {e}":
         "Could not open the record: {e}",
-    "Escolha um diagnóstico da lista.":
-        "Choose a diagnostic from the list.",
     "<p><b>{v}</b>: visita de {v2}/{v3}/{v4} comparada com {v5}/{v6}/{v7}.<br><span style='color:{MUTED}'>Só entram os controladores lidos nas duas visitas.</span></p>":
         "<p><b>{v}</b>: visit of {v2}/{v3}/{v4} compared with {v5}/{v6}/{v7}.<br><span style='color:{MUTED}'>Only modules read in both visits are included.</span></p>",
     "Novas":
@@ -750,8 +732,6 @@ EN = {
         "There is no previous visit with the same licence plate to compare with.",
     "Comparar com a visita anterior":
         "Compare with the previous visit",
-    "Apagar este diagnóstico do histórico?":
-        "Delete this diagnostic from the history?",
     "  Iniciar Auto-Scan":
         "  Start Auto-Scan",
     "Estes dados aparecem no relatório para o cliente.":
@@ -784,8 +764,6 @@ EN = {
         "Changes",
     "Componente":
         "Component",
-    "Módulo":
-        "Module",
     "Protocolo":
         "Protocol",
     "Velocidade":
@@ -964,14 +942,6 @@ EN = {
         "Click 'Start' to begin again.",
     "— fim —":
         "— end —",
-    "Seleccionar controlador":
-        "Select module",
-    "Endereço (ex.: 01)":
-        "Address (e.g. 01)",
-    "Ligar!":
-        "Connect!",
-    "Filtrar (ex.: motor, abs, 17)":
-        "Filter (e.g. engine, abs, 17)",
     "erro":
         "error",
     "O endereço tem de estar entre 01 e 7F.":
@@ -984,12 +954,6 @@ EN = {
         "Connect to vehicle",
     "Desligar":
         "Disconnect",
-    "PASSOS DA LIGAÇÃO":
-        "CONNECTION STEPS",
-    "Dados em tempo real":
-        "Live data",
-    "Prontidão":
-        "Readiness",
     "Imagem congelada":
         "Freeze frame",
     "Apagar avarias…":
@@ -1082,8 +1046,6 @@ EN = {
         "Connection to the vehicle lost",
     "Ligação fechada.":
         "Connection closed.",
-    "Configuração":
-        "Settings",
     "Automático (o adaptador procura)":
         "Automatic (the adapter searches)",
     "ISO 15765-4 CAN 11 bits 500k":
@@ -3204,8 +3166,6 @@ EN = {
         "No version has been published yet.",
     "Auto-Scan interrompido: {v} de {v2} controladores verificados (resultado parcial)":
         "Auto-Scan interrupted: {v} of {v2} modules checked (partial result)",
-    "Avarias, luz de avaria, prontidão para a inspecção e dados em tempo real de qualquer marca (gasolina desde 2001 e gasóleo desde 2004 na UE). Mostra só o que o veículo indica que suporta.":
-        "Faults, warning light, inspection readiness and live data for any make (petrol from 2001 and diesel from 2004 in the EU). Shows only what the vehicle says it supports.",
     "Avarias, prontidão e dados de qualquer marca":
         "Faults, readiness and data for any make",
     "Avarias:":
@@ -3242,8 +3202,6 @@ EN = {
         "Cable ready — not yet connected to any control unit.",
     "Cabo sem resposta":
         "Cable not responding",
-    "Cabo, dados da oficina, licença e ecrã.":
-        "Cable, workshop details, licence and display.",
     "Cabo: {port}":
         "Cable: {port}",
     "Centralina {target} — identificação detalhada":
@@ -3262,8 +3220,6 @@ EN = {
         "In Options, choose \"OBD adapter — all makes\" under Equipment (or the OBD simulator) to use this page.",
     "Encontrar o cabo ligado ao PC":
         "Find the cable plugged into the PC",
-    "Endereço inválido. Exemplos: 01, 17, 46.":
-        "Invalid address. Examples: 01, 17, 46.",
     "Equipamento":
         "Equipment",
     "Equipamento não compatível: {name}":
@@ -3274,8 +3230,6 @@ EN = {
         "Choose the OBD adapter port in Options.",
     "Escolha o adaptador OBD (ou o simulador) em Opções e carregue em Ligar.":
         "Choose the OBD adapter (or the simulator) in Options and click Connect.",
-    "Escolha o módulo na lista ou escreva o endereço (ex.: 01 motor, 17 painel).":
-        "Choose the module from the list or type its address (e.g. 01 engine, 17 instruments).",
     "Escolha {com} na porta do cabo e carregue em Testar ligação com a ignição ligada.":
         "Choose {com} as the cable port and click Test connection with the ignition on.",
     "Esta função ainda não está disponível para este módulo.":
@@ -3400,10 +3354,6 @@ EN = {
         "VAG simulator — try without a car",
     "Simulador — sem carro":
         "Simulator — no car",
-    "Testar ligação":
-        "Test connection",
-    "Todas as marcas":
-        "All makes",
     "VERSÃO {VERSION}":
         "VERSION {VERSION}",
     "Verificar o cabo e a ligação ao carro":
@@ -3450,8 +3400,6 @@ EN = {
         "OBD adapter — VAG from ~2004 and all makes",
     "Cabo VAG — VW, Audi, Seat, Škoda até ~2005":
         "VAG cable — VW, Audi, Seat, Škoda up to ~2005",
-    "Ligue o cabo ao PC e carregue em Detectar cabo: o programa encontra-o e escolhe a porta sozinho. Depois, com o cabo no carro e a ignição ligada, carregue em Testar ligação.\n\nCabo VAG: para os VW, Audi, Seat e Škoda até ~2005. Adaptador OBD (USB ou Bluetooth): para os VAG de ~2004 em diante (Controladores e Auto-Scan) e para avarias e dados de qualquer marca na página OBD — todas as marcas. Para os VAG mais recentes recomenda-se um adaptador OBDLink.":
-        "Plug the cable into the PC and click Detect cable: the program finds it and selects the port by itself. Then, with the cable in the car and the ignition on, click Test connection.\n\nVAG cable: for VW, Audi, Seat and Škoda up to ~2005. OBD adapter (USB or Bluetooth): for VAG from ~2004 onwards (Modules and Auto-Scan) and for faults and data of any make on the OBD — all makes page. For newer VAG cars an OBDLink adapter is recommended.",
     "O Simulador OBD só tem o diagnóstico de todas as marcas.\n\nPara experimentar os controladores e o Auto-Scan do Grupo VW, escolha em Opções o Simulador VAG ou o Simulador VAG por CAN.":
         "The OBD simulator only has all-makes diagnostics.\n\nTo try the VW Group modules and the Auto-Scan, choose the VAG simulator or the VAG CAN simulator in Options.",
     "O controlador {address:02X} deixou de responder":
@@ -3501,8 +3449,6 @@ EN = {
         "Raw CAN 500 kbit/s: ISO-TP + OBD-II / UDS and VW TP 2.0 + KWP2000",
     "Cabo e ignição":
         "Cable and ignition",
-    "Cada carro fica registado uma vez, com o cliente e os dados da última visita.":
-        "Each car is registered once, with the customer and the details of the last visit.",
     "Canal de adaptação inválido":
         "Invalid adaptation channel",
     "Cliente conhecido · {n} visita(s) · última em {date}":
@@ -3519,16 +3465,12 @@ EN = {
         "Code accepted: the module granted access.",
     "Detalhe":
         "Detail",
-    "Diagnósticos":
-        "Diagnostics",
     "Enviar ao suporte":
         "Send to support",
     "Envie a gravação e este relatório ao suporte.":
         "Send the recording and this report to support.",
     "Erro novo em {cmd}: {msg}":
         "New error in {cmd}: {msg}",
-    "Escolha um veículo da lista.":
-        "Choose a vehicle from the list.",
     "Falhou":
         "Failed",
     "Ficaram {n} avaria(s) (provavelmente ainda presentes).":
@@ -3593,8 +3535,6 @@ EN = {
         "Notes for the customer",
     "Opcional: trabalho feito, peças recomendadas, próxima revisão…":
         "Optional: work done, recommended parts, next service…",
-    "Os veículos aparecem aqui depois do primeiro diagnóstico guardado.":
-        "Vehicles appear here after the first saved diagnostic.",
     "PDF (*.pdf)":
         "PDF (*.pdf)",
     "Para o cliente — linguagem simples":
@@ -3637,8 +3577,6 @@ EN = {
         "Tested only with the simulated J2534 interface. ISO-TP and TP2.0 are done by the program over the raw CAN channel (the driver's ISO15765 is not used). In the compiled version the simulated J2534 interface only imitates the K-line.",
     "Testado só com o simulador J2534. KW1281 é recusado (a norma J2534 não permite os tempos por byte).":
         "Tested only with the J2534 simulator. KW1281 is refused (the J2534 standard does not allow per-byte timing).",
-    "Todos os Auto-Scans e relatórios ficam guardados neste computador. Procure pela matrícula, pelo VIN ou pelo nome do cliente.":
-        "Every Auto-Scan and report is kept on this computer. Search by number plate, VIN or customer name.",
     "Técnico":
         "Technician",
     "Técnico — protocolos, codificação e estado das avarias":
@@ -3651,16 +3589,12 @@ EN = {
         "On-car validation",
     "Valores recebidos.":
         "Values received.",
-    "Ver diagnósticos":
-        "Show diagnostics",
     "Verificar gravação":
         "Check recording",
     "Verificar gravação…":
         "Check recording…",
     "Veículo {plate} pronto para o diagnóstico":
         "Vehicle {plate} ready for the diagnostic",
-    "Veículos":
-        "Vehicles",
     "Visitas":
         "Visits",
     "estado 0x{v:02X}":
@@ -3689,8 +3623,6 @@ EN = {
         "{prefix}: connect",
     "{prefix}: ligar e identificar":
         "{prefix}: connect and identify",
-    "Última visita":
-        "Last visit",
     "Sensor de pressão do turbo A — sinal baixo":
         "Turbocharger boost sensor A — circuit low",
     "Sensor de pressão do turbo A — sinal alto":
@@ -3883,8 +3815,6 @@ EN = {
         'Group {group:03d}  ·  stops when you click “Stop and see result”',
     'Grupo {group:03d}  ·  pára sozinho ao fim de {d} s':
         'Group {group:03d}  ·  stops by itself after {d} s',
-    'Ligação ao carro':
-        'Connection to the car',
     'Conforto e carroçaria':
         'Comfort and body',
     'Ligar ao controlador {addr:02X} — {name}':
@@ -3893,8 +3823,6 @@ EN = {
         'Engine and transmission',
     'Neste carro':
         'In this car',
-    'Os controladores que responderam no último Auto-Scan.':
-        'The modules that answered in the last Auto-Scan.',
     'Painel, som e comunicação':
         'Instruments, audio and communication',
     'Saúde do veículo':
@@ -3903,8 +3831,6 @@ EN = {
         'Safety and access',
     'Travões, direcção e suspensão':
         'Brakes, steering and suspension',
-    '{n} controlador(es)':
-        '{n} module(s)',
     "Carro do simulador":
         "Simulator car",
     "Adaptador OBD simulado como um clone barato (lento, sem alguns comandos, perde respostas)":
@@ -4015,4 +3941,138 @@ EN = {
         "{nf} fault(s) in {n} module(s)",
     "↻  Ler de novo":
         "↻  Read again",
+    "Ajustar cabo":
+        "Adjust cable",
+    "Cabo ajustado. Desligue o cabo do USB, volte a ligá-lo e carregue outra vez em Detectar cabo.":
+        "Cable adjusted. Unplug the cable from USB, plug it back in and click Detect cable again.",
+    "Cabo encontrado — falta um ajuste para ler mais depressa":
+        "Cable found — one adjustment left to read faster",
+    "Carregue em Ajustar cabo (o Windows pede autorização uma vez) e depois desligue e volte a ligar o cabo.":
+        "Click Adjust cable (Windows asks for permission once), then unplug the cable and plug it back in.",
+    "Funciona, mas a leitura será lenta. Carregue em Ajustar cabo (o Windows pede autorização) e depois desligue e volte a ligar o cabo. À mão: Gestor de Dispositivos → Portas (COM e LPT) → {com} → Propriedades → Definições da porta → Avançadas → Latency Timer = 1.":
+        "It works, but reading will be slow. Click Adjust cable (Windows asks for permission), then unplug the cable and plug it back in. By hand: Device Manager → Ports (COM & LPT) → {com} → Properties → Port Settings → Advanced → Latency Timer = 1.",
+    "O cabo não foi ajustado (a autorização do Windows foi recusada ou o cabo já não está ligado). O Torqis funciona na mesma, só um pouco mais lento.":
+        "The cable was not adjusted (Windows permission was refused or the cable is no longer plugged in). Torqis still works, just a little slower.",
+    "Abrir":
+        "Open",
+    "Abrir pasta do histórico":
+        "Open history folder",
+    "Ainda não há diagnósticos guardados":
+        "No saved diagnostics yet",
+    "Ajustado. Desligue o cabo do USB, volte a ligá-lo e carregue em Detectar cabo.":
+        "Adjusted. Unplug the cable from USB, plug it back in and press Detect cable.",
+    "Antes de ligar ao carro":
+        "Before connecting to the car",
+    "Apagar esta visita do histórico? Não se pode desfazer.":
+        "Delete this visit from the history? This cannot be undone.",
+    "Apagar esta visita…":
+        "Delete this visit…",
+    "Avançado ▸":
+        "Advanced ▸",
+    "Avançado ▾":
+        "Advanced ▾",
+    "Cabo VAG: VW, Audi, Seat e Škoda até ~2005. Adaptador OBD (de preferência um OBDLink): VAG de ~2004 em diante e avarias de qualquer marca na página OBD.":
+        "VAG cable: VW, Audi, Seat and Škoda up to ~2005. OBD adapter (preferably an OBDLink): VAG from ~2004 onwards and faults of any make on the OBD page.",
+    "Cabo ajustado para ler depressa":
+        "Cable tuned for fast reading",
+    "Cabo ligado ao PC e reconhecido":
+        "Cable plugged into the PC and recognised",
+    "Cabo na tomada OBD do carro e ignição ligada":
+        "Cable in the car's OBD socket and ignition on",
+    "Carregue em Detectar cabo.":
+        "Press Detect cable.",
+    "Com o simulador não é preciso cabo.":
+        "No cable is needed with the simulator.",
+    "Comparar com a anterior":
+        "Compare with previous",
+    "Controladores e avarias desta visita":
+        "Control modules and faults of this visit",
+    "Encontrado em {v}.":
+        "Found on {v}.",
+    "Endereço ou nome — ex.: 01, motor, abs, 17":
+        "Address or name — e.g. 01, engine, abs, 17",
+    "Escolha um carro da lista.":
+        "Choose a car from the list.",
+    "Escolha uma visita da lista.":
+        "Choose a visit from the list.",
+    "Escreva o endereço (ex.: 01) ou parte do nome (ex.: motor).":
+        "Type the address (e.g. 01) or part of the name (e.g. engine).",
+    "Faça um Auto-Scan a partir do Início: cada visita fica guardada aqui, com o carro, as avarias e o relatório.":
+        "Run an Auto-Scan from Home: every visit is saved here, with the car, the faults and the report.",
+    "Funciona, mas lê mais devagar do que pode. Carregue em Ajustar cabo (o Windows pede autorização uma vez).":
+        "It works, but reads slower than it could. Press Adjust cable (Windows asks for permission once).",
+    "Há um cabo ligado, mas ainda não está pronto: veja a mensagem do Detectar cabo.":
+        "A cable is plugged in but not ready yet: see the Detect cable message.",
+    "Há {n} controladores com esse nome: escolha um na lista.":
+        "{n} control modules match that name: choose one from the list.",
+    "Ligue o cabo ao PC e carregue em Detectar cabo: o programa encontra-o e escolhe a porta sozinho.":
+        "Plug the cable into the PC and press Detect cable: the program finds it and picks the port by itself.",
+    "Ligue o cabo à porta USB e carregue em Detectar cabo.":
+        "Plug the cable into the USB port and press Detect cable.",
+    "Mais":
+        "More",
+    "Mostra passo a passo até onde a ligação chega e o que fazer se parar.":
+        "Shows step by step how far the connection gets and what to do if it stops.",
+    "Nenhum cabo encontrado. Experimente outra porta USB.":
+        "No cable found. Try another USB port.",
+    "Nenhum cabo escolhido":
+        "No cable chosen",
+    "Nenhum carro encontrado.":
+        "No car found.",
+    "Nenhum controlador com esse endereço ou nome.":
+        "No control module with that address or name.",
+    "Nenhum controlador com esse endereço ou nome. Exemplos: 01, 17, 46, motor, abs.":
+        "No control module with that address or name. Examples: 01, 17, 46, engine, abs.",
+    "O motor pode estar desligado. A tomada fica por baixo do volante.":
+        "The engine can be off. The socket is under the steering wheel.",
+    "O programa mostra um carro de demonstração. Para ligar a um carro, ligue o cabo ao PC e carregue em Detectar cabo.":
+        "The program shows a demo car. To connect to a car, plug the cable into the PC and press Detect cable.",
+    "ONDE A LIGAÇÃO PAROU":
+        "WHERE THE CONNECTION STOPPED",
+    "Outros controladores":
+        "Other control modules",
+    "Preenche os dados deste carro no Início.":
+        "Fills in this car's details on Home.",
+    "Programa":
+        "Program",
+    "Prontidão para a inspecção":
+        "Readiness for inspection",
+    "Sem matrícula":
+        "No plate",
+    "Simulador escolhido":
+        "Simulator selected",
+    "Testar a ligação ao carro":
+        "Test the connection to the car",
+    "Testar ligação ao carro":
+        "Test car connection",
+    "Testar só o cabo":
+        "Test the cable only",
+    "Todos os controladores":
+        "All control modules",
+    "Usar simulador OBD":
+        "Use OBD simulator",
+    "Usar simulador VAG":
+        "Use VAG simulator",
+    "Valores em tempo real":
+        "Live values",
+    "bateria {v}":
+        "battery {v}",
+    "os que o carro pode ter":
+        "the ones the car may have",
+    "{kind} em {port}":
+        "{kind} on {port}",
+    "{kind} não ligado ({port})":
+        "{kind} not plugged in ({port})",
+    "{km} km":
+        "{km} km",
+    "{n} carro(s)":
+        "{n} car(s)",
+    "{n} centralina(s)":
+        "{n} ECU(s)",
+    "{n} visita(s)":
+        "{n} visit(s)",
+    "último Auto-Scan · {n} controlador(es)":
+        "last Auto-Scan · {n} control module(s)",
+    "memorizada":
+        "stored",
 }

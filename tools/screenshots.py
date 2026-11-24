@@ -141,8 +141,10 @@ def _review_pages(app, w, shot):
     w.show_page("history")
     w.hist.refresh()
     shot(w, "22_history")
-    w.hist.tabs.setCurrentIndex(1)
-    shot(w, "23_history_vehicles")
+    w.show_page("options")
+    w.options.tabs.setCurrentIndex(3)
+    shot(w, "23_options_program")
+    w.options.tabs.setCurrentIndex(0)
     items = w.scan.items or [{"address": 0x01, "module": "Motor", "status": "ok", "info": {"part": "x"},
                               "faults": [vag_data.decode_fault(1247, 0x1E)]}]
     for variant, name in (("client", "24_report_client"), ("technical", "25_report_technical")):

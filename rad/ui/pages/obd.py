@@ -15,13 +15,15 @@ from ... import APP_NAME, technician_mode
 from ...errors import client_text, is_technical
 from ...kline import port_label
 from ...obd import pids as pidmod
-from ..style import BAD, CYAN, MUTED, OK, WARN, pill_style
-from ..widgets import IconBadge, LiveChart
-from .common import FaultAdviceCard, btn, card, lbl, page_header
+from ..style import BAD, MUTED, OK, WARN, pill_style
+from ..widgets import LiveChart
+from .common import FaultAdviceCard, btn, card, lbl
 from ...i18n import decimal, tr, tr_data
 
 MAX_LIVE = 10                     # parâmetros em simultâneo (cada um é um pedido ao veículo)
 KIND_COLORS = {"memorizada": BAD, "pendente": WARN, "permanente": "#B98CFF"}
+# o tipo vem do motor OBD em português; aqui passa pelo catálogo (antes "memorizada" ficava por traduzir)
+KIND_TEXT = {"memorizada": tr("memorizada"), "pendente": tr("pendente"), "permanente": tr("permanente")}
 
 
 def _item(text, color=None, data=None):
@@ -49,7 +51,7 @@ def _table(headers):
 class SummaryTile(QFrame):
     def __init__(self, title):
         super().__init__()
-        self.setObjectName("stat")
+        self.setObjectName("card")
         v = QVBoxLayout(self)
         v.setContentsMargins(16, 12, 16, 12)
         v.setSpacing(2)
@@ -60,10 +62,13 @@ class SummaryTile(QFrame):
         self.sub = lbl("", "muted", wrap=True)
         v.addWidget(self.sub)
 
-    def set(self, value, sub="", color=None):
+    def set(self, value, sub="", color=None, alert=False):
         self.value.setText(value)
         self.value.setStyleSheet(f"color: {color};" if color else "")
         self.sub.setText(sub)
+        # luz de avaria acesa: o cartão fica com contorno vermelho, vê-se de longe
+        self.setStyleSheet("QFrame#card { border: 1px solid rgba(255, 59, 78, 0.55); "
+                           "background: rgba(255, 59, 78, 0.07); }" if alert else "")
 
 
 class ObdPage(QWidget):
@@ -82,37 +87,32 @@ class ObdPage(QWidget):
         self._min_max = {}
 
         v = QVBoxLayout(self)
-        v.setContentsMargins(30, 24, 30, 18)
-        v.setSpacing(12)
+        v.setContentsMargins(32, 26, 32, 18)
+        v.setSpacing(14)
         head = QHBoxLayout()
-        head.addWidget(page_header(
-            tr("OBD — todas as marcas"),
-            tr("Avarias, luz de avaria, prontidão para a inspecção e dados em tempo real de qualquer marca "
-               "(gasolina desde 2001 e gasóleo desde 2004 na UE). Mostra só o que o veículo indica que suporta."),
-            tr("Todas as marcas")), 1)
+        head.addWidget(lbl(tr("OBD — todas as marcas"), "h1"))
+        head.addSpacing(12)
         self.sim_pill = lbl(tr("SIMULAÇÃO"), "pill")
         self.sim_pill.setStyleSheet(pill_style(WARN))
         self.sim_pill.setToolTip(tr("Os dados vêm do simulador OBD, não de um veículo."))
         self.sim_pill.hide()
-        head.addWidget(self.sim_pill, 0, Qt.AlignTop)
+        head.addWidget(self.sim_pill, 0, Qt.AlignVCenter)
+        head.addStretch(1)
         v.addLayout(head)
 
-        # --- barra de ligação
+        # --- linha de estado: uma linha só, com os botões da ligação
         bar = card()
         bl = QHBoxLayout(bar)
-        bl.setContentsMargins(16, 12, 16, 12)
-        bl.setSpacing(12)
-        bl.addWidget(IconBadge("obd", CYAN, 40))
-        col = QVBoxLayout()
-        col.setSpacing(0)
-        self.state_lbl = lbl(tr("Sem ligação ao veículo"), "h2")
+        bl.setContentsMargins(18, 10, 14, 10)
+        bl.setSpacing(10)
+        self.state_dot = lbl("●")
+        bl.addWidget(self.state_dot)
+        self.state_lbl = lbl(tr("Sem ligação ao veículo"), None)
+        bl.addWidget(self.state_lbl)
         self.state_sub = lbl(tr("Escolha o adaptador OBD (ou o simulador) em Opções e carregue em Ligar."),
-                             "muted", wrap=True)
-        col.addWidget(self.state_lbl)
-        col.addWidget(self.state_sub)
-        bl.addLayout(col, 1)
+                             "muted")
+        bl.addWidget(self.state_sub, 1)
         self.connect_btn = btn(tr("Ligar ao veículo"), "primary", self._connect)
-        self.connect_btn.setMinimumHeight(40)
         self.disconnect_btn = btn(tr("Desligar"), None, self._disconnect)
         self.disconnect_btn.setEnabled(False)
         self.report_btn = btn(tr("Relatório"), None, lambda: self.report_req.emit())
@@ -122,45 +122,49 @@ class ObdPage(QWidget):
         bl.addWidget(self.connect_btn)
         v.addWidget(bar)
 
-        # --- passos da ligação (o que foi provado e onde parou)
+        # --- passos da ligação: só aparecem quando a ligação falha (onde parou e o que fazer)
         self.steps_box = card()
         sl = QVBoxLayout(self.steps_box)
-        sl.setContentsMargins(16, 10, 16, 10)
+        sl.setContentsMargins(18, 10, 18, 10)
         sl.setSpacing(2)
-        sl.addWidget(lbl(tr("PASSOS DA LIGAÇÃO"), "cellName"))
+        sl.addWidget(lbl(tr("ONDE A LIGAÇÃO PAROU"), "cellName"))
         self.steps_lbl = lbl("", None, wrap=True)
         self.steps_lbl.setTextFormat(Qt.RichText)
         sl.addWidget(self.steps_lbl)
         self.steps_box.hide()
         v.addWidget(self.steps_box)
 
-        # --- resumo
+        # --- resumo: o VIN e a luz de avaria (o resto fica na linha de estado)
         grid = QGridLayout()
-        grid.setSpacing(10)
+        grid.setSpacing(12)
         self.technical = technician_mode()
         self.t_vin = SummaryTile("VIN")
-        self.t_proto = SummaryTile(tr("Protocolo"))
         self.t_mil = SummaryTile(tr("Luz de avaria"))
+        self.t_proto = SummaryTile(tr("Protocolo"))
         self.t_ecus = SummaryTile(tr("Centralinas"))
         self.t_volt = SummaryTile(tr("Tensão da bateria"))
-        tiles = (self.t_vin, self.t_proto, self.t_mil, self.t_ecus, self.t_volt) if self.technical else \
-            (self.t_vin, self.t_mil, self.t_ecus, self.t_volt)
-        if not self.technical:
+        grid.addWidget(self.t_vin, 0, 0)
+        grid.addWidget(self.t_mil, 0, 1)
+        grid.setColumnStretch(0, 13)
+        grid.setColumnStretch(1, 10)
+        if self.technical:
+            grid.addWidget(self.t_proto, 0, 2)
+            grid.setColumnStretch(2, 8)
+        else:
             self.t_proto.hide()
-        for i, t in enumerate(tiles):
-            grid.addWidget(t, 0, i)
-        grid.setColumnStretch(0, 2)
-        grid.setColumnStretch(1, 2)
+        self.t_ecus.hide()              # o número de centralinas e a tensão vão para a linha de estado
+        self.t_volt.hide()
         v.addLayout(grid)
 
         # --- separadores
         self.tabs = QTabWidget()
         self.tabs.addTab(self._faults_tab(), tr("Avarias"))
-        self.tabs.addTab(self._live_tab(), tr("Dados em tempo real"))
-        self.tabs.addTab(self._ready_tab(), tr("Prontidão"))
+        self.tabs.addTab(self._live_tab(), tr("Valores em tempo real"))
+        self.tabs.addTab(self._ready_tab(), tr("Prontidão para a inspecção"))
         self.tabs.addTab(self._ecus_tab(), tr("Centralinas"))
         v.addWidget(self.tabs, 1)
         self._set_connected(False)
+        self._paint_state(None)
 
     # ------------------------------------------------------------------ separadores
     def _faults_tab(self):
@@ -168,7 +172,7 @@ class ObdPage(QWidget):
         v = QVBoxLayout(w)
         v.setContentsMargins(14, 14, 14, 14)
         row = QHBoxLayout()
-        self.read_btn = btn(tr("Ler avarias"), "primary", lambda: self._submit("obd_dtcs"))
+        self.read_btn = btn(tr("Ler de novo"), None, lambda: self._submit("obd_dtcs"))
         self.freeze_btn = btn(tr("Imagem congelada"), None, lambda: self._submit("obd_freeze"))
         self.clear_btn = btn(tr("Apagar avarias…"), "danger", self._clear)
         row.addWidget(self.read_btn)
@@ -177,16 +181,18 @@ class ObdPage(QWidget):
         row.addWidget(self.clear_btn)
         v.addLayout(row)
         split = QSplitter(Qt.Horizontal)
-        self.fault_table = _table([tr("Código"), tr("Tipo"), tr("Centralina"), tr("Descrição")])
-        self.fault_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.fault_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        self.fault_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.fault_table = _table([tr("Código"), tr("Tipo"), tr("Descrição"), tr("Centralina")])
+        hh = self.fault_table.horizontalHeader()
+        hh.setStretchLastSection(False)
+        for c in (0, 1, 3):
+            hh.setSectionResizeMode(c, QHeaderView.ResizeToContents)
+        hh.setSectionResizeMode(2, QHeaderView.Stretch)
         self.fault_table.itemSelectionChanged.connect(self._fault_selected)
         split.addWidget(self.fault_table)
         self.advice = FaultAdviceCard(tr("Seleccione uma avaria para ver a categoria, a origem da descrição e o que "
                                          "verificar."))
         split.addWidget(self.advice)
-        split.setSizes([620, 380])
+        split.setSizes([640, 420])
         v.addWidget(split, 1)
         self.faults_note = lbl("", "muted", wrap=True)
         v.addWidget(self.faults_note)
@@ -263,7 +269,7 @@ class ObdPage(QWidget):
     def _connect(self):
         self.stop_live()
         self.state_lbl.setText(tr("A ligar…"))
-        self.state_lbl.setStyleSheet(f"color: {WARN};")
+        self._paint_state(WARN)
         self.state_sub.setText(tr("A ligar ao veículo (pode demorar até 20 s na primeira vez)."))
         self.connect_btn.setEnabled(False)
         self._submit("obd_connect")
@@ -404,6 +410,11 @@ class ObdPage(QWidget):
         if not on:
             self.stop_live()
 
+    def _paint_state(self, color):
+        """Cor do ponto e do texto da linha de estado (verde ligado, âmbar a ligar, vermelho falhou)."""
+        self.state_dot.setStyleSheet(f"color: {color or MUTED};")
+        self.state_lbl.setStyleSheet("font-weight: 700;" + (f" color: {color};" if color else ""))
+
     def set_adapter_text(self, text):
         if not self.connected:
             self.state_sub.setText(text)
@@ -413,12 +424,10 @@ class ObdPage(QWidget):
             self.steps_box.hide()
             return
         if all(ok for _n, ok, _d in steps):
-            # tudo confirmado: uma linha só (o pormenor fica na dica e no registo técnico)
-            self.steps_lbl.setText("&nbsp;&nbsp;".join(
-                f"<span style='color:{OK}'><b>✔</b></span> {html.escape(n)}" for n, _ok, _d in steps))
-            self.steps_lbl.setToolTip("\n".join(f"✔ {n} — {d}" for n, _ok, d in steps
-                                                 if self.technical or not is_technical(d)))
-            self.steps_box.show()
+            # tudo confirmado: os passos não ocupam espaço (ficam na dica da linha de estado)
+            self.state_lbl.setToolTip("\n".join(f"✔ {n}" + (f" — {d}" if self.technical or not is_technical(d)
+                                                             else "") for n, _ok, d in steps))
+            self.steps_box.hide()
             return
         self.steps_lbl.setToolTip("")
         if not self.technical:          # o pormenor técnico de cada passo fica só no registo
@@ -440,7 +449,7 @@ class ObdPage(QWidget):
         sim = bool(info.get("simulated"))
         self.sim_pill.setVisible(sim)
         self.state_lbl.setText(tr("Ligado ao veículo") + (tr(" (simulação)") if sim else ""))
-        self.state_lbl.setStyleSheet(f"color: {OK};")
+        self._paint_state(OK)
         ad = info.get("adapter") or {}
         if self.technical:
             self.state_sub.setText(f"{ad.get('version') or 'Adaptador'} · {info.get('interface', '')} · "
@@ -454,9 +463,14 @@ class ObdPage(QWidget):
         self.t_proto.set(info.get("protocol", "—"))
         self.t_mil.set(tr("ACESA") if info.get("mil") else tr("apagada"),
                        tr("{v} avaria(s) declarada(s) pelas centralinas", v=info.get('dtc_count', 0)),
-                       BAD if info.get("mil") else OK)
+                       BAD if info.get("mil") else OK, alert=bool(info.get("mil")))
         self.t_ecus.set(str(len(info.get("ecus", []))), ", ".join(e["ecu"] for e in info.get("ecus", [])))
         volt = ad.get("voltage")
+        n_ecus = len(info.get("ecus", []))
+        extra = [tr("{n} centralina(s)", n=n_ecus)]
+        if volt is not None:
+            extra.append(tr("bateria {v}", v=decimal(f"{volt:.1f} V")))
+        self.state_sub.setText(self.state_sub.text() + " · " + " · ".join(extra))
         self.t_volt.set(decimal(f"{volt:.1f} V") if volt is not None else "—",
                         tr("medida pelo adaptador") if volt is not None else tr("não medida"))
         # parâmetros suportados pela centralina principal
@@ -529,10 +543,12 @@ class ObdPage(QWidget):
         for r, f in enumerate(rows):
             fault = self._as_fault(f)
             self.fault_table.setItem(r, 0, _item(f["code"], data=fault))
-            self.fault_table.setItem(r, 1, _item(tr_data(f["kind"]), KIND_COLORS.get(f["kind"])))
-            self.fault_table.setItem(r, 2, _item(f["ecu"]))
+            kind = KIND_TEXT.get(f["kind"], tr_data(f["kind"]))
+            self.fault_table.setItem(r, 1, _item(kind, KIND_COLORS.get(f["kind"])))
             desc = f["desc"] or tr("Sem descrição na base instalada — {category}", category=f['category'])
-            self.fault_table.setItem(r, 3, _item(desc, None if f["desc"] else MUTED))
+            self.fault_table.setItem(r, 2, _item(desc, None if f["desc"] else MUTED))
+            self.fault_table.setItem(r, 3, _item(f["ecu"], MUTED))
+        self.tabs.setTabText(0, tr("Avarias ({n})", n=len(rows)) if rows else tr("Avarias"))
         notes = []
         if not rows:
             notes.append(tr("Nenhuma avaria nas centralinas que responderam (") + ", ".join(d.get("ecus", [])) + ").")
@@ -567,7 +583,8 @@ class ObdPage(QWidget):
         if r.get("info"):
             self.info = r["info"]
             self.t_mil.set(tr("ACESA") if self.info.get("mil") else tr("apagada"),
-                           tr("depois de apagar"), BAD if self.info.get("mil") else OK)
+                           tr("depois de apagar"), BAD if self.info.get("mil") else OK,
+                           alert=bool(self.info.get("mil")))
             self._fill_readiness(self.info)
 
     def on_freeze(self, ff):
@@ -608,7 +625,7 @@ class ObdPage(QWidget):
         if cmd == "obd_connect":
             self._set_connected(False)
             self.state_lbl.setText(tr("Sem ligação ao veículo"))
-            self.state_lbl.setStyleSheet(f"color: {BAD};")
+            self._paint_state(BAD)
             self.state_sub.setText(client_text(msg))
         elif cmd == "obd_uds":
             self.uds_out.setPlainText(client_text(msg))
@@ -619,14 +636,14 @@ class ObdPage(QWidget):
         self._set_connected(False)
         self.sim_pill.hide()
         self.state_lbl.setText(tr("Ligação ao veículo perdida"))
-        self.state_lbl.setStyleSheet(f"color: {BAD};")
+        self._paint_state(BAD)
         self.state_sub.setText(client_text(reason))
 
     def on_disconnected(self):
         self._set_connected(False)
         self.sim_pill.hide()
         self.state_lbl.setText(tr("Sem ligação ao veículo"))
-        self.state_lbl.setStyleSheet("")
+        self._paint_state(None)
         self.state_sub.setText(tr("Ligação fechada."))
 
     def report_items(self):

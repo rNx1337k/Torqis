@@ -45,6 +45,31 @@ def test_autocom_named_correctly():
     assert f[0]["level"] == "bad" and "Autocom" in f[0]["title"] and "Ross-Tech" not in f[0]["detail"]
 
 
+def test_slow_ftdi_offers_the_one_click_fix_also_to_the_customer():
+    f = cable.classify([FTDI_COM, FTDI_USB], {"COM5": 16})[0]
+    assert f["fix"] == "latency" and "Ajustar cabo" in f["detail"]
+    p = cable.plain(f)
+    assert p["fix"] == "latency" and p["level"] == "warn" and "Ajustar cabo" in p["detail"]
+    assert "Latency" not in p["title"] + p["detail"]
+    ok = cable.classify([FTDI_COM, FTDI_USB], {"COM5": 1})[0]
+    assert "fix" not in ok and cable.plain(ok)["level"] == "ok"
+
+
+def test_fix_latency_only_touches_slow_cables_and_reports_refusal():
+    key5 = cable.FTDI_ENUM + "\\VID_0403+PID_6001+A5\\0000\\Device Parameters"
+    key6 = cable.FTDI_ENUM + "\\VID_0403+PID_6001+B6\\0000\\Device Parameters"
+    keys = {"COM5": (16, key5), "COM6": (1, key6)}
+    calls = []
+    assert cable.fix_latency(keys=keys, runner=lambda exe, args: calls.append((exe, args)) or True)
+    exe, args = calls[0]
+    assert exe == "cmd.exe" and args.startswith("/c reg add ")
+    assert f'"HKLM\\{key5}"' in args and key6 not in args
+    assert "/v LatencyTimer /t REG_DWORD /d 1 /f" in args
+    assert not cable.fix_latency(["COM6"], keys=keys, runner=lambda *a: True)     # já está a 1 ms
+    assert not cable.fix_latency(keys=keys, runner=lambda *a: False)              # autorização recusada
+    assert not cable.fix_latency(keys=keys, runner=lambda *a: 1 / 0)              # erro: não rebenta
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

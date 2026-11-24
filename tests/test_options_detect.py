@@ -16,6 +16,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 class _Box:
     """Imitação de QMessageBox: guarda o texto em vez de abrir a caixa."""
     ActionRole = 0
+    AcceptRole = 0
     Ok = 0
     shown = []
 
@@ -114,3 +115,26 @@ def test_detect_cable_error_is_shown():
         raise OSError("PowerShell indisponível")
     _r, _b, page, shown = _run_detect(broken)
     assert "PowerShell indisponível" in shown[0] and page.detect_btn.isEnabled()
+
+
+def test_checklist_follows_detection_and_offers_the_cable_fix():
+    """A lista "Antes de ligar ao carro" mostra o resultado do Detectar cabo e o botão Ajustar cabo quando falta."""
+    from rad import cable
+    slow = {"level": "warn", "kind": "ready", "com": "COM5", "fix": "latency", "driver_url": None,
+            "title": "Cabo FT232R pronto em COM5 — Latency Timer 16 ms", "detail": "Ajustar cabo"}
+    _r, _b, page, _shown = _run_detect(lambda: [slow])
+    assert page.chk_cable.state == "ok" and "COM5" in page.chk_cable.detail.text()
+    assert not page.chk_speed.isHidden() and page.chk_speed.state == "warn"
+    assert not page.chk_speed.button.isHidden()
+    from rad.ui.pages import options
+    old = cable.fix_latency, options.QMessageBox
+    cable.fix_latency = lambda coms=None, **k: coms == ["COM5"]
+    options.QMessageBox = _Box
+    _Box.information = staticmethod(lambda parent, title, text: _Box.shown.append(text))
+    try:
+        page._fix_latency(page._slow_coms())
+    finally:
+        cable.fix_latency, options.QMessageBox = old
+    assert page.chk_speed.button.isHidden() and "volte a lig" in page.chk_speed.detail.text()
+    _r, _b, page, _shown = _run_detect(lambda: [])
+    assert page.chk_cable.state == "bad" and page.chk_speed.isHidden()

@@ -54,8 +54,9 @@ instrument cluster and ABS — identification and faults. The report ends with h
 (K-line echo, DTR/RTS, pause between blocks, latency timer). Send the `.radrec` recording and the report; the recording then goes into `tests/captures/` as a permanent test. The manual procedure:
 
 1. Plug the cable into a USB port. In **Options → Detect cable**, check that it shows up as a COM port
-   (FTDI/CH340). For FTDI, set the Latency Timer to 1 ms (Device Manager → Ports (COM & LPT) → Properties →
-   Advanced).
+   (FTDI/CH340). For FTDI, if it says the Latency Timer is above 1 ms, click **Adjust cable** (Windows asks for
+   permission), then unplug and replug the cable. By hand: Device Manager → Ports (COM & LPT) → Properties →
+   Advanced → Latency Timer = 1.
 2. In **Options**, pick that port and turn on the **Detailed log** (it keeps every byte for the support package).
 3. Cable in the OBD socket, **ignition on, engine off**.
 4. **Options → Connection check** with address `01`:
@@ -76,7 +77,7 @@ At this stage, read only: do not clear faults or use coding/adaptation until rea
 | Engine does not answer, but the cable step passes | Run it again (some ECUs need a few seconds after ignition on). Then **Options → Connection check** with address `17`. |
 | The engine identifies, then a step fails with a timeout | Send the recording as it is: it shows the exact byte where it stopped. To try a slower pace, start the app with `RAD_KW1281_BLOCK_MS=80` set; to try the fast pace, `25`. |
 | "Keep the session open" fails | The same: recording first, then repeat with `RAD_KW1281_BLOCK_MS=80`. |
-| Very few readings per second (below 2) | FTDI latency timer at 16 ms: set it to 1 ms (step 1 of the manual procedure below). |
+| Very few readings per second (below 2) | FTDI latency timer at 16 ms: Options → Detect cable → **Adjust cable** (step 1 of the manual procedure below). |
 
 ## What still needs validating with hardware
 

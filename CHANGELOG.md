@@ -3,6 +3,41 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.25.0] — 2026-11-24
+Redesign of the remaining screens (Options, History, Control modules, OBD), following the mock-up agreed on 24/11,
+and the cable is ready for the first real car.
+
+### Added
+- **Adjust cable**: FTDI cables come from the factory with a 16 ms Latency Timer, which slows reading. *Detect cable*
+  now offers **Adjust cable** (Windows asks for permission once) and sets it to 1 ms in the registry; then unplug and
+  plug the cable back in. Before, the workshop had to change it by hand in Device Manager, and in customer mode the
+  slow cable was even shown as "ready".
+- **Options → Cable → Before connecting to the car**: a checklist that follows *Detect cable* — cable recognised,
+  cable tuned (with the Adjust cable button when it is needed), cable in the OBD socket with the ignition on, and
+  **Test car connection** (the step-by-step connection check).
+
+### Changed
+- **Options**: tabs **Cable · Workshop · Licence · Program** instead of one long page. The Cable tab shows what is
+  chosen and whether it is ready, the checklist and a separate **Try without a car** card (simulator car, *Use VAG
+  simulator* / *Use OBD simulator*). Speed, echo, OBD protocol, detailed log and the HEX cable mode are under
+  **Advanced** (technician mode only). **Save** is at the top.
+- **History**: one screen per car instead of the Diagnostics and Vehicles tables. Cars on the left (search by plate,
+  VIN, customer or model, with the faults of the last visit); on the right the car's details with **Use in
+  diagnosis**, its visits, and the modules and faults of the selected visit (modules with faults first, opened).
+  **Delete** moved to the **More** menu.
+- **Control modules**: one field for the address or the name (it filters while typing; Enter opens an address, or
+  the only module that matches). After an Auto-Scan the car's modules are cards at the top with their faults, the
+  ones with faults first; the others are a compact list grouped by system.
+- **OBD**: a one-line status (adapter, number of ECUs, battery voltage) with the connection buttons; the connection
+  steps only show when the connection fails. VIN and the warning light on top (red card when it is on). Tabs
+  **Faults (n) · Live values · Readiness for inspection · ECUs**; the fault table has the description before the ECU.
+- **docs/TESTE_CARRO_REAL.md** and **docs/KKL.md**: the first-car sheet recommends the KKL FTDI cable (or OBDLink EX
+  for CAN cars), adds *Detect cable → Adjust cable* at home, and no longer suggests HEX cables, which Torqis cannot use
+  to read modules.
+
+### Fixed
+- OBD in English: the fault type "memorizada" was not translated ("stored").
+
 ## [1.24.0] — 2026-11-22
 Redesign of the three main screens, keeping only what a workshop uses (the mock-up agreed on 15/11).
 

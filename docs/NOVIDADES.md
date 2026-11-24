@@ -6,6 +6,20 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.25.0
+
+### pt
+- Opções, Histórico, Controladores e OBD redesenhados: as Opções estão em separadores (Cabo, Oficina, Licença,
+  Programa), o Histórico mostra cada carro com as suas visitas e os Controladores têm um só campo para o endereço ou
+  o nome.
+- Novo botão **Ajustar cabo** no Detectar cabo: deixa o cabo VAG a ler mais depressa (o Windows pede autorização
+  uma vez).
+
+### en
+- Options, History, Control modules and OBD redesigned: Options has tabs (Cable, Workshop, Licence, Program),
+  History shows each car with its visits, and Control modules has a single field for the address or the name.
+- New **Adjust cable** button in Detect cable: makes the VAG cable read faster (Windows asks for permission once).
+
 ## 1.24.0
 
 ### pt

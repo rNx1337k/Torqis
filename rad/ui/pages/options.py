@@ -8,20 +8,21 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QHBoxLayout, QLabel, QLineEdit, QMessageBox,
-    QPlainTextEdit, QScrollArea, QVBoxLayout, QWidget,
+    QPlainTextEdit, QScrollArea, QTabWidget, QVBoxLayout, QWidget,
 )
 
 from ... import APP_NAME, VERSION, i18n, licensing, simcars, technician_mode, updates
 from ...kline import list_serial_ports
 from ...settings import ui_scale
-from ..style import BAD, OK, WARN
-from .common import lbl, btn, card, page_header
+from ..style import BAD, MUTED, OK, WARN
+from .common import lbl, btn, card
 from ...i18n import tr
 
 log = logging.getLogger(__name__)
 
 
 FORM_LABEL_WIDTH = 170
+MISSING_ROLE = Qt.UserRole + 1            # porta guardada que não está ligada agora
 
 
 def _align_form(form):
@@ -37,6 +38,41 @@ def _align_form(form):
             if field is not None:                  # a etiqueta com a altura do campo, centrada com ele
                 label.setMinimumHeight(min(field.sizeHint().height(), 48))
                 label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+class _CheckRow(QWidget):
+    """Uma linha da lista "Antes de ligar ao carro": marca (✔ ! ✖ ○), o passo, o pormenor e um botão opcional."""
+
+    MARKS = {"ok": ("✔", OK), "warn": ("!", WARN), "bad": ("✖", BAD), "todo": ("○", MUTED), "info": ("•", MUTED)}
+
+    def __init__(self, title, button=None):
+        super().__init__()
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 2, 0, 2)
+        h.setSpacing(12)
+        self.mark = lbl("○")
+        self.mark.setFixedWidth(22)
+        self.mark.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        h.addWidget(self.mark, 0, Qt.AlignTop)
+        col = QVBoxLayout()
+        col.setSpacing(1)
+        self.title = lbl(title)
+        self.title.setStyleSheet("font-weight: 600;")
+        self.detail = lbl("", "muted", wrap=True)
+        col.addWidget(self.title)
+        col.addWidget(self.detail)
+        h.addLayout(col, 1)
+        self.button = button
+        if button is not None:
+            h.addWidget(button, 0, Qt.AlignVCenter)
+        self.state = "todo"
+
+    def set(self, state, detail=""):
+        self.state = state
+        mark, color = self.MARKS[state]
+        self.mark.setText(mark)
+        self.mark.setStyleSheet(f"color: {color}; font-weight: 800; font-size: 12pt;")
+        self.detail.setText(detail)
+
 
 class OptionsPage(QWidget):
     saved = Signal(dict)
@@ -56,28 +92,58 @@ class OptionsPage(QWidget):
         super().__init__()
         self.settings = settings
         self._license_state = None
+        self._findings = None             # resultado do último Detectar cabo (None: ainda não se procurou)
+        self._latency_fixed = False
         # Opções avançadas da comunicação (velocidade, eco, protocolo, modo do cabo, registo detalhado,
         # compatibilidade): só no modo técnico. O cliente vê apenas o equipamento e a porta.
         self.technical = technician_mode()
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(0, 0, 0, 0)
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        outer.addWidget(scroll)
-        body = QWidget()
-        scroll.setWidget(body)
-        v = QVBoxLayout(body)
-        v.setContentsMargins(30, 24, 30, 24)
-        v.addWidget(page_header(tr("Opções"), tr("Cabo, dados da oficina, licença e ecrã."),
-                                tr("Configuração")))
+        outer.setContentsMargins(32, 26, 32, 20)
+        outer.setSpacing(14)
+        head = QHBoxLayout()
+        head.addWidget(lbl(tr("Opções"), "h1"))
+        head.addStretch(1)
+        head.addWidget(btn(tr("Guardar"), "primary", self._save), 0, Qt.AlignVCenter)
+        outer.addLayout(head)
+        self.tabs = QTabWidget()
+        outer.addWidget(self.tabs, 1)
+
+        def tab(title):
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QFrame.NoFrame)
+            scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            body = QWidget()
+            scroll.setWidget(body)
+            lay = QVBoxLayout(body)
+            lay.setContentsMargins(18, 18, 18, 18)
+            lay.setSpacing(14)
+            self.tabs.addTab(scroll, title)
+            return lay
+
+        # ================================================================ Cabo
+        v = tab(tr("Cabo"))
+        # --- estado do cabo: o que está escolhido e se está pronto
+        st = card()
+        sl = QHBoxLayout(st)
+        sl.setContentsMargins(20, 16, 18, 16)
+        sl.setSpacing(14)
+        sv = QVBoxLayout()
+        sv.setSpacing(2)
+        self.cable_title = lbl("—", "h2")
+        self.cable_sub = lbl("", "muted", wrap=True)
+        sv.addWidget(self.cable_title)
+        sv.addWidget(self.cable_sub)
+        sl.addLayout(sv, 1)
+        self.detect_btn = btn(tr("Detectar cabo"), "primary", self._detect_cable)
+        self.detect_btn.setMinimumHeight(40)
+        sl.addWidget(self.detect_btn, 0, Qt.AlignVCenter)
+        v.addWidget(st)
 
         c = card()
         f = QFormLayout(c)
-        f.setContentsMargins(20, 18, 20, 18)
+        f.setContentsMargins(20, 16, 20, 16)
         f.setVerticalSpacing(12)
-        f.addRow(lbl(tr("Ligação ao carro"), "h2"))
         self.adapter = QComboBox()
         for t, d in [(tr("Cabo VAG — VW, Audi, Seat, Škoda até ~2005"), "kline"),
                      (tr("Adaptador OBD — VAG desde ~2004 e todas as marcas"), "elm327")]:
@@ -91,19 +157,70 @@ class OptionsPage(QWidget):
         prow.addWidget(btn(tr("Actualizar"), None, self.refresh_ports))
         f.addRow(lbl(tr("Porta do cabo"), "muted"), prow)
         self.port.currentIndexChanged.connect(self._port_changed)
-        # simulador: que carro imitar (só aparece com uma porta de simulação escolhida)
+        v.addWidget(c)
+
+        # --- antes de ligar ao carro: o que já está confirmado e o que falta
+        ck = card()
+        cv = QVBoxLayout(ck)
+        cv.setContentsMargins(20, 16, 20, 16)
+        cv.setSpacing(10)
+        cv.addWidget(lbl(tr("Antes de ligar ao carro"), "h2"))
+        self.chk_cable = _CheckRow(tr("Cabo ligado ao PC e reconhecido"))
+        self.chk_speed = _CheckRow(tr("Cabo ajustado para ler depressa"),
+                                   btn(tr("Ajustar cabo"), None, lambda: self._fix_latency(self._slow_coms())))
+        self.chk_car = _CheckRow(tr("Cabo na tomada OBD do carro e ignição ligada"))
+        self.chk_car.set("info", tr("O motor pode estar desligado. A tomada fica por baixo do volante."))
+        self.chk_test = _CheckRow(tr("Testar a ligação ao carro"),
+                                  btn(tr("Testar ligação ao carro"), None, lambda: self.link_check_req.emit()))
+        self.chk_test.set("info", tr("Mostra passo a passo até onde a ligação chega e o que fazer se parar."))
+        for row in (self.chk_cable, self.chk_speed, self.chk_car, self.chk_test):
+            cv.addWidget(row)
+        self.chk_speed.hide()
+        trow = QHBoxLayout()
+        trow.setSpacing(8)
+        trow.addWidget(btn(tr("Testar só o cabo"), None, self._test))
+        if self.technical:
+            trow.addWidget(btn(tr("Compatibilidade"), None, lambda: self.coverage_req.emit()))
+        trow.addStretch(1)
+        cv.addLayout(trow)
+        v.addWidget(ck)
+
+        # --- simulador: experimentar sem carro
+        self.sim_box = card()
+        smf = QFormLayout(self.sim_box)
+        smf.setContentsMargins(20, 16, 20, 16)
+        smf.setVerticalSpacing(10)
+        smf.addRow(lbl(tr("Experimentar sem carro"), "h2"))
         self.sim_car = QComboBox()
         for key, name, desc in simcars.choices():
             self.sim_car.addItem(name, key)
             self.sim_car.setItemData(self.sim_car.count() - 1, desc, Qt.ToolTipRole)
         self.sim_car.currentIndexChanged.connect(self._sim_car_changed)
         self.sim_car_lbl = lbl(tr("Carro do simulador"), "muted")
-        f.addRow(self.sim_car_lbl, self.sim_car)
+        smf.addRow(self.sim_car_lbl, self.sim_car)
         self.sim_car_desc = lbl("", "muted", wrap=True)
-        f.addRow(QLabel(), self.sim_car_desc)
+        smf.addRow(QLabel(), self.sim_car_desc)
         self.sim_clone = QCheckBox(tr("Adaptador OBD simulado como um clone barato (lento, sem alguns comandos, "
                                       "perde respostas)"))
-        f.addRow(QLabel(), self.sim_clone)
+        smf.addRow(QLabel(), self.sim_clone)
+        if not self.technical:
+            smf.setRowVisible(self.sim_clone, False)
+        simrow = QHBoxLayout()
+        simrow.setSpacing(8)
+        simrow.addWidget(btn(tr("Usar simulador VAG"), None, lambda: self.select_simulator("kline")))
+        simrow.addWidget(btn(tr("Usar simulador OBD"), None, lambda: self.select_simulator("elm327")))
+        simrow.addStretch(1)
+        smf.addRow(QLabel(), simrow)
+        v.addWidget(self.sim_box)
+
+        # --- avançado (modo técnico): velocidade, eco, protocolo, registo detalhado, modo do cabo HEX
+        self.adv_btn = btn(tr("Avançado ▸"), "ghost", self._toggle_advanced)
+        self.adv_btn.setStyleSheet("QPushButton#ghost { text-align: left; padding-left: 4px; }")
+        v.addWidget(self.adv_btn, 0, Qt.AlignLeft)
+        self.adv_box = card()
+        f = QFormLayout(self.adv_box)
+        f.setContentsMargins(20, 16, 20, 16)
+        f.setVerticalSpacing(12)
         self.elm_proto = QComboBox()
         for t, d in [(tr("Automático (o adaptador procura)"), "0"), (tr("ISO 15765-4 CAN 11 bits 500k"), "6"),
                      (tr("ISO 15765-4 CAN 29 bits 500k"), "7"), (tr("ISO 15765-4 CAN 11 bits 250k"), "8"),
@@ -123,16 +240,6 @@ class OptionsPage(QWidget):
         f.addRow(lbl(tr("Eco da linha K"), "muted"), self.echo)
         self.raw = QCheckBox(tr("Registo detalhado: todos os blocos e bytes (para enviar quando houver problemas)"))
         f.addRow(lbl(tr("Debug"), "muted"), self.raw)
-        crow = QHBoxLayout()
-        crow.setSpacing(8)
-        self.detect_btn = btn(tr("Detectar cabo"), "primary", self._detect_cable)
-        crow.addWidget(self.detect_btn)
-        crow.addWidget(btn(tr("Testar ligação"), None, self._test))
-        crow.addWidget(btn(tr("Diagnóstico da ligação"), None, lambda: self.link_check_req.emit()))
-        if self.technical:
-            crow.addWidget(btn(tr("Compatibilidade"), None, lambda: self.coverage_req.emit()))
-        crow.addStretch(1)
-        f.addRow(lbl(tr("Cabo"), "muted"), crow)
         hrow = QHBoxLayout()
         hrow.setSpacing(8)
         hrow.addWidget(btn(tr("Ler modo do cabo"), None, lambda: self._hex("read")))
@@ -141,10 +248,18 @@ class OptionsPage(QWidget):
         self.hex_lbl = lbl(tr("Cabo HEX"), "muted")
         f.addRow(self.hex_lbl, hrow)
         self._form, self._hex_row = f, hrow
-        if not self.technical:
-            f.setRowVisible(self.raw, False)
-        v.addWidget(c)
+        v.addWidget(self.adv_box)
+        self.adv_box.hide()
+        self.adv_btn.setVisible(self.technical)
+        v.addWidget(lbl(tr("Cabo VAG: VW, Audi, Seat e Škoda até ~2005. Adaptador OBD (de preferência um "
+                           "OBDLink): VAG de ~2004 em diante e avarias de qualquer marca na página OBD."),
+                        "muted", wrap=True))
+        v.addStretch(1)
+        forms = [smf, self._form]
+        cable_form = c.layout()
 
+        # ================================================================ Oficina
+        v = tab(tr("Oficina"))
         wc = card()
         wf = QFormLayout(wc)
         wf.setContentsMargins(20, 18, 20, 18)
@@ -171,7 +286,10 @@ class OptionsPage(QWidget):
         wf.addRow(lbl(tr("Logótipo da oficina"), "muted"), lrow)
         wf.addRow(lbl(tr("O logótipo aparece no relatório para o cliente e na barra lateral do programa."), "muted"))
         v.addWidget(wc)
+        v.addStretch(1)
 
+        # ================================================================ Licença
+        v = tab(tr("Licença"))
         lc = card()
         lf = QFormLayout(lc)
         lf.setContentsMargins(20, 18, 20, 18)
@@ -211,7 +329,10 @@ class OptionsPage(QWidget):
                          "simulador funcionam sempre sem limites.", days=licensing.TRIAL_DAYS,
                          faults=licensing.FREE_FAULTS, secs=licensing.FREE_LIVE_SECONDS), "muted", wrap=True))
         v.addWidget(lc)
+        v.addStretch(1)
 
+        # ================================================================ Programa
+        v = tab(tr("Programa"))
         uc = card()
         uf = QFormLayout(uc)
         uf.setContentsMargins(20, 18, 20, 18)
@@ -253,6 +374,7 @@ class OptionsPage(QWidget):
         sf.addRow(lbl(tr("O tamanho aumenta letras, botões e mostradores para se lerem a partir do carro. "
                          "O tamanho e o idioma aplicam-se quando o programa voltar a abrir."), "muted", wrap=True))
         v.addWidget(sc)
+
         rc = card()
         rf = QFormLayout(rc)
         rf.setContentsMargins(20, 18, 20, 18)
@@ -280,22 +402,10 @@ class OptionsPage(QWidget):
             trow.addStretch(1)
             rf.addRow(lbl(tr("Técnico"), "muted"), trow)
         v.addWidget(rc)
-        row = QHBoxLayout()
-        row.addWidget(btn(tr("Guardar"), "primary", self._save))
-        row.addStretch(1)
-        v.addLayout(row)
-        # todos os cartões com a coluna das etiquetas da mesma largura (antes cada cartão tinha a sua e os campos
-        # começavam em sítios diferentes de cartão para cartão)
-        for form in (f, wf, lf, uf, sf, rf):
-            _align_form(form)
-        v.addWidget(lbl(
-            tr("Ligue o cabo ao PC e carregue em Detectar cabo: o programa encontra-o e escolhe a porta sozinho. "
-               "Depois, com o cabo no carro e a ignição ligada, carregue em Testar ligação.\n\n"
-               "Cabo VAG: para os VW, Audi, Seat e Škoda até ~2005. Adaptador OBD (USB ou Bluetooth): para os "
-               "VAG de ~2004 em diante (Controladores e Auto-Scan) e para avarias e dados de qualquer marca na "
-               "página OBD — todas as marcas. Para os VAG mais recentes recomenda-se um adaptador OBDLink."),
-            "muted", wrap=True))
         v.addStretch(1)
+        # todos os cartões com a coluna das etiquetas da mesma largura
+        for form in [cable_form, wf, lf, uf, sf, rf] + forms:
+            _align_form(form)
         self._detecting = False
         self.detect_done.connect(self._detect_finished)
         self._checking = False
@@ -303,6 +413,66 @@ class OptionsPage(QWidget):
         self.replay_done.connect(self._replay_finished)
         self.refresh_ports()
         self._load()
+        self._update_cable_status()
+
+    def _toggle_advanced(self):
+        on = self.adv_box.isHidden()
+        self.adv_box.setVisible(on)
+        self.adv_btn.setText(tr("Avançado ▾") if on else tr("Avançado ▸"))
+
+    def _slow_coms(self):
+        return [f["com"] for f in (self._findings or []) if f.get("fix") == "latency" and f.get("com")]
+
+    def _update_cable_status(self):
+        """Cartão do estado do cabo e a lista "Antes de ligar ao carro" a partir da porta escolhida e do último
+        Detectar cabo."""
+        from ...kline import is_simulated_port
+        port = self.port.currentData() or ""
+        kind = tr("Adaptador OBD") if self.adapter.currentData() == "elm327" else tr("Cabo VAG")
+        found = bool(port) and not self.port.currentData(MISSING_ROLE)
+        if is_simulated_port(port):
+            self.cable_title.setText(tr("Simulador escolhido"))
+            self.cable_title.setStyleSheet(f"color: {WARN};")
+            self.cable_sub.setText(tr("O programa mostra um carro de demonstração. Para ligar a um carro, ligue o cabo "
+                                      "ao PC e carregue em Detectar cabo."))
+        elif not port:
+            self.cable_title.setText(tr("Nenhum cabo escolhido"))
+            self.cable_title.setStyleSheet(f"color: {WARN};")
+            self.cable_sub.setText(tr("Ligue o cabo ao PC e carregue em Detectar cabo: o programa encontra-o e escolhe "
+                                      "a porta sozinho."))
+        elif not found:
+            self.cable_title.setText(tr("{kind} não ligado ({port})", kind=kind, port=port))
+            self.cable_title.setStyleSheet(f"color: {BAD};")
+            self.cable_sub.setText(tr("Ligue o cabo à porta USB e carregue em Detectar cabo."))
+        else:
+            self.cable_title.setText(tr("{kind} em {port}", kind=kind, port=port))
+            self.cable_title.setStyleSheet(f"color: {OK};")
+            self.cable_sub.setText(self.port.currentText())
+        sim = is_simulated_port(port)
+        if self._findings is None:
+            self.chk_cable.set("todo", tr("Carregue em Detectar cabo.") if not sim else
+                               tr("Com o simulador não é preciso cabo."))
+        elif any(f.get("com") for f in self._findings):
+            self.chk_cable.set("ok", tr("Encontrado em {v}.", v=", ".join(f["com"] for f in self._findings
+                                                                           if f.get("com"))))
+        elif self._findings:
+            self.chk_cable.set("bad", tr("Há um cabo ligado, mas ainda não está pronto: veja a mensagem do Detectar "
+                                         "cabo."))
+        else:
+            self.chk_cable.set("bad", tr("Nenhum cabo encontrado. Experimente outra porta USB."))
+        slow = self._slow_coms()
+        if self._latency_fixed:
+            self.chk_speed.set("todo", tr("Ajustado. Desligue o cabo do USB, volte a ligá-lo e carregue em Detectar "
+                                          "cabo."))
+            self.chk_speed.button.hide()
+            self.chk_speed.show()
+        elif slow:
+            self.chk_speed.set("warn", tr("Funciona, mas lê mais devagar do que pode. Carregue em Ajustar cabo (o "
+                                          "Windows pede autorização uma vez)."))
+            self.chk_speed.button.show()
+            self.chk_speed.show()
+        else:
+            self.chk_speed.hide()
 
     def refresh_ports(self):
         cur = self.port.currentData() or self.settings.value("port", "")
@@ -315,6 +485,7 @@ class OptionsPage(QWidget):
             # (o simulador) e de se perder a escolha na próxima vez que as opções forem guardadas
             self.port.addItem(tr("{port} — não encontrada agora (cabo desligado?)", port=cur), cur)
             i = self.port.count() - 1
+            self.port.setItemData(i, True, MISSING_ROLE)
         if i >= 0:
             self.port.setCurrentIndex(i)
 
@@ -327,18 +498,15 @@ class OptionsPage(QWidget):
         form.setRowVisible(self.elm_proto, elm and self.technical)
         for row in (self.baud, self.echo, self._hex_row):
             form.setRowVisible(row, not elm and self.technical)
+        self._update_cable_status()
 
     def _sim_car_changed(self, *_):
         self.sim_car_desc.setText(self.sim_car.currentData(Qt.ToolTipRole) or "")
 
     def _show_sim_rows(self):
-        from ...kline import is_simulated_port
-        form = getattr(self, "_form", None)
-        if form is None:
-            return
-        sim = is_simulated_port(self.port.currentData() or "")
-        for w in (self.sim_car, self.sim_car_desc, self.sim_clone):
-            form.setRowVisible(w, sim)
+        """O cartão do simulador está sempre à vista; aqui só se actualiza o estado do cabo."""
+        if hasattr(self, "chk_cable"):
+            self._update_cable_status()
 
     def _port_changed(self, *_):
         from ...kline import is_elm_sim_port
@@ -446,6 +614,7 @@ class OptionsPage(QWidget):
         if restart:
             QMessageBox.information(self, APP_NAME, tr("O tamanho e o idioma da interface aplicam-se quando voltar "
                                                        "a abrir o programa."))
+        self._update_cable_status()
         self.saved.emit(c)
 
     # -------------------------------------------------------- actualizações
@@ -560,7 +729,10 @@ class OptionsPage(QWidget):
         if not self.technical:
             from ... import cable
             findings = [cable.plain(f) for f in findings]
+        self._findings = findings
+        self._latency_fixed = False
         self.refresh_ports()
+        self._update_cable_status()
         colors = {"ok": OK, "warn": WARN, "bad": BAD}
         if not findings:
             html = (tr("<p><b>Nenhum cabo de diagnóstico encontrado.</b></p>"
@@ -601,14 +773,32 @@ class OptionsPage(QWidget):
         box.setTextFormat(Qt.RichText)
         box.setTextInteractionFlags(Qt.TextBrowserInteraction)
         box.setText(html)
+        slow = [f["com"] for f in findings if f.get("fix") == "latency" and f.get("com")]
+        fix = box.addButton(tr("Ajustar cabo"), QMessageBox.AcceptRole) if slow else None
         dm = box.addButton(tr("Abrir Gestor de Dispositivos"), QMessageBox.ActionRole) if self.technical else None
         box.addButton(QMessageBox.Ok)
         box.exec()
+        if fix is not None and box.clickedButton() is fix:
+            self._fix_latency(slow)
+            return
         if dm is not None and box.clickedButton() is dm:
             try:
                 os.startfile("devmgmt.msc")      # abre sem pedir administrador (só leitura)
             except Exception:
                 pass
+
+    def _fix_latency(self, coms):
+        """Põe o Latency Timer do cabo FTDI a 1 ms (o Windows pede autorização)."""
+        from ... import cable
+        if cable.fix_latency(coms):
+            self._latency_fixed = True
+            self._update_cable_status()
+            QMessageBox.information(self, APP_NAME, tr("Cabo ajustado. Desligue o cabo do USB, volte a ligá-lo e "
+                                                       "carregue outra vez em Detectar cabo."))
+        else:
+            QMessageBox.warning(self, APP_NAME, tr("O cabo não foi ajustado (a autorização do Windows foi recusada "
+                                                   "ou o cabo já não está ligado). O Torqis funciona na mesma, só "
+                                                   "um pouco mais lento."))
 
     def _support_bundle(self):
         from ... import applog

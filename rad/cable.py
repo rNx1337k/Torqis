@@ -180,14 +180,18 @@ def _vid_pid(instance_id):
     return (m.group(1), m.group(2)) if m else (None, None)
 
 
-def ftdi_latency():
-    """{'COM5': 16, ...} lido do registo (só Windows)."""
+FTDI_ENUM = r"SYSTEM\CurrentControlSet\Enum\FTDIBUS"
+LATENCY_RECOMMENDED = 1
+
+
+def ftdi_latency_keys():
+    """{'COM5': (16, chave do registo), ...}: Latency Timer de cada cabo FTDI com porta COM e a
+    chave do registo onde está guardado (só Windows)."""
     out = {}
     try:
         import winreg
-        base = r"SYSTEM\CurrentControlSet\Enum\FTDIBUS"
         try:
-            root = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, base)
+            root = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, FTDI_ENUM)
         except FileNotFoundError:
             return out                     # nunca foi instalado nenhum cabo FTDI com driver VCP
         i = 0
@@ -197,16 +201,53 @@ def ftdi_latency():
             except OSError:
                 break
             i += 1
+            path = dev + r"\0000\Device Parameters"
             try:
-                k = winreg.OpenKey(root, dev + r"\0000\Device Parameters")
+                k = winreg.OpenKey(root, path)
                 port, _ = winreg.QueryValueEx(k, "PortName")
                 lat, _ = winreg.QueryValueEx(k, "LatencyTimer")
-                out[str(port)] = int(lat)
+                out[str(port)] = (int(lat), FTDI_ENUM + "\\" + path)
             except OSError:
                 continue
     except Exception:
         log.warning("Não foi possível ler o Latency Timer FTDI", exc_info=True)
     return out
+
+
+def ftdi_latency():
+    """{'COM5': 16, ...} lido do registo (só Windows)."""
+    return {com: lat for com, (lat, _key) in ftdi_latency_keys().items()}
+
+
+def latency_fix_args(keys):
+    """Argumentos do cmd.exe que põem o Latency Timer a 1 ms em cada chave (corre como administrador)."""
+    cmds = [f'reg add "HKLM\\{k}" /v LatencyTimer /t REG_DWORD /d {LATENCY_RECOMMENDED} /f' for k in keys]
+    return "/c " + " && ".join(cmds)
+
+
+def _run_as_admin(exe, args):
+    """Pede autorização ao Windows (UAC) e corre o comando escondido. True se o utilizador autorizou."""
+    import ctypes
+    r = ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, args, None, 0)
+    return int(r) > 32                     # ≤ 32 = erro (5: o utilizador recusou a autorização)
+
+
+def fix_latency(coms=None, keys=None, runner=None):
+    """Põe o Latency Timer dos cabos FTDI a 1 ms (o de fábrica é 16 ms e torna a linha K lenta). Só mexe nos cabos
+    indicados (todos, se coms=None) que ainda não estão a 1 ms. O Windows pede autorização; o valor novo conta
+    depois de desligar e voltar a ligar o cabo. Devolve True se o ajuste foi lançado."""
+    keys = ftdi_latency_keys() if keys is None else keys
+    todo = [key for com, (lat, key) in sorted(keys.items())
+            if (coms is None or com in coms) and lat > LATENCY_RECOMMENDED]
+    if not todo:
+        return False
+    args = latency_fix_args(todo)
+    log.info("Ajustar Latency Timer: %s", args)
+    try:
+        return bool((runner or _run_as_admin)("cmd.exe", args))
+    except Exception:
+        log.warning("Não foi possível ajustar o Latency Timer", exc_info=True)
+        return False
 
 
 def classify(devices, latency=None):
@@ -261,11 +302,12 @@ def classify(devices, latency=None):
             lat = latency.get(com)
             if vendor == "FTDI" and lat is not None and lat > 1:
                 findings.append({
-                    "level": "warn", "kind": "ready", "com": com, "driver_url": None,
+                    "level": "warn", "kind": "ready", "com": com, "driver_url": None, "fix": "latency",
                     "title": tr("Cabo {chip} pronto em {com} — Latency Timer {lat} ms", chip=chip, com=com, lat=lat),
-                    "detail": (tr("Funciona, mas a leitura será lenta. Gestor de Dispositivos → Portas (COM e LPT) → "
-                                  "{com} → Propriedades → Definições da porta → Avançadas → Latency Timer = 1.",
-                                  com=com)),
+                    "detail": (tr("Funciona, mas a leitura será lenta. Carregue em Ajustar cabo (o Windows pede "
+                                  "autorização) e depois desligue e volte a ligar o cabo. À mão: Gestor de "
+                                  "Dispositivos → Portas (COM e LPT) → {com} → Propriedades → Definições da porta → "
+                                  "Avançadas → Latency Timer = 1.", com=com)),
                 })
             else:
                 findings.append({
@@ -298,7 +340,12 @@ def plain(finding):
     """A mesma conclusão em linguagem de oficina, para o cliente: sem chips, drivers, VID/PID nem passos no
     Gestor de Dispositivos. O detalhe técnico continua no registo e no pacote de suporte."""
     kind = finding.get("kind")
-    if kind == "ready":
+    if kind == "ready" and finding.get("fix") == "latency":
+        title = tr("Cabo encontrado — falta um ajuste para ler mais depressa")
+        detail = tr("Carregue em Ajustar cabo (o Windows pede autorização uma vez) e depois desligue e volte a "
+                    "ligar o cabo.")
+        level = "warn"
+    elif kind == "ready":
         title = tr("Cabo encontrado e pronto")
         detail = tr("Com o cabo no carro e a ignição ligada, carregue em Testar ligação.")
         level = "ok"
