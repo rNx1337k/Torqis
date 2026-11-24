@@ -141,7 +141,7 @@ class MainWindow(QMainWindow):
                                       + " QPushButton#demoBadge { border-radius: 10px; padding: 3px 10px; "
                                         "font-weight: 600; }")
         self.demo_badge.setCursor(Qt.PointingHandCursor)
-        self.demo_badge.clicked.connect(lambda: self.show_page("options"))
+        self.demo_badge.clicked.connect(lambda: self.open_options("license"))
         self.demo_badge.hide()
         cv.addWidget(self.demo_badge)
         self.update_btn = btn(tr("Nova versão disponível"), "primary", self._open_update)
@@ -567,12 +567,19 @@ class MainWindow(QMainWindow):
             self.show_page("autoscan")
             if not self.options.config()["port"]:
                 QMessageBox.information(self, APP_NAME, tr("Escolha primeiro a porta do cabo em Opções."))
-                self.show_page("options")
+                self.open_options("cable")
                 return
             if not self.scan.running:
                 self.scan._toggle()
             return
+        if key == "options":                      # Início → Configurar cabo
+            self.open_options("cable")
+            return
         self.show_page(key)
+
+    def open_options(self, tab):
+        self.options.show_tab(tab)
+        self.show_page("options")
 
     # -------------------------------------------------------- configuração
     def update_workshop_brand(self):
@@ -671,7 +678,7 @@ class MainWindow(QMainWindow):
             return
         if not self.options.config()["port"]:
             QMessageBox.information(self, APP_NAME, tr("Escolha primeiro a porta do cabo em Opções."))
-            self.show_page("options")
+            self.open_options("cable")
             return
         if self.worker.is_busy or self.scan.running:
             self.toast.show_msg(tr("Aguarde — ainda a comunicar com o carro"), "warn")
@@ -1013,7 +1020,7 @@ class MainWindow(QMainWindow):
                                 "ok" if not data["aborted"] else "warn")
 
     def _use_vehicle(self, vehicle):
-        """Histórico → Veículos → Usar no diagnóstico: preenche os dados do veículo e volta ao Início."""
+        """Histórico → Usar no diagnóstico: preenche os dados do veículo e volta ao Início."""
         self.home.set_vehicle(vehicle)
         self.home.fill_known("plate" if vehicle.get("plate") else "vin")
         self.show_page("home")

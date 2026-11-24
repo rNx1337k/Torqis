@@ -34,7 +34,7 @@ estarem confirmadas em vários carros.
 ## Em cada carro (cerca de 15 minutos)
 
 1. **Ignição ligada, motor desligado.** Ligar o cabo ao carro e só depois ao PC.
-2. **Opções → Testar ligação.** Anotar o resultado (eco da linha K, versão do ELM, etc.).
+2. **Opções → Cabo → Testar ligação ao carro.** Anotar o resultado (eco da linha K, versão do ELM, etc.).
 3. **Opções → Gravar comunicação → começar.** A gravação fica a correr durante todo o teste.
 4. **Auto-Scan.** Deixar acabar. Fotografar o ecrã com a lista dos módulos.
 5. **Comparar com o painel e com outra ferramenta**, se houver (VCDS, Delphi, etc.):

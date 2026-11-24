@@ -87,6 +87,7 @@ class OptionsPage(QWidget):
     capture_req = Signal(bool)            # gravar a comunicação: True começa, False pára
     validation_req = Signal()             # abrir a validação no carro (modo técnico)
     replay_done = Signal(object, str)     # resultado da verificação de uma gravação (vem de uma thread à parte)
+    latency_done = Signal(bool)           # resultado do Ajustar cabo (vem de uma thread à parte)
 
     def __init__(self, settings):
         super().__init__()
@@ -411,9 +412,17 @@ class OptionsPage(QWidget):
         self._checking = False
         self.update_done.connect(self._update_finished)
         self.replay_done.connect(self._replay_finished)
+        self._fixing = False
+        self.latency_done.connect(self._latency_finished)
         self.refresh_ports()
         self._load()
         self._update_cable_status()
+
+    TABS = {"cable": 0, "workshop": 1, "license": 2, "program": 3}
+
+    def show_tab(self, name):
+        """Abre um separador ("cable", "workshop", "license", "program"): quem manda para as Opções diz para quê."""
+        self.tabs.setCurrentIndex(self.TABS.get(name, 0))
 
     def _toggle_advanced(self):
         on = self.adv_box.isHidden()
@@ -788,9 +797,30 @@ class OptionsPage(QWidget):
                 pass
 
     def _fix_latency(self, coms):
-        """Põe o Latency Timer do cabo FTDI a 1 ms (o Windows pede autorização)."""
-        from ... import cable
-        if cable.fix_latency(coms):
+        """Põe o Latency Timer do cabo FTDI a 1 ms (o Windows pede autorização). Corre numa thread à parte: a janela
+        não congela enquanto o Windows mostra o pedido de autorização."""
+        if self._fixing or not coms:
+            return
+        self._fixing = True
+        self.chk_speed.button.setEnabled(False)
+
+        def work():
+            from ... import cable
+            try:
+                ok = bool(cable.fix_latency(coms))
+            except Exception:
+                log.warning("Ajustar cabo falhou", exc_info=True)
+                ok = False
+            try:
+                self.latency_done.emit(ok)
+            except RuntimeError:              # a janela já foi fechada
+                pass
+        threading.Thread(target=work, name="ajustar-cabo", daemon=True).start()
+
+    def _latency_finished(self, ok):
+        self._fixing = False
+        self.chk_speed.button.setEnabled(True)
+        if ok:
             self._latency_fixed = True
             self._update_cable_status()
             QMessageBox.information(self, APP_NAME, tr("Cabo ajustado. Desligue o cabo do USB, volte a ligá-lo e "

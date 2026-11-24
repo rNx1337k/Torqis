@@ -496,7 +496,7 @@ class ObdPage(QWidget):
         self._fill_ecus(info)
         self.fault_table.setRowCount(0)
         self.advice.clear()
-        self.faults_note.setText(tr("Carregue em Ler avarias."))
+        self.faults_note.setText(tr("A ler as avarias…"))
         if vin:
             self.vin_found.emit(vin)
         self.worker.submit("obd_dtcs")          # a fila da thread garante a ordem; não é um clique repetido
@@ -632,8 +632,16 @@ class ObdPage(QWidget):
         else:
             self.state_sub.setText(client_text(msg))
 
+    def _mark_stale(self):
+        """Depois de desligar: os valores ficam como última leitura, sem o alarme vermelho nem a contagem."""
+        self.tabs.setTabText(0, tr("Avarias"))
+        if self.info is not None:
+            self.t_mil.setStyleSheet("")
+            self.t_mil.sub.setText(tr("última leitura, antes de desligar"))
+
     def on_lost(self, reason):
         self._set_connected(False)
+        self._mark_stale()
         self.sim_pill.hide()
         self.state_lbl.setText(tr("Ligação ao veículo perdida"))
         self._paint_state(BAD)
@@ -641,6 +649,7 @@ class ObdPage(QWidget):
 
     def on_disconnected(self):
         self._set_connected(False)
+        self._mark_stale()
         self.sim_pill.hide()
         self.state_lbl.setText(tr("Sem ligação ao veículo"))
         self._paint_state(None)

@@ -70,13 +70,6 @@ def test_fix_latency_only_touches_slow_cables_and_reports_refusal():
     assert not cable.fix_latency(keys=keys, runner=lambda *a: 1 / 0)              # erro: não rebenta
 
 
-if __name__ == "__main__":
-    for name, fn in list(globals().items()):
-        if name.startswith("test_"):
-            fn()
-            print("OK", name)
-
-
 def test_powershell_output_is_read_as_utf8():
     # nomes como "Porta série USB (COM5)" chegavam corrompidos (página de código OEM lida como ANSI)
     calls = []
@@ -97,3 +90,29 @@ def test_powershell_output_is_read_as_utf8():
     args, kw = calls[0]
     assert kw.get("encoding") == "utf-8" and "OutputEncoding" in args[-1] and "UTF8" in args[-1]
     assert devs[0]["name"] == "Porta série USB (COM5)"
+
+
+def test_run_as_admin_waits_for_the_command_and_reads_its_exit_code():
+    """O ajuste só conta como feito se o comando terminou bem (sem UAC aqui: verbo "open")."""
+    if sys.platform != "win32":
+        return
+    assert cable._run_as_admin("cmd.exe", "/c exit 0", verb="open")
+    assert not cable._run_as_admin("cmd.exe", "/c exit 3", verb="open")
+
+
+def test_fix_latency_confirms_the_registry_value_when_reading_it_itself():
+    key = cable.FTDI_ENUM + r"\VID_0403+PID_6001+A5\0000\Device Parameters"
+    reads = iter([{"COM5": (16, key)}, {"COM5": (16, key)}])
+    old = cable.ftdi_latency_keys
+    cable.ftdi_latency_keys = lambda: next(reads)
+    try:
+        assert not cable.fix_latency(runner=lambda *a: True)      # autorizou, mas o valor não mudou
+    finally:
+        cable.ftdi_latency_keys = old
+
+
+if __name__ == "__main__":
+    for name, fn in list(globals().items()):
+        if name.startswith("test_"):
+            fn()
+            print("OK", name)

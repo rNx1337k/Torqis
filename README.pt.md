@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/vers%C3%A3o-1.25.0-3D7BFF?style=flat-square" alt="Versão">
+  <img src="https://img.shields.io/badge/vers%C3%A3o-1.25.1-3D7BFF?style=flat-square" alt="Versão">
   <a href="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml"><img src="https://github.com/rNx1337k/Torqis/actions/workflows/ci.yml/badge.svg" alt="Testes"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0E1526?style=flat-square&logo=windows" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/estado-beta-E8343A?style=flat-square" alt="Estado: beta">
@@ -115,7 +115,7 @@ Na página [Releases](https://github.com/rNx1337k/TorqisDiagnostics/releases/lat
 
 1. Ligue o cabo ao PC e abra o Torqis.
 2. Vá a **Opções → Detectar cabo** — o programa encontra o cabo sozinho.
-3. Ligue o cabo ao carro, ligue a ignição e clique em **Testar ligação**.
+3. Ligue o cabo ao carro, ligue a ignição e clique em **Testar ligação ao carro**.
 4. Faça um **Auto-Scan**, ou escolha um controlador.
 
 Sem carro por perto? Clique em **Abrir simulador** no ecrã inicial.

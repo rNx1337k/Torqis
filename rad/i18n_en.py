@@ -22,8 +22,6 @@ EN = {
         "{dll} is {bits}-bit and is loaded by the {bits}-bit component that ships with Torqis (runtime/py{bits} folder), which was not found. Reinstall the program (or, from source code, run run.bat) and click Detect cable again. ",
     "{name} pronta pelo driver RT-USB ({chip}, S/N {v})":
         "{name} ready through the RT-USB driver ({chip}, S/N {v})",
-    "Estes clones (HEX-USB+CAN) têm um microcontrolador entre o chip FTDI e a ficha OBD: o Diagnóstico da ligação fala com ele, confirma que responde e põe-no em modo KKL para chegar à linha K. Faça-o com o cabo no carro e a ignição ligada.":
-        "These clones (HEX-USB+CAN) have a microcontroller between the FTDI chip and the OBD connector: the Connection check talks to it, confirms it answers and switches it to KKL mode to reach the K-line. Do it with the cable in the car and the ignition on.",
     "{name} — chip {chip}, VID {vid} PID {pid}, sem driver":
         "{name} — chip {chip}, VID {vid} PID {pid}, no driver",
     "{name} — usa o driver '{v}'":
@@ -36,8 +34,6 @@ EN = {
         "Install the dependencies: .venv\\Scripts\\python.exe -m pip install -r requirements.txt",
     "{name} pronta por USB directo ({chip}, S/N {v})":
         "{name} ready through direct USB ({chip}, S/N {v})",
-    "Faça o Diagnóstico da ligação com o cabo no carro e a ignição ligada para confirmar que chega à linha K. ":
-        "Run the Connection check with the cable in the car and the ignition on to confirm it reaches the K-line. ",
     "Interface {kind} ({v})":
         "{kind} interface ({v})",
     "Cabo {chip} pronto em {com} — Latency Timer {lat} ms":
@@ -1016,8 +1012,6 @@ EN = {
         "PID {pid:02X} — {name}",
     "A centralina não declarou parâmetros que o programa saiba interpretar.":
         "The ECU did not declare any parameters the program knows how to interpret.",
-    "Carregue em Ler avarias.":
-        "Click Read faults.",
     "contínuo":
         "continuous",
     "não contínuo":
@@ -3208,8 +3202,6 @@ EN = {
         "Control unit {target} — detailed identification",
     "Centralinas":
         "Control units",
-    "Com o cabo no carro e a ignição ligada, carregue em Testar ligação.":
-        "With the cable in the car and the ignition on, click Test connection.",
     "Descrições: os códigos comuns a todas as marcas têm descrição completa; os códigos próprios de cada marca mostram apenas a categoria.":
         "Descriptions: codes common to all makes have a full description; manufacturer-specific codes show only the category.",
     "Diagnóstico automóvel profissional":
@@ -3230,8 +3222,6 @@ EN = {
         "Choose the OBD adapter port in Options.",
     "Escolha o adaptador OBD (ou o simulador) em Opções e carregue em Ligar.":
         "Choose the OBD adapter (or the simulator) in Options and click Connect.",
-    "Escolha {com} na porta do cabo e carregue em Testar ligação com a ignição ligada.":
-        "Choose {com} as the cable port and click Test connection with the ignition on.",
     "Esta função ainda não está disponível para este módulo.":
         "This function is not yet available for this module.",
     "Este adaptador OBD não é compatível com o Torqis.":
@@ -4075,4 +4065,16 @@ EN = {
         "last Auto-Scan · {n} control module(s)",
     "memorizada":
         "stored",
+    "A ler as avarias…":
+        "Reading the faults…",
+    "Carregue em Testar ligação ao carro com o cabo no carro e a ignição ligada para confirmar que chega à linha K. ":
+        "Press Test car connection with the cable in the car and the ignition on to confirm it reaches the K-line. ",
+    "Com o cabo no carro e a ignição ligada, carregue em Testar ligação ao carro.":
+        "With the cable in the car and the ignition on, press Test car connection.",
+    "Escolha {com} na porta do cabo e carregue em Testar ligação ao carro com a ignição ligada.":
+        "Choose {com} as the cable port and press Test car connection with the ignition on.",
+    "Estes clones (HEX-USB+CAN) têm um microcontrolador entre o chip FTDI e a ficha OBD: o Testar ligação ao carro fala com ele, confirma que responde e põe-no em modo KKL para chegar à linha K. Faça-o com o cabo no carro e a ignição ligada.":
+        "These clones (HEX-USB+CAN) have a microcontroller between the FTDI chip and the OBD plug: Test car connection talks to it, confirms it answers and puts it into KKL mode to reach the K-line. Do it with the cable in the car and the ignition on.",
+    "última leitura, antes de desligar":
+        "last reading, before disconnecting",
 }

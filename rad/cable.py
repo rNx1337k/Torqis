@@ -144,7 +144,7 @@ def _hex_usb_finding(d, vid, pid):
     service = (d.get("service") or "").lower()
     name = _plain_name(d["name"]) or "HEX-USB"
     caveat = (tr("Estes clones (HEX-USB+CAN) têm um microcontrolador entre o chip FTDI e a ficha OBD: o "
-              "Diagnóstico da ligação fala com ele, confirma que responde e põe-no em modo KKL para chegar à "
+              "Testar ligação ao carro fala com ele, confirma que responde e põe-no em modo KKL para chegar à "
               "linha K. Faça-o com o cabo no carro e a ignição ligada."))
     base = {"com": None, "driver_url": None}
     if d["status"].upper() != "OK" or not service:
@@ -171,7 +171,7 @@ def _hex_usb_finding(d, vid, pid):
     port = make_port(int(vid, 16), int(pid, 16), serial)
     return {**base, "level": "ok", "kind": "ready", "com": port,
             "title": tr("{name} pronta por USB directo ({chip}, S/N {v})", name=name, chip=chip, v=serial or '—'),
-            "detail": (tr("Faça o Diagnóstico da ligação com o cabo no carro e a ignição ligada para confirmar "
+            "detail": (tr("Carregue em Testar ligação ao carro com o cabo no carro e a ignição ligada para confirmar "
                        "que chega à linha K. ") + caveat)}
 
 
@@ -225,29 +225,65 @@ def latency_fix_args(keys):
     return "/c " + " && ".join(cmds)
 
 
-def _run_as_admin(exe, args):
-    """Pede autorização ao Windows (UAC) e corre o comando escondido. True se o utilizador autorizou."""
+def _run_as_admin(exe, args, timeout_ms=30000, verb="runas"):
+    """Pede autorização ao Windows (UAC), corre o comando escondido e espera que acabe. True só se o utilizador
+    autorizou e o comando terminou sem erro (antes bastava a janela de autorização abrir para contar como feito)."""
     import ctypes
-    r = ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, args, None, 0)
-    return int(r) > 32                     # ≤ 32 = erro (5: o utilizador recusou a autorização)
+    from ctypes import wintypes
+
+    class SHELLEXECUTEINFOW(ctypes.Structure):
+        _fields_ = [("cbSize", wintypes.DWORD), ("fMask", ctypes.c_ulong), ("hwnd", wintypes.HWND),
+                    ("lpVerb", wintypes.LPCWSTR), ("lpFile", wintypes.LPCWSTR), ("lpParameters", wintypes.LPCWSTR),
+                    ("lpDirectory", wintypes.LPCWSTR), ("nShow", ctypes.c_int), ("hInstApp", wintypes.HINSTANCE),
+                    ("lpIDList", ctypes.c_void_p), ("lpClass", wintypes.LPCWSTR), ("hkeyClass", wintypes.HKEY),
+                    ("dwHotKey", wintypes.DWORD), ("hIconOrMonitor", wintypes.HANDLE),
+                    ("hProcess", wintypes.HANDLE)]
+
+    SEE_MASK_NOCLOSEPROCESS = 0x40
+    info = SHELLEXECUTEINFOW(cbSize=ctypes.sizeof(SHELLEXECUTEINFOW), fMask=SEE_MASK_NOCLOSEPROCESS,
+                             lpVerb=verb, lpFile=exe, lpParameters=args, nShow=0)
+    if not ctypes.windll.shell32.ShellExecuteExW(ctypes.byref(info)):
+        return False                       # o utilizador recusou a autorização (ou o Windows não deixou)
+    if not info.hProcess:
+        return False
+    k32 = ctypes.windll.kernel32
+    try:
+        if k32.WaitForSingleObject(info.hProcess, int(timeout_ms)) != 0:      # 0 = WAIT_OBJECT_0
+            return False
+        code = wintypes.DWORD()
+        if not k32.GetExitCodeProcess(info.hProcess, ctypes.byref(code)):
+            return False
+        return code.value == 0
+    finally:
+        k32.CloseHandle(info.hProcess)
 
 
 def fix_latency(coms=None, keys=None, runner=None):
     """Põe o Latency Timer dos cabos FTDI a 1 ms (o de fábrica é 16 ms e torna a linha K lenta). Só mexe nos cabos
     indicados (todos, se coms=None) que ainda não estão a 1 ms. O Windows pede autorização; o valor novo conta
-    depois de desligar e voltar a ligar o cabo. Devolve True se o ajuste foi lançado."""
+    depois de desligar e voltar a ligar o cabo. Devolve True só se o registo ficou mesmo a 1 ms (com as chaves lidas
+    do registo volta a lê-las para confirmar)."""
+    read_back = keys is None
     keys = ftdi_latency_keys() if keys is None else keys
-    todo = [key for com, (lat, key) in sorted(keys.items())
-            if (coms is None or com in coms) and lat > LATENCY_RECOMMENDED]
+    todo = {com: key for com, (lat, key) in sorted(keys.items())
+            if (coms is None or com in coms) and lat > LATENCY_RECOMMENDED}
     if not todo:
         return False
-    args = latency_fix_args(todo)
+    args = latency_fix_args(list(todo.values()))
     log.info("Ajustar Latency Timer: %s", args)
     try:
-        return bool((runner or _run_as_admin)("cmd.exe", args))
+        if not (runner or _run_as_admin)("cmd.exe", args):
+            return False
     except Exception:
         log.warning("Não foi possível ajustar o Latency Timer", exc_info=True)
         return False
+    if not read_back:
+        return True
+    after = ftdi_latency_keys()
+    ok = all(after.get(com, (None,))[0] == LATENCY_RECOMMENDED for com in todo)
+    if not ok:
+        log.warning("Latency Timer depois do ajuste: %s", {c: after.get(c) for c in todo})
+    return ok
 
 
 def classify(devices, latency=None):
@@ -313,8 +349,8 @@ def classify(devices, latency=None):
                 findings.append({
                     "level": "ok", "kind": "ready", "com": com, "driver_url": None,
                     "title": tr("Cabo {chip} pronto em {com}", chip=chip, com=com),
-                    "detail": tr("Escolha {com} na porta do cabo e carregue em Testar ligação com a ignição ligada.",
-                                 com=com),
+                    "detail": tr("Escolha {com} na porta do cabo e carregue em Testar ligação ao carro com a ignição "
+                                 "ligada.", com=com),
                 })
         elif (vid, pid) in with_com:
             continue                     # entrada USB do mesmo cabo que já tem porta COM
@@ -347,7 +383,7 @@ def plain(finding):
         level = "warn"
     elif kind == "ready":
         title = tr("Cabo encontrado e pronto")
-        detail = tr("Com o cabo no carro e a ignição ligada, carregue em Testar ligação.")
+        detail = tr("Com o cabo no carro e a ignição ligada, carregue em Testar ligação ao carro.")
         level = "ok"
     elif kind == "needs_driver":
         title = tr("Cabo encontrado, mas o Windows ainda não o preparou")

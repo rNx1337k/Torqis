@@ -1217,7 +1217,7 @@ def no_echo_text(port, hex_info=None, technical=None):
                 "voltam da linha K: há um microcontrolador entre o chip FTDI e a ficha (clone 'inteligente') "
                 "e esta interface não pode ser usada como cabo KKL — use um cabo KKL 409.1 ou uma interface J2534.")
     return ("Sem eco na linha K: o cabo não está ligado à ficha OBD, a ignição está desligada, ou não é um "
-            "cabo KKL. Se o seu cabo não tiver eco, escolha \"Sem eco\" em Opções → Eco da linha K.")
+            "cabo KKL. Se o seu cabo não tiver eco, escolha \"Sem eco\" em Opções → Cabo → Avançado → Eco da linha K.")
 
 
 def _saved_lines(port):

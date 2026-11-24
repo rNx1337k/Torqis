@@ -157,6 +157,8 @@ class ModuleSelectPage(QWidget):
                 bv.addWidget(b)
                 self.mod_btns[addr] = b
                 c = ModuleCard(addr)
+                c.setParent(self.in_car_box)       # nunca fica solto (um widget sem pai abriria como janela)
+                c.hide()
                 c.clicked.connect(lambda _=False, a=addr: self.connect_req.emit(a))
                 c.setToolTip(b.toolTip())
                 self.cards[addr] = c
@@ -184,10 +186,10 @@ class ModuleSelectPage(QWidget):
         # os com avarias primeiro (é por aí que se continua o diagnóstico)
         in_car.sort(key=lambda a: (self.scan[a][0] == OK, self.order.index(a)))
         shown = [a for a in in_car if self._matches(a)]
-        for a, c in self.cards.items():
-            c.setVisible(a in shown)
         for n, a in enumerate(shown):
             self.card_grid.addWidget(self.cards[a], n // CARD_COLUMNS, n % CARD_COLUMNS)
+        for a, c in self.cards.items():
+            c.setVisible(a in shown)
         self.in_car_box.setVisible(bool(shown))
         self.in_car_lbl.setText(self.scan_note)
         any_other = False

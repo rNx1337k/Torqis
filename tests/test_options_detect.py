@@ -133,6 +133,9 @@ def test_checklist_follows_detection_and_offers_the_cable_fix():
     _Box.information = staticmethod(lambda parent, title, text: _Box.shown.append(text))
     try:
         page._fix_latency(page._slow_coms())
+        assert page._fixing and not page.chk_speed.button.isEnabled()      # corre fora da thread da interface
+        from PySide6.QtWidgets import QApplication
+        assert _wait(QApplication.instance(), lambda: not page._fixing)
     finally:
         cable.fix_latency, options.QMessageBox = old
     assert page.chk_speed.button.isHidden() and "volte a lig" in page.chk_speed.detail.text()

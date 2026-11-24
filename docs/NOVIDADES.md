@@ -6,6 +6,16 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.25.1
+
+### pt
+- Correcções: o Ajustar cabo só diz que ficou feito quando o cabo ficou mesmo ajustado (e a janela já não congela),
+  o aviso da licença abre o separador Licença, e no Histórico as visitas sem matrícula já não aparecem juntas.
+
+### en
+- Fixes: Adjust cable only reports success when the cable really was adjusted (and the window no longer freezes),
+  the licence notice opens the Licence tab, and in History visits without a plate are no longer lumped together.
+
 ## 1.25.0
 
 ### pt

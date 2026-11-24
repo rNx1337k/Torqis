@@ -15,7 +15,7 @@ from ..style import BAD, CYAN, MUTED, OK, WARN, pill_style
 from .common import lbl, btn, card, ask
 from ...i18n import tr
 
-NO_PLATE = "\x00"                 # chave do grupo das visitas guardadas sem matrícula
+NO_PLATE = "\x00"                 # prefixo da chave das visitas sem matrícula (cada uma fica sozinha)
 
 
 class _CarRow(QWidget):
@@ -58,6 +58,7 @@ class HistoryPage(QWidget):
         self.sessions = []
         self.cars = []                    # grupos por matrícula, os mais recentes primeiro
         self.visits = []                  # visitas do carro escolhido
+        self.regs = {}                    # registo de veículos por matrícula (lido em refresh)
         v = QVBoxLayout(self)
         v.setContentsMargins(32, 26, 32, 24)
         v.setSpacing(14)
@@ -175,6 +176,7 @@ class HistoryPage(QWidget):
             self.sessions = self.history.list_sessions()
         except Exception:
             self.sessions = []
+        self.regs = self._vehicles()
         self._fill()
 
     def _vehicles(self):
@@ -186,10 +188,11 @@ class HistoryPage(QWidget):
             return {}
 
     def _group(self):
-        regs = self._vehicles()
+        regs = self.regs
         groups = {}
         for s in self.sessions:                       # já vêm das mais recentes para as mais antigas
-            key = self.history.plate_key(s["plate"]) or NO_PLATE
+            # sem matrícula não se sabe se é o mesmo carro: cada visita fica numa linha sua
+            key = self.history.plate_key(s["plate"]) or NO_PLATE + str(s["id"])
             g = groups.get(key)
             if g is None:
                 reg = regs.get(key, {})
@@ -260,7 +263,7 @@ class HistoryPage(QWidget):
             parts.append(tr("{km} km", km=car["km"]))
         parts.append(tr("{n} visita(s)", n=car["visits"]))
         self.car_sub.setText("  ·  ".join(p for p in parts if p))
-        self.use_btn.setEnabled(car["key"] != NO_PLATE)
+        self.use_btn.setEnabled(not car["key"].startswith(NO_PLATE))
         for s in self.visits:
             r = self.table.rowCount()
             self.table.insertRow(r)
@@ -342,7 +345,7 @@ class HistoryPage(QWidget):
     # ------------------------------------------------------------------ acções
     def _use_vehicle(self):
         car = self._current_car()
-        if car is None or car["key"] == NO_PLATE:
+        if car is None or car["key"].startswith(NO_PLATE):
             QMessageBox.information(self, APP_NAME, tr("Escolha um carro da lista."))
             return
         self.vehicle_req.emit({"plate": car["plate"], "vin": car["vin"], "client": car["client"],

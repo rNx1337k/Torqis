@@ -643,3 +643,26 @@ def test_module_field_opens_by_address_or_by_a_single_name():
     page.filter.setText("")
     assert not page.cards[0x01].isHidden() and page.mod_btns[0x01].isHidden()
     assert "1 avaria" in page.cards[0x01].pill.text() and page.others_title.text() == "Outros controladores"
+
+
+def test_shortcuts_open_the_right_options_tab_and_plateless_visits_stay_apart():
+    app, w = _window()
+    from rad import history
+    try:
+        w.options.show_tab("program")
+        w.demo_badge.click()
+        assert w.stack.currentWidget() is w.options and w.options.tabs.currentIndex() == 2      # Licença
+        w._home_go("options")
+        assert w.options.tabs.currentIndex() == 0                                              # Cabo
+        a = history.save_session("obd", {"plate": "", "client": "Ana Semplaca", "model": "Clio"}, [])
+        b = history.save_session("obd", {"plate": "", "client": "Rui Semplaca", "model": "Golf"}, [])
+        w.hist.refresh()
+        w.hist.search.setText("Rui Semplaca")
+        assert w.hist.car_list.count() == 1 and "Ana Semplaca" not in w.hist.car_sub.text()
+        assert not w.hist.use_btn.isEnabled()                    # sem matrícula não há carro para reabrir
+        w.hist.search.clear()
+        history.delete_session(a)
+        history.delete_session(b)
+    finally:
+        w.close()
+        app.processEvents()

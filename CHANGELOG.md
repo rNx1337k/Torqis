@@ -3,6 +3,23 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.25.1] — 2026-11-24
+Fixes from a full code review after 1.25.0.
+
+### Fixed
+- **Adjust cable** only says "Cable adjusted" when Windows authorised it, the command finished without error and the
+  registry really reads 1 ms (before, the permission window opening was enough). It also runs outside the interface
+  thread, so the window no longer freezes while Windows asks for permission.
+- The red **licence badge** opens Options on the **Licence** tab; "Choose the cable port first" and Home → *Set up
+  cable* open it on **Cable** (with the new tabs they opened on whatever tab was last used).
+- **History**: visits saved without a plate are no longer merged into one "No plate" car showing another customer's
+  name; each one has its own row. The search no longer re-reads the vehicle register on every key.
+- **OBD**: after disconnecting, the red warning-light card and the "Faults (n)" count no longer look current (shown
+  as the last reading).
+- **Control modules**: the "In this car" cards could flash as a separate window for a moment before appearing.
+- Texts that still named old buttons ("Testar ligação", "Diagnóstico da ligação", "Ler avarias") now say *Test car
+  connection*; the no-echo hint points to Options → Cable → Advanced → K-line echo.
+
 ## [1.25.0] — 2026-11-24
 Redesign of the remaining screens (Options, History, Control modules, OBD), following the mock-up agreed on 24/11,
 and the cable is ready for the first real car.
