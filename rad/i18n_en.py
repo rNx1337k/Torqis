@@ -4065,4 +4065,22 @@ EN = {
         "These clones (HEX-USB+CAN) have a microcontroller between the FTDI chip and the OBD plug: Test car connection talks to it, confirms it answers and puts it into KKL mode to reach the K-line. Do it with the cable in the car and the ignition on.",
     "última leitura, antes de desligar":
         "last reading, before disconnecting",
+    " [Bluetooth: entrada, não serve]":
+        " [Bluetooth: incoming, not usable]",
+    "A ligação Bluetooth a {port_name} abriu, mas o adaptador não respondeu. Se o adaptador tiver duas portas COM no Windows, escolha a outra; confirme também que nenhum telemóvel está ligado a ele.":
+        "The Bluetooth connection to {port_name} opened, but the adapter did not answer. If the adapter has two COM ports in Windows, choose the other one; also check that no phone is connected to it.",
+    "Adaptador OBD Bluetooth \"{name}\" em {com}":
+        "Bluetooth OBD adapter \"{name}\" on {com}",
+    "Adaptador OBD Bluetooth em {com}":
+        "Bluetooth OBD adapter on {com}",
+    "Este carro não tem diagnóstico por CAN na ficha OBD. Os VW, Audi, Seat e Škoda até ~2004 (ex.: Audi A3 8L, Golf IV) falam pela linha K: os controladores precisam do cabo VAG (KKL). Com este adaptador use a página OBD — todas as marcas (motor e emissões).":
+        "This car has no CAN diagnostics on the OBD plug. VW, Audi, Seat and Škoda up to ~2004 (e.g. Audi A3 8L, Golf IV) talk over the K-line: the control modules need the VAG (KKL) cable. With this adapter use the OBD — all makes page (engine and emissions).",
+    "Não foi possível ligar ao adaptador Bluetooth em {port_name}. Confirme que o adaptador está na ficha do carro (só liga com corrente da ficha), que está emparelhado com este PC e que nenhum telemóvel ou outro programa está ligado a ele.":
+        "Could not connect to the Bluetooth adapter on {port_name}. Check that the adapter is in the car's plug (it only powers up from the plug), that it is paired with this PC and that no phone or other program is connected to it.",
+    "Ponha o adaptador na ficha do carro, ligue a ignição e carregue em Testar ligação ao carro. Lê o diagnóstico OBD (motor e emissões) de todas as marcas e, nos VAG com CAN (desde ~2004), também os controladores.":
+        "Put the adapter in the car's plug, turn the ignition on and press Test car connection. It reads OBD diagnostics (engine and emissions) on all makes and, on VAG cars with CAN (from ~2004), the control modules too.",
+    "{device} — Bluetooth (porta de entrada: escolha a outra)":
+        "{device} — Bluetooth (incoming port: choose the other one)",
+    "{device} — Bluetooth ({name})":
+        "{device} — Bluetooth ({name})",
 }

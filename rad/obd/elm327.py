@@ -30,6 +30,9 @@ log = logging.getLogger(__name__)
 
 from ..kline import SIM_ELM_PORT as ELM_SIM_PORT  # noqa: E402  (uma só definição)
 BAUDS = (38400, 9600, 115200, 57600, 230400)
+BT_PROBES = 3                  # Bluetooth: tentativas de identificar o adaptador sem fechar a ligação
+BT_ANSWER = 2.5                # Bluetooth: tempo à espera da resposta ao ATI (as primeiras vêm atrasadas)
+BT_TIMEOUT = 6.0               # Bluetooth: tempo à espera de cada resposta (rádio + linha K lenta)
 
 PROTOCOLS = {
     "1": "SAE J1850 PWM (41,6 kbit/s)",
@@ -88,17 +91,30 @@ def _open_serial(port, baud):
     return serial.Serial(port, baud, timeout=0.05, write_timeout=1.0)
 
 
+def _is_bluetooth(port):
+    if port == ELM_SIM_PORT or capture.is_replay_port(port):
+        return False
+    try:
+        from ..kline import is_bluetooth_port
+        return is_bluetooth_port(port)
+    except Exception:
+        return False
+
+
 class Elm327Link:
     capture_channel = "elm"                # nome do canal nas gravações (rad/capture.py)
 
     def __init__(self, port, log=None, raw_log=False, protocol="0", serial_factory=None,
-                 timeout=4.0, search_timeout=20.0):
+                 timeout=4.0, search_timeout=20.0, bluetooth=None):
         self.port_name = port
         self.log = log or (lambda m: None)
         self.raw_log = raw_log
         self.protocol_setting = protocol          # "0" = automático; "1"…"9" = forçar
         self._factory = serial_factory or _open_serial
-        self.timeout = timeout
+        if bluetooth is None:                     # com serial_factory (testes) a porta não é do Windows
+            bluetooth = serial_factory is None and _is_bluetooth(port)
+        self.bluetooth = bluetooth
+        self.timeout = max(timeout, BT_TIMEOUT) if self.bluetooth else timeout
         self.search_timeout = search_timeout
         self.ser = None
         self.baud = None
@@ -135,7 +151,8 @@ class Elm327Link:
     def describe(self):
         return {"adapter": "ELM327", "port": self.port_name, "version": self.version, "device": self.device,
                 "baud": self.baud, "protocol": self.protocol, "protocol_number": self.proto,
-                "voltage": self.voltage, "simulated": self.simulated, "warnings": list(self.warnings)}
+                "voltage": self.voltage, "simulated": self.simulated, "bluetooth": self.bluetooth,
+                "warnings": list(self.warnings)}
 
     # ------------------------------------------------------------------ série
     def _write(self, text):
@@ -203,6 +220,10 @@ class Elm327Link:
         """Abre a porta e identifica o adaptador. Não fala com o carro (isso é connect_vehicle)."""
         if self.ser is not None:
             return self.describe()
+        if self.bluetooth:
+            self._open_bluetooth()
+            self._init_adapter()
+            return self.describe()
         tried = []
         last_err = None
         for baud in BAUDS:
@@ -236,13 +257,37 @@ class Elm327Link:
         self._init_adapter()
         return self.describe()
 
-    def _probe(self):
+    def _open_bluetooth(self):
+        """Bluetooth: a velocidade não conta (o rádio faz a ponte) e cada abertura da porta volta a ligar ao
+        adaptador, o que demora segundos. Abre-se uma vez e dá-se tempo às primeiras respostas, que chegam
+        atrasadas ou se perdem enquanto a ligação estabiliza."""
+        try:
+            self.ser = capture.wrap_serial(self._factory(self.port_name, BAUDS[0]), "elm")
+        except Exception as e:
+            self.log(f"ELM327: a porta Bluetooth {self.port_name} não abriu: {e}")
+            raise KLineError(tr(
+                "Não foi possível ligar ao adaptador Bluetooth em {port_name}. Confirme que o adaptador está na "
+                "ficha do carro (só liga com corrente da ficha), que está emparelhado com este PC e que nenhum "
+                "telemóvel ou outro programa está ligado a ele.", port_name=self.port_name)) from e
+        self.baud = BAUDS[0]
+        for attempt in range(BT_PROBES):
+            if self._probe(first=1.0, answer=BT_ANSWER):
+                return
+            self.log(f"ELM327: sem resposta pelo Bluetooth ({attempt + 1}/{BT_PROBES})")
+        self.ser.close()
+        self.ser = None
+        raise AdapterNotResponding(tr(
+            "A ligação Bluetooth a {port_name} abriu, mas o adaptador não respondeu. Se o adaptador tiver duas "
+            "portas COM no Windows, escolha a outra; confirme também que nenhum telemóvel está ligado a ele.",
+            port_name=self.port_name))
+
+    def _probe(self, first=0.4, answer=1.0):
         """True se um ELM327 responder nesta velocidade."""
         try:
             self.ser.write(b"\r")
-            self._read_until_prompt(0.4)
+            self._read_until_prompt(first)
             self._write("ATI")
-            text = self._read_until_prompt(1.0)
+            text = self._read_until_prompt(answer)
         except Exception:
             return False
         return bool(text) and "ELM" in text.upper()

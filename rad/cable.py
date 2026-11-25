@@ -376,6 +376,8 @@ def plain(finding):
     """A mesma conclusão em linguagem de oficina, para o cliente: sem chips, drivers, VID/PID nem passos no
     Gestor de Dispositivos. O detalhe técnico continua no registo e no pacote de suporte."""
     kind = finding.get("kind")
+    if kind == "bluetooth":
+        return finding                      # já está em linguagem de oficina
     if kind == "ready" and finding.get("fix") == "latency":
         title = tr("Cabo encontrado — falta um ajuste para ler mais depressa")
         detail = tr("Carregue em Ajustar cabo (o Windows pede autorização uma vez) e depois desligue e volte a "
@@ -407,10 +409,35 @@ def plain(finding):
     return {**finding, "title": title, "detail": detail, "level": level, "driver_url": None}
 
 
+# Nomes com que os adaptadores OBD Bluetooth se anunciam ("OBDII", "OBD2", "V-LINK", "Vgate iCar", "KONNWEI"…).
+# Outros aparelhos com porta série Bluetooth (colunas, telemóveis) não são oferecidos como cabo.
+_OBD_BT_NAME = re.compile(r"obd|elm|v-?link|vgate|icar|konnwei|veepeak|viecar|carista|scan|diag", re.I)
+
+
+def bluetooth_findings(ports):
+    """Adaptadores OBD Bluetooth emparelhados: [(porta, nome)] → conclusões prontas a escolher. Sem nome
+    conhecido (registo ilegível) a porta é oferecida; com um nome que não é de adaptador OBD, não."""
+    out = []
+    for com, name in ports:
+        if name and not _OBD_BT_NAME.search(name):
+            log.info("Bluetooth: %s (%s) não parece um adaptador OBD — ignorado no Detectar cabo", com, name)
+            continue
+        out.append({
+            "level": "ok", "kind": "bluetooth", "com": com, "driver_url": None, "adapter": "elm327",
+            "title": (tr("Adaptador OBD Bluetooth \"{name}\" em {com}", name=name, com=com) if name else
+                      tr("Adaptador OBD Bluetooth em {com}", com=com)),
+            "detail": tr("Ponha o adaptador na ficha do carro, ligue a ignição e carregue em Testar ligação ao "
+                         "carro. Lê o diagnóstico OBD (motor e emissões) de todas as marcas e, nos VAG com CAN "
+                         "(desde ~2004), também os controladores."),
+        })
+    return out
+
+
 def detect():
     if sys.platform != "win32":
         return []
-    found = classify(list_usb_devices(), ftdi_latency())
+    from .kline import bluetooth_ports
+    found = classify(list_usb_devices(), ftdi_latency()) + bluetooth_findings(bluetooth_ports())
     for f in found:
         log.info("Cabo: [%s] %s — %s", f["level"], f["title"], f["detail"])
     return found

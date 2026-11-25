@@ -3,6 +3,26 @@
 All notable changes to Torqis (called Roots Auto Doctor up to 1.21) are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.25.3] — 2026-11-25
+Ready for Bluetooth OBD adapters (ELM327 over the Bluetooth serial profile).
+
+### Added
+- **Bluetooth ports are told apart**: Windows creates two COM ports per paired device and only the outgoing one
+  reaches the adapter. The port list now shows the paired device's name on the right one ("COM5 — Bluetooth
+  (OBDII)") and marks the other as the incoming port, not to be used.
+- **Detect cable** also finds a paired Bluetooth OBD adapter and picks it; devices whose name is not an OBD
+  adapter's (speakers, phones) are not offered.
+- Choosing a Bluetooth port switches the equipment to **OBD adapter** on its own (VAG cables are always USB).
+
+### Changed
+- Over Bluetooth the adapter port is opened once (no baud-rate cycling, which reconnected the radio link each time)
+  and the first answers get more time; every answer waits up to 6 s.
+
+### Fixed
+- On a car with no CAN on the OBD plug (VAG up to ~2004, e.g. Audi A3 8L, Golf IV) Control modules and Auto-Scan
+  through an OBD adapter stop at the first "CAN ERROR" and explain that these cars need the VAG (KKL) cable, instead
+  of trying every module address in turn.
+
 ## [1.25.2] — 2026-11-24
 Code clean-up after a second full review; no change in what the program does.
 

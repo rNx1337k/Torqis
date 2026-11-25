@@ -1,5 +1,5 @@
 APP_NAME = "Torqis"
-VERSION = "1.25.2"
+VERSION = "1.25.3"
 
 EXE_NAME = "Torqis.exe"
 DATA_FOLDER = "Torqis"                 # %APPDATA%\Torqis: histórico, licença, registos, gravações, logótipo

@@ -6,6 +6,18 @@ da interface (`### pt` e `### en`). Linguagem simples, sem nomes técnicos (cabo
 Ao publicar uma versão, `tools/finish_build.py notes <versão>` junta a secção dessa versão ao texto da Release.
 Uma versão sem secção aqui é publicada sem novidades (o programa só diz que há uma versão nova).
 
+## 1.25.3
+
+### pt
+- Pronto para adaptadores OBD Bluetooth: o Detectar cabo encontra o adaptador emparelhado e escolhe a porta certa
+  sozinho. Nos carros mais antigos sem CAN (ex.: Audi A3 8L, Golf IV) o programa explica logo que os controladores
+  precisam do cabo VAG.
+
+### en
+- Ready for Bluetooth OBD adapters: Detect cable finds the paired adapter and picks the right port on its own. On
+  older cars without CAN (e.g. Audi A3 8L, Golf IV) the program explains straight away that the control modules need
+  the VAG cable.
+
 ## 1.25.2
 
 ### pt

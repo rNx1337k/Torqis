@@ -518,9 +518,11 @@ class OptionsPage(QWidget):
             self._update_cable_status()
 
     def _port_changed(self, *_):
-        from ...kline import is_elm_sim_port
+        from ...kline import is_bluetooth_port, is_elm_sim_port
         self._show_sim_rows()
-        if is_elm_sim_port(self.port.currentData() or ""):
+        port = self.port.currentData() or ""
+        # simulador OBD ou porta Bluetooth: só pode ser um adaptador OBD (os cabos VAG são sempre USB)
+        if is_elm_sim_port(port) or (not self.port.currentData(MISSING_ROLE) and is_bluetooth_port(port)):
             i = self.adapter.findData("elm327")
             if i >= 0 and self.adapter.currentIndex() != i:
                 self.adapter.setCurrentIndex(i)

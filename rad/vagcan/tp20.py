@@ -106,6 +106,8 @@ class Tp20Channel:
             self.log(f"    › {arb_id:03X} {bytes(data).hex(' ').upper()}")
         try:
             self.bus.send(arb_id, bytes(data))
+        except InterfaceError:
+            raise                                   # já explica o problema (ex.: carro sem CAN na ficha)
         except Exception as e:
             raise InterfaceError(tr("Erro ao enviar na interface CAN: {e}", e=e)) from e
 

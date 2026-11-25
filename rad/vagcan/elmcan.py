@@ -17,10 +17,15 @@ import logging
 import time
 
 from ..errors import InterfaceError
+from ..i18n import tr
 from ..obd.elm327 import Elm327Link
 from ..obd.isotp import CanBus
 
 log = logging.getLogger(__name__)
+
+
+class NoCanBus(InterfaceError):
+    """O adaptador não encontrou barramento CAN na ficha (carro só com linha K)."""
 
 RESPONSE_WAIT = 0x19                 # ATST: 25 × 4 ms = 100 ms à espera de tramas depois de cada envio
 IGNORE = {"OK", "NO DATA", "?", "STOPPED", "SEARCHING...", "BUFFER FULL", "CAN ERROR", "DATA ERROR"}
@@ -85,7 +90,17 @@ class ElmCanBus(CanBus):
             self.link._at(f"ATSH{arb_id:03X}", required=True)
             self.header = arb_id
         # o ELM envia a trama e mostra o que chegar durante o ATST (ACK e respostas do controlador)
-        self._collect(self.link._command(bytes(data).hex().upper(), timeout=2.0))
+        lines = self.link._command(bytes(data).hex().upper(), timeout=2.0)
+        if (any(line.strip().upper() == "CAN ERROR" for line in lines)
+                and not any(parse_frame(line) for line in lines)):
+            # ninguém confirmou a trama: não há CAN nos pinos 6/14 da ficha. Não adianta tentar os outros
+            # controladores (InterfaceError pára o Auto-Scan).
+            self.log("ELM327: CAN ERROR ao enviar — sem barramento CAN na ficha OBD")
+            raise NoCanBus(tr(
+                "Este carro não tem diagnóstico por CAN na ficha OBD. Os VW, Audi, Seat e Škoda até ~2004 (ex.: "
+                "Audi A3 8L, Golf IV) falam pela linha K: os controladores precisam do cabo VAG (KKL). Com este "
+                "adaptador use a página OBD — todas as marcas (motor e emissões)."))
+        self._collect(lines)
 
     def recv(self, timeout):
         if self.queue:

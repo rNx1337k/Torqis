@@ -12,6 +12,7 @@ A inicialização a 5 baud (usada em KW1281 e KWP2000 nos VAG antigos)
 nível baixo (bit 0), BREAK desligado = nível alto (bit 1), 200 ms por bit.
 """
 import logging
+import re
 import sys
 import time
 
@@ -203,11 +204,74 @@ def _realtime(enable):
         _saved_switch_interval = None
 
 
-def _friendly_com(device, description, vid):
+# Bluetooth (perfil de porta série): o Windows cria duas portas por aparelho emparelhado. A "de saída" tem o
+# endereço do aparelho no identificador (…&0&AABBCCDDEEFF_C00000000) e é a que liga ao adaptador; a "de entrada"
+# tem o endereço a zeros e só serve para o aparelho ligar ao PC — com ela o adaptador nunca responde.
+_BT_ADDRESS = re.compile(r"&([0-9A-F]{12})_[0-9A-F]+$", re.I)
+_bt_cache = None                                   # {porta: ("out" | "in", nome do aparelho)} da última listagem
+
+
+def bluetooth_kind(description, hwid):
+    """None se a porta não for Bluetooth; "out" (liga ao adaptador) ou "in" (entrada, não serve)."""
+    if "BTHENUM" not in (hwid or "").upper() and "bluetooth" not in (description or "").lower():
+        return None
+    m = _BT_ADDRESS.search(hwid or "")
+    return "in" if m and int(m.group(1), 16) == 0 else "out"
+
+
+def bluetooth_name(hwid):
+    """Nome com que o aparelho Bluetooth foi emparelhado (ex.: "OBDII"), lido do registo; None se não se souber."""
+    m = _BT_ADDRESS.search(hwid or "")
+    if not m or sys.platform != "win32":
+        return None
+    try:
+        import winreg
+        key = r"SYSTEM\CurrentControlSet\Services\BTHPORT\Parameters\Devices" + "\\" + m.group(1).lower()
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key) as k:
+            raw = winreg.QueryValueEx(k, "Name")[0]
+    except OSError:
+        return None
+    if isinstance(raw, bytes):
+        raw = raw.split(bytes(1), 1)[0].decode("utf-8", "replace")
+    return str(raw).strip() or None
+
+
+def _scan_bluetooth():
+    global _bt_cache
+    found = {}
+    try:
+        from serial.tools import list_ports
+        for p in list_ports.comports():
+            kind = bluetooth_kind(p.description, p.hwid)
+            if kind:
+                found[p.device] = (kind, bluetooth_name(p.hwid) if kind == "out" else None)
+    except Exception:
+        log.warning("Não foi possível ver as portas Bluetooth", exc_info=True)
+    _bt_cache = found
+    return found
+
+
+def bluetooth_ports(refresh=True):
+    """[(porta, nome do aparelho ou None)] das portas Bluetooth de saída (as que ligam a um adaptador)."""
+    ports = _scan_bluetooth() if refresh or _bt_cache is None else _bt_cache
+    return sorted((dev, name) for dev, (kind, name) in ports.items() if kind == "out")
+
+
+def is_bluetooth_port(port):
+    """True se a porta é uma porta série Bluetooth (de saída ou de entrada). Usa a última listagem das portas."""
+    ports = _bt_cache if _bt_cache is not None else _scan_bluetooth()
+    return bool(port) and port in ports
+
+
+def _friendly_com(device, description, vid, hwid=None):
     """Nome da porta COM para o cliente: sem chips, VID/PID nem nomes de drivers."""
-    d = (description or "").lower()
-    if "bluetooth" in d:
-        return tr("{device} — Bluetooth", device=device)
+    bt = bluetooth_kind(description, hwid)
+    if bt == "in":
+        return tr("{device} — Bluetooth (porta de entrada: escolha a outra)", device=device)
+    if bt:
+        name = bluetooth_name(hwid)
+        return (tr("{device} — Bluetooth ({name})", device=device, name=name) if name else
+                tr("{device} — Bluetooth", device=device))
     if vid is not None:
         return tr("{device} — Cabo USB", device=device)
     return tr("{device} — Porta série", device=device)
@@ -218,16 +282,26 @@ def list_serial_ports(technical=None):
     (sem nomes de chips, drivers ou VID/PID); no modo técnico mostram o detalhe completo."""
     from . import technician_mode
     technical = technician_mode() if technical is None else technical
+    global _bt_cache
     ports = []
+    bt = {}
     try:
         from serial.tools import list_ports
         for p in sorted(list_ports.comports(), key=lambda x: x.device):
             desc = p.description or ""
+            kind = bluetooth_kind(desc, p.hwid)
+            if kind:
+                bt[p.device] = (kind, bluetooth_name(p.hwid) if kind == "out" else None)
             if technical:
                 extra = f" [VID {p.vid:04X} PID {p.pid:04X}]" if p.vid is not None else ""
+                if kind == "in":
+                    extra += tr(" [Bluetooth: entrada, não serve]")
+                elif kind and bt[p.device][1]:
+                    extra += f" [Bluetooth: {bt[p.device][1]}]"
                 ports.append((p.device, f"{p.device} — {desc}{extra}"))
             else:
-                ports.append((p.device, _friendly_com(p.device, desc, p.vid)))
+                ports.append((p.device, _friendly_com(p.device, desc, p.vid, p.hwid)))
+        _bt_cache = bt
     except Exception:
         log.warning("Não foi possível listar as portas série", exc_info=True)
     extra = []
